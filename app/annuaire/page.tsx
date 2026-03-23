@@ -84,7 +84,8 @@ export default function AnnuairePage() {
     setSaving(false)
   }
 
-  const regions = [...new Set(animateurs.map(a => a.region).filter((r): r is string => Boolean(r)))].sort()
+  const regions = animateurs.map(a => a.region).filter((r): r is string => !!r).filter((v, i, a) => a.indexOf(v) === i).sort()
+const competences = animateurs.flatMap(a => a.competences).filter((v, i, a) => a.indexOf(v) === i).sort()
   const competences = [...new Set(animateurs.flatMap(a => a.competences))].sort()
 
   const filtered = animateurs.filter(a => {
