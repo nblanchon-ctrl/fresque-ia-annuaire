@@ -86,8 +86,6 @@ export default function AnnuairePage() {
 
   const regions = animateurs.map(a => a.region).filter((r): r is string => !!r).filter((v, i, a) => a.indexOf(v) === i).sort()
 const competences = animateurs.flatMap(a => a.competences).filter((v, i, a) => a.indexOf(v) === i).sort()
-  const competences = [...new Set(animateurs.flatMap(a => a.competences))].sort()
-
   const filtered = animateurs.filter(a => {
     const q = search.toLowerCase()
     const matchQ = !q || a.nom.toLowerCase().includes(q) ||
