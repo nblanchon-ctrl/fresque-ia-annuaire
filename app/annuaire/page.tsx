@@ -178,9 +178,9 @@ const competences = animateurs.flatMap(a => a.competences).filter((v, i, a) => a
       </div>
 
       <div className="stats-bar">
-        <span className="stat-pill"><strong>{filtered.length}</strong> animateur{filtered.length > 1 ? 's' : ''}</span>
-        <span className="stat-pill"><strong>{[...new Set(filtered.map(a => a.region).filter(Boolean))].length}</strong> régions</span>
-        <span className="stat-pill"><strong>{[...new Set(filtered.flatMap(a => a.competences))].length}</strong> compétences</span>
+       <span className="stat-pill"><strong>{filtered.length}</strong> animateur{filtered.length > 1 ? 's' : ''}</span>
+<span className="stat-pill"><strong>{filtered.map(a => a.region).filter((r): r is string => !!r).filter((v,i,a)=>a.indexOf(v)===i).length}</strong> régions</span>
+<span className="stat-pill"><strong>{filtered.flatMap(a => a.competences).filter((v,i,a)=>a.indexOf(v)===i).length}</strong> compétences</span>
       </div>
 
       {filtered.length === 0 ? (
