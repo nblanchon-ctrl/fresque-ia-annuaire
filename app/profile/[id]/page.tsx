@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
 import type { Animateur } from '@/lib/types'
+import { BadgesDisplay } from '@/components/Badges'
 
 const COLORS = [
   { bg: '#EEEDFE', text: '#3C3489' }, { bg: '#E1F5EE', text: '#085041' },
@@ -123,6 +124,14 @@ export default function ProfilePage() {
             <span>{new Date(animateur.created_at).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}</span>
           </div>
         </div>
+
+        {(animateur.badge_observateur || animateur.badge_coanimateur) && (
+          <>
+            <hr className="divider" />
+            <div style={{ fontSize: '13px', color: 'var(--text2)', marginBottom: '10px', fontWeight: 500 }}>Niveaux</div>
+            <BadgesDisplay badge_observateur={animateur.badge_observateur} badge_coanimateur={animateur.badge_coanimateur} />
+          </>
+        )}
 
         {animateur.competences.length > 0 && (
           <>

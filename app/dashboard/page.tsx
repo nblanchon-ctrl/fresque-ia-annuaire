@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase'
 import type { Animateur } from '@/lib/types'
+import { BadgesEditor } from '@/components/Badges'
 
 const REGIONS = [
   'Auvergne-Rhône-Alpes','Bourgogne-Franche-Comté','Bretagne','Centre-Val de Loire',
@@ -31,7 +32,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const load = async () => {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { window.location.href = '/login'; return }
+      if (!user) { window.location.href = '/'; return }
       const { data } = await supabase.from('animateurs').select('*').eq('id', user.id).single()
       if (data) { setAnimateur(data); setForm(data) }
       setLoading(false)
@@ -76,6 +77,8 @@ export default function DashboardPage() {
       nom: form.nom, titre: form.titre, email: form.email,
       telephone: form.telephone, region: form.region, ville: form.ville,
       bio: form.bio, photo_url: form.photo_url, competences: form.competences || [],
+      badge_observateur: form.badge_observateur || false,
+      badge_coanimateur: form.badge_coanimateur || false,
       updated_at: new Date().toISOString()
     }).eq('id', animateur!.id)
     if (saveErr) setError('Erreur lors de la sauvegarde.')
@@ -105,11 +108,8 @@ export default function DashboardPage() {
             </div>
             <div>
               <div style={{ fontSize: '14px', fontWeight: 500, marginBottom: '4px' }}>Photo de profil</div>
-              <div style={{ fontSize: '13px', color: 'var(--text2)', marginBottom: '8px' }}>
-                JPG ou PNG, 2 Mo max.
-              </div>
-              <button type="button" className="btn btn-sm" onClick={() => fileRef.current?.click()}
-                disabled={uploading}>
+              <div style={{ fontSize: '13px', color: 'var(--text2)', marginBottom: '8px' }}>JPG ou PNG, 2 Mo max.</div>
+              <button type="button" className="btn btn-sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
                 {uploading ? 'Envoi…' : 'Changer la photo'}
               </button>
               <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleUpload} />
@@ -123,8 +123,7 @@ export default function DashboardPage() {
             </div>
             <div className="form-group">
               <label className="form-label">Titre / rôle</label>
-              <input className="form-input" value={form.titre || ''} onChange={e => set('titre', e.target.value)}
-                placeholder="Animatrice certifiée" />
+              <input className="form-input" value={form.titre || ''} onChange={e => set('titre', e.target.value)} placeholder="Animatrice certifiée" />
             </div>
             <div className="form-group">
               <label className="form-label">Email public</label>
@@ -132,8 +131,7 @@ export default function DashboardPage() {
             </div>
             <div className="form-group">
               <label className="form-label">Téléphone</label>
-              <input className="form-input" value={form.telephone || ''} onChange={e => set('telephone', e.target.value)}
-                placeholder="+33 6 …" />
+              <input className="form-input" value={form.telephone || ''} onChange={e => set('telephone', e.target.value)} placeholder="+33 6 …" />
             </div>
             <div className="form-group">
               <label className="form-label">Région</label>
@@ -144,8 +142,7 @@ export default function DashboardPage() {
             </div>
             <div className="form-group">
               <label className="form-label">Ville</label>
-              <input className="form-input" value={form.ville || ''} onChange={e => set('ville', e.target.value)}
-                placeholder="Paris" />
+              <input className="form-input" value={form.ville || ''} onChange={e => set('ville', e.target.value)} placeholder="Paris" />
             </div>
           </div>
 
@@ -154,6 +151,18 @@ export default function DashboardPage() {
             <textarea className="form-input" value={form.bio || ''} onChange={e => set('bio', e.target.value)}
               placeholder="Quelques mots sur vous, votre expérience, vos disponibilités…" />
           </div>
+        </div>
+
+        <div className="card" style={{ marginBottom: '1rem' }}>
+          <div style={{ fontSize: '15px', fontWeight: 500, marginBottom: '4px' }}>Mes niveaux</div>
+          <div style={{ fontSize: '13px', color: 'var(--text2)', marginBottom: '1rem' }}>
+            Cochez les étapes que vous avez franchies.
+          </div>
+          <BadgesEditor
+            badge_observateur={form.badge_observateur || false}
+            badge_coanimateur={form.badge_coanimateur || false}
+            onChange={(key, value) => set(key, value)}
+          />
         </div>
 
         <div className="card" style={{ marginBottom: '1rem' }}>
@@ -181,8 +190,7 @@ export default function DashboardPage() {
           <div style={{ fontSize: '12px', color: 'var(--text2)', marginBottom: '6px' }}>Suggestions :</div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
             {COMPETENCES_SUGGÉRÉES.filter(c => !(form.competences || []).includes(c)).map(c => (
-              <button key={c} type="button" className="btn btn-sm"
-                style={{ fontSize: '12px' }} onClick={() => addCompetence(c)}>{c}</button>
+              <button key={c} type="button" className="btn btn-sm" style={{ fontSize: '12px' }} onClick={() => addCompetence(c)}>{c}</button>
             ))}
           </div>
         </div>

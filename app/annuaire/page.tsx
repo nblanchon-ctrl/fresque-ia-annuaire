@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
 import type { Animateur } from '@/lib/types'
+import { BadgesDisplay } from '@/components/Badges'
 
 const COLORS = [
   { bg: '#EEEDFE', text: '#3C3489' }, { bg: '#E1F5EE', text: '#085041' },
@@ -84,8 +85,8 @@ export default function AnnuairePage() {
     setSaving(false)
   }
 
-  const regions = [...new Set(animateurs.map(a => a.region).filter((r): r is string => Boolean(r)))].sort()
-  const competences = [...new Set(animateurs.flatMap(a => a.competences))].sort()
+  const regions = animateurs.map(a => a.region).filter((r): r is string => !!r).filter((v, i, a) => a.indexOf(v) === i).sort()
+  const competences = animateurs.flatMap(a => a.competences).filter((v, i, a) => a.indexOf(v) === i).sort()
 
   const filtered = animateurs.filter(a => {
     const q = search.toLowerCase()
@@ -180,8 +181,8 @@ export default function AnnuairePage() {
 
       <div className="stats-bar">
         <span className="stat-pill"><strong>{filtered.length}</strong> animateur{filtered.length > 1 ? 's' : ''}</span>
-        <span className="stat-pill"><strong>{[...new Set(filtered.map(a => a.region).filter(Boolean))].length}</strong> régions</span>
-        <span className="stat-pill"><strong>{[...new Set(filtered.flatMap(a => a.competences))].length}</strong> compétences</span>
+        <span className="stat-pill"><strong>{filtered.map(a => a.region).filter(Boolean).filter((v, i, arr) => arr.indexOf(v) === i).length}</strong> régions</span>
+        <span className="stat-pill"><strong>{filtered.flatMap(a => a.competences).filter((v, i, arr) => arr.indexOf(v) === i).length}</strong> compétences</span>
       </div>
 
       {filtered.length === 0 ? (
@@ -199,6 +200,11 @@ export default function AnnuairePage() {
                   <div className="name">{a.nom}</div>
                   {a.titre && <div style={{ fontSize: 12, color: 'var(--text2)', marginBottom: 2 }}>{a.titre}</div>}
                   <div className="location">{[a.ville, a.region].filter(Boolean).join(' · ')}</div>
+                  {(a.badge_observateur || a.badge_coanimateur) && (
+                    <div style={{ margin: '6px 0' }}>
+                      <BadgesDisplay badge_observateur={a.badge_observateur} badge_coanimateur={a.badge_coanimateur} size="sm" />
+                    </div>
+                  )}
                   <div className="tags">
                     {a.competences.slice(0, 3).map(c => <span key={c} className="tag">{c}</span>)}
                     {a.competences.length > 3 && <span className="tag">+{a.competences.length - 3}</span>}
