@@ -118,7 +118,7 @@ export default function AdminPage() {
   return (
     <div className="container">
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: 10 }}>
-        <h1 className="page-title" style={{ marginBottom: 0 }}>Administration</h1>
+        <h1 className="page-title" style={{ marginBottom: 0 }}>Administration v2</h1>
         <a href="/annuaire" className="btn btn-sm">← Annuaire</a>
       </div>
 
