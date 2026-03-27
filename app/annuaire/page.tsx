@@ -20,6 +20,30 @@ function colorFor(id: string) {
   return COLORS[n % COLORS.length]
 }
 
+function InstallButton() {
+  const [prompt, setPrompt] = useState<any>(null)
+  const [installed, setInstalled] = useState(false)
+
+  useEffect(() => {
+    const handler = (e: any) => { e.preventDefault(); setPrompt(e) }
+    window.addEventListener('beforeinstallprompt', handler)
+    window.addEventListener('appinstalled', () => setInstalled(true))
+    return () => window.removeEventListener('beforeinstallprompt', handler)
+  }, [])
+
+  if (installed) return (
+    <span style={{ fontSize: 13, color: 'var(--text2)', padding: '5px 10px' }}>✓ App installée</span>
+  )
+  if (!prompt) return null
+  return (
+    <button className="btn btn-sm btn-primary"
+      style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+      onClick={async () => { prompt.prompt(); const { outcome } = await prompt.userChoice; if (outcome === 'accepted') setInstalled(true) }}>
+      <span style={{ fontSize: 14 }}>📲</span> Installer l&apos;app
+    </button>
+  )
+}
+
 export default function AnnuairePage() {
   const [animateurs, setAnimateurs] = useState<Animateur[]>([])
   const [me, setMe] = useState<Animateur | null>(null)
@@ -101,7 +125,7 @@ export default function AnnuairePage() {
 
   return (
     <div className="container">
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: 10 }}>
         <div>
           <h1 className="page-title" style={{ marginBottom: 2 }}>Annuaire des animateurs</h1>
           <p style={{ fontSize: 13, color: 'var(--text2)' }}>
@@ -109,14 +133,39 @@ export default function AnnuairePage() {
             {me?.is_admin && <span className="badge badge-admin" style={{ marginLeft: 8 }}>Admin</span>}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
           <Link href="/dashboard" className="btn btn-sm">Mon profil</Link>
           {me?.is_admin && (
-            <button className="btn btn-sm btn-primary" onClick={() => setShowAddForm(v => !v)}>
-              {showAddForm ? 'Annuler' : '+ Ajouter un animateur'}
-            </button>
+            <>
+              <button className="btn btn-sm btn-primary" onClick={() => setShowAddForm(v => !v)}>
+                {showAddForm ? 'Annuler' : '+ Ajouter un animateur'}
+              </button>
+              <a href="/admin" className="btn btn-sm">Admin</a>
+            </>
           )}
           <button className="btn btn-sm" onClick={handleLogout}>Déconnexion</button>
+        </div>
+      </div>
+
+      <div className="card" style={{ marginBottom: '1.25rem' }}>
+        <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text2)', marginBottom: 10 }}>Ressources de la communauté</div>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+          <a href="https://community.lafresquedelia.com/la-fresque-de-lia/channels/town-square"
+            target="_blank" rel="noopener noreferrer" className="btn btn-sm"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: 14 }}>💬</span> Mattermost
+          </a>
+          <a href="https://drive.google.com/drive/u/0/folders/15CjtB5Mw-vdrBguv4VdQtWgMU7A6lEq4"
+            target="_blank" rel="noopener noreferrer" className="btn btn-sm"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: 14 }}>📁</span> Drive partagé
+          </a>
+          <a href="https://fresquedelia.ovh/"
+            target="_blank" rel="noopener noreferrer" className="btn btn-sm"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: 14 }}>🃏</span> Référentiel des cartes
+          </a>
+          <InstallButton />
         </div>
       </div>
 
