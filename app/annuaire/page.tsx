@@ -155,7 +155,6 @@ export default function AnnuairePage() {
             <span style={{ fontSize: 14 }}>📅</span> Agenda des interventions
           </a>
           <a href="https://community.lafresquedelia.com/la-fresque-de-lia/channels/town-square"
-          <a href="https://community.lafresquedelia.com/la-fresque-de-lia/channels/town-square"
             target="_blank" rel="noopener noreferrer" className="btn btn-sm"
             style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
             <span style={{ fontSize: 14 }}>💬</span> Mattermost
