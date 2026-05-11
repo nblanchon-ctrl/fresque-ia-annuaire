@@ -150,6 +150,11 @@ export default function AnnuairePage() {
       <div className="card" style={{ marginBottom: '1.25rem' }}>
         <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text2)', marginBottom: 10 }}>Ressources de la communauté</div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+          <a href="/agenda" className="btn btn-sm btn-primary"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: 14 }}>📅</span> Agenda des interventions
+          </a>
+          <a href="https://community.lafresquedelia.com/la-fresque-de-lia/channels/town-square"
           <a href="https://community.lafresquedelia.com/la-fresque-de-lia/channels/town-square"
             target="_blank" rel="noopener noreferrer" className="btn btn-sm"
             style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
