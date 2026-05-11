@@ -38,22 +38,24 @@ export default function HomePage() {
 
   if (checking) return null
 
-  if (success) return (
-    <div className="auth-wrap">
-      <div className="auth-card card">
-        <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-          <h1 style={{ fontSize: 20 }}>Vérifiez votre email</h1>
+  if (success) {
+    return (
+      <div className="auth-wrap">
+        <div className="auth-card card">
+          <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+            <h1 style={{ fontSize: 20 }}>Vérifiez votre email</h1>
+          </div>
+          <p style={{ color: 'var(--text2)', fontSize: 14, textAlign: 'center' }}>
+            Un lien de confirmation a été envoyé à <strong>{email}</strong>.
+          </p>
+          <button className="btn btn-primary" style={{ width: '100%', marginTop: '1.25rem' }}
+            onClick={() => { setSuccess(false); setMode('login') }}>
+            Retour à la connexion
+          </button>
         </div>
-        <p style={{ color: 'var(--text2)', fontSize: 14, textAlign: 'center' }}>
-          Un lien de confirmation a été envoyé à <strong>{email}</strong>.
-        </p>
-        <button className="btn btn-primary" style={{ width: '100%', marginTop: '1.25rem' }}
-          onClick={() => { setSuccess(false); setMode('login') }}>
-          Retour à la connexion
-        </button>
       </div>
-    </div>
-  )
+    )
+  }
 
   return (
     <div className="auth-wrap">
@@ -103,6 +105,13 @@ export default function HomePage() {
           <button className="btn btn-primary" type="submit" style={{ width: '100%', marginTop: 4 }} disabled={loading}>
             {loading ? '…' : mode === 'login' ? 'Se connecter' : 'Créer mon compte'}
           </button>
+          {mode === 'login' && (
+            <div style={{ textAlign: 'center', marginTop: 12 }}>
+              <a href="/forgot-password" style={{ fontSize: 13, color: 'var(--accent)' }}>
+                Mot de passe oublié ?
+              </a>
+            </div>
+          )}
         </form>
       </div>
     </div>
