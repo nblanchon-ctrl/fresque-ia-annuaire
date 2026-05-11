@@ -367,4 +367,154 @@ export default function AgendaPage() {
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {selectedIntervention.cherche_observateurs && (
                 <span style={{ fontSize: 12, padding: '3px 10px', borderRadius: 20, background: '#E6F1FB', color: '#0C447C', border: '0.5px solid #85B7EB' }}>
-                  👁 {selectedIntervention.nb_observateurs} observateur{selectedInterventio
+                  👁 {selectedIntervention.nb_observateurs} observateur{selectedIntervention.nb_observateurs > 1 ? 's' : ''}
+                </span>
+              )}
+              {selectedIntervention.cherche_coanimateur && (
+                <span style={{ fontSize: 12, padding: '3px 10px', borderRadius: 20, background: '#E1F5EE', color: '#085041', border: '0.5px solid #5DCAA5' }}>
+                  ⚡ {selectedIntervention.nb_coanimateurs} co-animateur{selectedIntervention.nb_coanimateurs > 1 ? 's' : ''}
+                </span>
+              )}
+              {!selectedIntervention.cherche_observateurs && !selectedIntervention.cherche_coanimateur && (
+                <span style={{ fontSize: 12, color: 'var(--text2)' }}>Aucun besoin déclaré</span>
+              )}
+            </div>
+          </div>
+
+          {(selectedIntervention.candidatures || []).length > 0 && (
+            <>
+              <hr className="divider" />
+              <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 8 }}>Candidatures</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {(selectedIntervention.candidatures || []).map(c => (
+                  <div key={c.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', borderRadius: 8, background: 'var(--bg2)', flexWrap: 'wrap', gap: 8 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontSize: 12 }}>{c.role === 'observateur' ? '👁' : '⚡'}</span>
+                      <span style={{ fontSize: 13, fontWeight: 500 }}>{c.animateur?.nom}</span>
+                      <span style={{ fontSize: 11, padding: '1px 7px', borderRadius: 20,
+                        background: c.statut === 'accepte' ? '#E1F5EE' : c.statut === 'refuse' ? '#FAECE7' : '#F3F4F6',
+                        color: c.statut === 'accepte' ? '#085041' : c.statut === 'refuse' ? '#993C1D' : '#6B7280',
+                        border: `0.5px solid ${c.statut === 'accepte' ? '#5DCAA5' : c.statut === 'refuse' ? '#F0997B' : '#D1D5DB'}`
+                      }}>
+                        {c.statut === 'accepte' ? 'Accepté' : c.statut === 'refuse' ? 'Refusé' : 'En attente'}
+                      </span>
+                    </div>
+                    {selectedIntervention.animateur_id === me?.id && c.statut === 'en_attente' && (
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <button className="btn btn-sm" style={{ color: '#085041', borderColor: '#5DCAA5' }}
+                          onClick={() => handleStatutCandidature(c.id, 'accepte')}>Accepter</button>
+                        <button className="btn btn-sm" style={{ color: '#993C1D', borderColor: '#F0997B' }}
+                          onClick={() => handleStatutCandidature(c.id, 'refuse')}>Refuser</button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {candidaterModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '1rem' }}>
+          <div className="card" style={{ maxWidth: 420, width: '100%' }}>
+            <div style={{ fontWeight: 600, fontSize: 16, marginBottom: 4 }}>Candidater à cette intervention</div>
+            <div style={{ fontSize: 13, color: 'var(--text2)', marginBottom: '1.25rem' }}>
+              {candidaterModal.lieu} · {new Date(candidaterModal.date).toLocaleDateString('fr-FR')} à {candidaterModal.heure.slice(0, 5)}
+            </div>
+            <div style={{ marginBottom: '1.25rem' }}>
+              <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 8 }}>Je souhaite participer en tant que :</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {candidaterModal.cherche_observateurs && (
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', padding: '10px 12px', borderRadius: 8, border: `1.5px solid ${candidaterRole === 'observateur' ? '#85B7EB' : 'var(--border)'}`, background: candidaterRole === 'observateur' ? '#E6F1FB' : 'var(--bg)' }}
+                    onClick={() => setCandidaterRole('observateur')}>
+                    <input type="radio" checked={candidaterRole === 'observateur'} onChange={() => setCandidaterRole('observateur')} />
+                    <span>👁 Observateur</span>
+                  </label>
+                )}
+                {candidaterModal.cherche_coanimateur && (
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', padding: '10px 12px', borderRadius: 8, border: `1.5px solid ${candidaterRole === 'coanimateur' ? '#5DCAA5' : 'var(--border)'}`, background: candidaterRole === 'coanimateur' ? '#E1F5EE' : 'var(--bg)' }}
+                    onClick={() => setCandidaterRole('coanimateur')}>
+                    <input type="radio" checked={candidaterRole === 'coanimateur'} onChange={() => setCandidaterRole('coanimateur')} />
+                    <span>⚡ Co-animateur</span>
+                  </label>
+                )}
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <button className="btn" onClick={() => setCandidaterModal(null)}>Annuler</button>
+              <button className="btn btn-primary" onClick={handleCandidater}>Confirmer ma candidature</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showForm && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', zIndex: 100, padding: '2rem 1rem', overflowY: 'auto' }}>
+          <div className="card" style={{ maxWidth: 520, width: '100%' }}>
+            <div style={{ fontWeight: 600, fontSize: 16, marginBottom: '1.25rem' }}>
+              {editMode ? "Modifier l'intervention" : 'Déclarer une intervention'}
+            </div>
+            <form onSubmit={handleSave}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                  <label className="form-label">Lieu *</label>
+                  <input className="form-input" value={fLieu} onChange={e => setFLieu(e.target.value)} required placeholder="Ex: Paris 8e, Salle de conf. A" />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Date *</label>
+                  <input className="form-input" type="date" value={fDate} onChange={e => setFDate(e.target.value)} required />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Heure *</label>
+                  <input className="form-input" type="time" value={fHeure} onChange={e => setFHeure(e.target.value)} required />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Entreprise / Organisation</label>
+                  <input className="form-input" value={fEntreprise} onChange={e => setFEntreprise(e.target.value)} placeholder="Nom de l'entreprise" />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Nb de participants</label>
+                  <input className="form-input" type="number" min="1" value={fNbParticipants} onChange={e => setFNbParticipants(e.target.value)} placeholder="Ex: 20" />
+                </div>
+              </div>
+
+              <hr className="divider" />
+              <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 10 }}>Je recherche</div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: '1rem' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                  <input type="checkbox" checked={fObservateurs} onChange={e => setFObservateurs(e.target.checked)} />
+                  <span style={{ fontSize: 13 }}>👁 Des observateurs</span>
+                </label>
+                {fObservateurs && (
+                  <div className="form-group" style={{ marginBottom: 0, paddingLeft: 24 }}>
+                    <label className="form-label">Nombre d'observateurs souhaités</label>
+                    <input className="form-input" type="number" min="1" value={fNbObs} onChange={e => setFNbObs(e.target.value)} style={{ width: 100 }} />
+                  </div>
+                )}
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                  <input type="checkbox" checked={fCoAnim} onChange={e => setFCoAnim(e.target.checked)} />
+                  <span style={{ fontSize: 13 }}>⚡ Un ou des co-animateurs</span>
+                </label>
+                {fCoAnim && (
+                  <div className="form-group" style={{ marginBottom: 0, paddingLeft: 24 }}>
+                    <label className="form-label">Nombre de co-animateurs souhaités</label>
+                    <input className="form-input" type="number" min="1" value={fNbCoAnim} onChange={e => setFNbCoAnim(e.target.value)} style={{ width: 100 }} />
+                  </div>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                <button type="button" className="btn" onClick={() => { setShowForm(false); resetForm() }}>Annuler</button>
+                <button type="submit" className="btn btn-primary" disabled={saving}>
+                  {saving ? 'Enregistrement…' : editMode ? 'Modifier' : 'Déclarer'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
