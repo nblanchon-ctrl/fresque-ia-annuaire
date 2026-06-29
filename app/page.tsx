@@ -1,8 +1,10 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase'
+import { useLanguage, LanguageSwitch } from '@/lib/i18n'
 
 export default function HomePage() {
+  const { t } = useLanguage()
   const [mode, setMode] = useState<'login' | 'register'>('login')
   const [nom, setNom] = useState('')
   const [email, setEmail] = useState('')
@@ -26,10 +28,10 @@ export default function HomePage() {
     setError('')
     if (mode === 'login') {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
-      if (error) { setError('Email ou mot de passe incorrect.'); setLoading(false) }
+      if (error) { setError(t('auth.loginError')); setLoading(false) }
       else window.location.href = '/annuaire'
     } else {
-      if (password.length < 8) { setError('Mot de passe trop court (8 caractères min.).'); setLoading(false); return }
+      if (password.length < 8) { setError(t('auth.passwordTooShort')); setLoading(false); return }
       const { error } = await supabase.auth.signUp({ email, password, options: { data: { nom } } })
       if (error) { setError(error.message); setLoading(false) }
       else setSuccess(true)
@@ -42,15 +44,18 @@ export default function HomePage() {
     return (
       <div className="auth-wrap">
         <div className="auth-card card">
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+            <LanguageSwitch />
+          </div>
           <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-            <h1 style={{ fontSize: 20 }}>Vérifiez votre email</h1>
+            <h1 style={{ fontSize: 20 }}>{t('auth.checkEmail')}</h1>
           </div>
           <p style={{ color: 'var(--text2)', fontSize: 14, textAlign: 'center' }}>
-            Un lien de confirmation a été envoyé à <strong>{email}</strong>.
+            {t('auth.confirmationSent')} <strong>{email}</strong>.
           </p>
           <button className="btn btn-primary" style={{ width: '100%', marginTop: '1.25rem' }}
             onClick={() => { setSuccess(false); setMode('login') }}>
-            Retour à la connexion
+            {t('auth.backToLogin')}
           </button>
         </div>
       </div>
@@ -60,13 +65,16 @@ export default function HomePage() {
   return (
     <div className="auth-wrap">
       <div className="auth-card card">
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
+          <LanguageSwitch />
+        </div>
         <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--accent)', marginBottom: 8 }}>Fresque de l&apos;IA</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--accent)', marginBottom: 8 }}>{t('auth.brand')}</div>
           <h1 style={{ fontSize: 22, fontWeight: 600 }}>
-            {mode === 'login' ? 'Se connecter' : 'Créer un compte'}
+            {mode === 'login' ? t('auth.login') : t('auth.register')}
           </h1>
           <p style={{ color: 'var(--text2)', fontSize: 14, marginTop: 4 }}>
-            {mode === 'login' ? "Accédez à l'annuaire des animateurs." : "Rejoignez l'annuaire des animateurs."}
+            {mode === 'login' ? t('auth.loginSubtitle') : t('auth.registerSubtitle')}
           </p>
         </div>
 
@@ -76,7 +84,7 @@ export default function HomePage() {
               style={{ flex: 1, padding: '7px', borderRadius: 'calc(var(--radius) - 2px)', border: 'none', cursor: 'pointer', fontWeight: 500, fontSize: 13, transition: 'all .15s',
                 background: mode === m ? 'var(--bg)' : 'transparent',
                 color: mode === m ? 'var(--text)' : 'var(--text2)' }}>
-              {m === 'login' ? 'Connexion' : 'Inscription'}
+              {m === 'login' ? t('auth.loginTab') : t('auth.registerTab')}
             </button>
           ))}
         </div>
@@ -86,29 +94,29 @@ export default function HomePage() {
         <form onSubmit={handleSubmit}>
           {mode === 'register' && (
             <div className="form-group">
-              <label className="form-label">Prénom et nom *</label>
+              <label className="form-label">{t('auth.fullName')}</label>
               <input className="form-input" type="text" value={nom}
                 onChange={e => setNom(e.target.value)} required placeholder="Marie Dupont" />
             </div>
           )}
           <div className="form-group">
-            <label className="form-label">Email *</label>
+            <label className="form-label">{t('auth.email')}</label>
             <input className="form-input" type="email" value={email}
               onChange={e => setEmail(e.target.value)} required autoComplete="email" />
           </div>
           <div className="form-group">
-            <label className="form-label">Mot de passe *{mode === 'register' && ' (8 car. min.)'}</label>
+            <label className="form-label">{t('auth.password')}{mode === 'register' && t('auth.passwordMin')}</label>
             <input className="form-input" type="password" value={password}
               onChange={e => setPassword(e.target.value)} required
               autoComplete={mode === 'login' ? 'current-password' : 'new-password'} />
           </div>
           <button className="btn btn-primary" type="submit" style={{ width: '100%', marginTop: 4 }} disabled={loading}>
-            {loading ? '…' : mode === 'login' ? 'Se connecter' : 'Créer mon compte'}
+            {loading ? '…' : mode === 'login' ? t('auth.submitLogin') : t('auth.submitRegister')}
           </button>
           {mode === 'login' && (
             <div style={{ textAlign: 'center', marginTop: 12 }}>
               <a href="/forgot-password" style={{ fontSize: 13, color: 'var(--accent)' }}>
-                Mot de passe oublié ?
+                {t('auth.forgotPassword')}
               </a>
             </div>
           )}
