@@ -1,24 +1,9 @@
 import React from 'react'
+import { useLanguage } from '@/lib/i18n'
 
-export const BADGES = [
-  {
-    key: 'badge_observateur',
-    label: 'Observateur',
-    description: 'A observé une fresque',
-    icon: '👁',
-    bg: '#E6F1FB',
-    text: '#0C447C',
-    border: '#85B7EB',
-  },
-  {
-    key: 'badge_coanimateur',
-    label: 'Co-animateur',
-    description: 'A co-animé une fresque',
-    icon: '⚡',
-    bg: '#E1F5EE',
-    text: '#085041',
-    border: '#5DCAA5',
-  },
+export const BADGE_KEYS = [
+  { key: 'badge_observateur', labelKey: 'badge.observer', descKey: 'badge.observerDesc', icon: '👁', bg: '#E6F1FB', text: '#0C447C', border: '#85B7EB' },
+  { key: 'badge_coanimateur', labelKey: 'badge.coanimator', descKey: 'badge.coanimatorDesc', icon: '⚡', bg: '#E1F5EE', text: '#085041', border: '#5DCAA5' },
 ]
 
 interface BadgesDisplayProps {
@@ -28,7 +13,8 @@ interface BadgesDisplayProps {
 }
 
 export function BadgesDisplay({ badge_observateur, badge_coanimateur, size = 'md' }: BadgesDisplayProps) {
-  const active = BADGES.filter(b =>
+  const { t } = useLanguage()
+  const active = BADGE_KEYS.filter(b =>
     (b.key === 'badge_observateur' && badge_observateur) ||
     (b.key === 'badge_coanimateur' && badge_coanimateur)
   )
@@ -45,7 +31,7 @@ export function BadgesDisplay({ badge_observateur, badge_coanimateur, size = 'md
           borderRadius: 20, padding: pad, fontSize: fs, fontWeight: 500,
         }}>
           <span style={{ fontSize: iconSize }}>{b.icon}</span>
-          {b.label}
+          {t(b.labelKey)}
         </span>
       ))}
     </div>
@@ -59,10 +45,11 @@ interface BadgesEditorProps {
 }
 
 export function BadgesEditor({ badge_observateur, badge_coanimateur, onChange }: BadgesEditorProps) {
+  const { t } = useLanguage()
   const values: Record<string, boolean> = { badge_observateur, badge_coanimateur }
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-      {BADGES.map(b => {
+      {BADGE_KEYS.map(b => {
         const active = values[b.key]
         return (
           <div key={b.key} onClick={() => onChange(b.key, !active)}
@@ -73,8 +60,8 @@ export function BadgesEditor({ badge_observateur, badge_coanimateur, onChange }:
             }}>
             <span style={{ fontSize: 24 }}>{b.icon}</span>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 14, fontWeight: 500, color: active ? b.text : 'var(--text)' }}>{b.label}</div>
-              <div style={{ fontSize: 12, color: 'var(--text2)', marginTop: 2 }}>{b.description}</div>
+              <div style={{ fontSize: 14, fontWeight: 500, color: active ? b.text : 'var(--text)' }}>{t(b.labelKey)}</div>
+              <div style={{ fontSize: 12, color: 'var(--text2)', marginTop: 2 }}>{t(b.descKey)}</div>
             </div>
             <div style={{
               width: 20, height: 20, borderRadius: '50%',
