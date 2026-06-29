@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
 import type { Animateur } from '@/lib/types'
 import { BadgesDisplay } from '@/components/Badges'
+import { useLanguage, LanguageSwitch } from '@/lib/i18n'
 
 const COLORS = [
   { bg: '#EEEDFE', text: '#3C3489' }, { bg: '#E1F5EE', text: '#085041' },
@@ -25,13 +26,13 @@ const TAG_COLORS = [
 function initials(nom: string) {
   return nom.split(' ').slice(0, 2).map(w => w[0] || '').join('').toUpperCase() || '?'
 }
-
 function colorFor(id: string) {
   const n = id.split('').reduce((a, c) => a + c.charCodeAt(0), 0)
   return COLORS[n % COLORS.length]
 }
 
 export default function ProfilePage() {
+  const { t } = useLanguage()
   const { id } = useParams<{ id: string }>()
   const [animateur, setAnimateur] = useState<Animateur | null>(null)
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
@@ -49,12 +50,12 @@ export default function ProfilePage() {
     })
   }, [id])
 
-  if (loading) return <div className="container"><div className="empty"><p>Chargement…</p></div></div>
+  if (loading) return <div className="container"><div className="empty"><p>{t('common.loading')}</p></div></div>
   if (!animateur) return (
     <div className="container">
       <div className="empty">
-        <p>Animateur introuvable.</p>
-        <Link href="/" className="btn" style={{ marginTop: '1rem', display: 'inline-flex' }}>Retour à l&apos;annuaire</Link>
+        <p>{t('profile.notFound')}</p>
+        <Link href="/annuaire" className="btn" style={{ marginTop: '1rem', display: 'inline-flex' }}>{t('profile.backToDirectory')}</Link>
       </div>
     </div>
   )
@@ -63,8 +64,9 @@ export default function ProfilePage() {
 
   return (
     <div className="container" style={{ maxWidth: 680 }}>
-      <div style={{ marginBottom: '1rem' }}>
-        <Link href="/" style={{ fontSize: '13px', color: 'var(--text2)' }}>← Annuaire</Link>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <Link href="/annuaire" style={{ fontSize: '13px', color: 'var(--text2)' }}>← {t('profile.backToDirectory')}</Link>
+        <LanguageSwitch />
       </div>
 
       <div className="card">
@@ -75,7 +77,7 @@ export default function ProfilePage() {
           <div className="profile-info" style={{ flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', flexWrap: 'wrap' }}>
               <h1 style={{ fontSize: '22px', fontWeight: 600 }}>{animateur.nom}</h1>
-              {animateur.is_admin && <span className="badge badge-admin">Admin</span>}
+              {animateur.is_admin && <span className="badge badge-admin">{t('profile.admin')}</span>}
             </div>
             {animateur.titre && <div className="titre" style={{ color: 'var(--text2)', marginTop: '2px' }}>{animateur.titre}</div>}
             {(animateur.ville || animateur.region) && (
@@ -85,7 +87,7 @@ export default function ProfilePage() {
             )}
             {currentUserId === animateur.id && (
               <Link href="/dashboard" className="btn btn-sm" style={{ marginTop: '10px', display: 'inline-flex' }}>
-                Modifier mon profil
+                {t('profile.editMyProfile')}
               </Link>
             )}
           </div>
@@ -103,24 +105,24 @@ export default function ProfilePage() {
         <div className="profile-meta">
           {animateur.email && (
             <div className="meta-row">
-              <span className="meta-label">Email</span>
+              <span className="meta-label">{t('profile.email')}</span>
               <a href={`mailto:${animateur.email}`}>{animateur.email}</a>
             </div>
           )}
           {animateur.telephone && (
             <div className="meta-row">
-              <span className="meta-label">Téléphone</span>
+              <span className="meta-label">{t('profile.phone')}</span>
               <a href={`tel:${animateur.telephone}`}>{animateur.telephone}</a>
             </div>
           )}
           {(animateur.ville || animateur.region) && (
             <div className="meta-row">
-              <span className="meta-label">Localisation</span>
+              <span className="meta-label">{t('profile.location')}</span>
               <span>{[animateur.ville, animateur.region].filter(Boolean).join(', ')}</span>
             </div>
           )}
           <div className="meta-row">
-            <span className="meta-label">Membre depuis</span>
+            <span className="meta-label">{t('profile.memberSince')}</span>
             <span>{new Date(animateur.created_at).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}</span>
           </div>
         </div>
@@ -128,7 +130,7 @@ export default function ProfilePage() {
         {(animateur.badge_observateur || animateur.badge_coanimateur) && (
           <>
             <hr className="divider" />
-            <div style={{ fontSize: '13px', color: 'var(--text2)', marginBottom: '10px', fontWeight: 500 }}>Niveaux</div>
+            <div style={{ fontSize: '13px', color: 'var(--text2)', marginBottom: '10px', fontWeight: 500 }}>{t('profile.levels')}</div>
             <BadgesDisplay badge_observateur={animateur.badge_observateur} badge_coanimateur={animateur.badge_coanimateur} />
           </>
         )}
@@ -136,7 +138,7 @@ export default function ProfilePage() {
         {animateur.competences.length > 0 && (
           <>
             <hr className="divider" />
-            <div style={{ fontSize: '13px', color: 'var(--text2)', marginBottom: '10px', fontWeight: 500 }}>Compétences</div>
+            <div style={{ fontSize: '13px', color: 'var(--text2)', marginBottom: '10px', fontWeight: 500 }}>{t('profile.skills')}</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
               {animateur.competences.map((comp, i) => {
                 const tc = TAG_COLORS[i % TAG_COLORS.length]
