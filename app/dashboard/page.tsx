@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase'
 import type { Animateur } from '@/lib/types'
 import { BadgesEditor } from '@/components/Badges'
+import { useLanguage, LanguageSwitch } from '@/lib/i18n'
 
 const REGIONS = [
   'Auvergne-Rhône-Alpes','Bourgogne-Franche-Comté','Bretagne','Centre-Val de Loire',
@@ -18,6 +19,7 @@ const COMPETENCES_SUGGÉRÉES = [
 ]
 
 export default function DashboardPage() {
+  const { t } = useLanguage()
   const [animateur, setAnimateur] = useState<Animateur | null>(null)
   const [form, setForm] = useState<Partial<Animateur>>({})
   const [competenceInput, setCompetenceInput] = useState('')
@@ -81,12 +83,12 @@ export default function DashboardPage() {
       badge_coanimateur: form.badge_coanimateur || false,
       updated_at: new Date().toISOString()
     }).eq('id', animateur!.id)
-    if (saveErr) setError('Erreur lors de la sauvegarde.')
+    if (saveErr) setError(t('dashboard.updateError'))
     else setSuccess(true)
     setSaving(false)
   }
 
-  if (loading) return <div className="container"><div className="empty"><p>Chargement…</p></div></div>
+  if (loading) return <div className="container"><div className="empty"><p>{t('common.loading')}</p></div></div>
   if (!animateur) return null
 
   const photoUrl = form.photo_url
@@ -94,9 +96,12 @@ export default function DashboardPage() {
 
   return (
     <div className="container" style={{ maxWidth: 700 }}>
-      <h1 className="page-title">Mon profil</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <h1 className="page-title" style={{ marginBottom: 0 }}>{t('dashboard.title')}</h1>
+        <LanguageSwitch />
+      </div>
 
-      {success && <div className="alert alert-success">Profil mis à jour avec succès.</div>}
+      {success && <div className="alert alert-success">{t('dashboard.updateSuccess')}</div>}
       {error && <div className="alert alert-error">{error}</div>}
 
       <form onSubmit={handleSave}>
@@ -107,10 +112,10 @@ export default function DashboardPage() {
               {photoUrl ? <img src={photoUrl} alt="" /> : initials}
             </div>
             <div>
-              <div style={{ fontSize: '14px', fontWeight: 500, marginBottom: '4px' }}>Photo de profil</div>
-              <div style={{ fontSize: '13px', color: 'var(--text2)', marginBottom: '8px' }}>JPG ou PNG, 2 Mo max.</div>
+              <div style={{ fontSize: '14px', fontWeight: 500, marginBottom: '4px' }}>{t('dashboard.photo')}</div>
+              <div style={{ fontSize: '13px', color: 'var(--text2)', marginBottom: '8px' }}>{t('dashboard.photoHint')}</div>
               <button type="button" className="btn btn-sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
-                {uploading ? 'Envoi…' : 'Changer la photo'}
+                {uploading ? t('dashboard.uploading') : t('dashboard.changePhoto')}
               </button>
               <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleUpload} />
             </div>
@@ -118,45 +123,45 @@ export default function DashboardPage() {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <div className="form-group">
-              <label className="form-label">Prénom et nom *</label>
+              <label className="form-label">{t('dashboard.fullName')}</label>
               <input className="form-input" value={form.nom || ''} onChange={e => set('nom', e.target.value)} required />
             </div>
             <div className="form-group">
-              <label className="form-label">Titre / rôle</label>
+              <label className="form-label">{t('dashboard.titleRole')}</label>
               <input className="form-input" value={form.titre || ''} onChange={e => set('titre', e.target.value)} placeholder="Animatrice certifiée" />
             </div>
             <div className="form-group">
-              <label className="form-label">Email public</label>
+              <label className="form-label">{t('dashboard.publicEmail')}</label>
               <input className="form-input" type="email" value={form.email || ''} onChange={e => set('email', e.target.value)} />
             </div>
             <div className="form-group">
-              <label className="form-label">Téléphone</label>
+              <label className="form-label">{t('dashboard.phone')}</label>
               <input className="form-input" value={form.telephone || ''} onChange={e => set('telephone', e.target.value)} placeholder="+33 6 …" />
             </div>
             <div className="form-group">
-              <label className="form-label">Région</label>
+              <label className="form-label">{t('dashboard.region')}</label>
               <select className="form-input" value={form.region || ''} onChange={e => set('region', e.target.value)}>
-                <option value="">Sélectionner…</option>
+                <option value="">{t('dashboard.select')}</option>
                 {REGIONS.map(r => <option key={r} value={r}>{r}</option>)}
               </select>
             </div>
             <div className="form-group">
-              <label className="form-label">Ville</label>
+              <label className="form-label">{t('dashboard.city')}</label>
               <input className="form-input" value={form.ville || ''} onChange={e => set('ville', e.target.value)} placeholder="Paris" />
             </div>
           </div>
 
           <div className="form-group">
-            <label className="form-label">Bio</label>
+            <label className="form-label">{t('dashboard.bio')}</label>
             <textarea className="form-input" value={form.bio || ''} onChange={e => set('bio', e.target.value)}
-              placeholder="Quelques mots sur vous, votre expérience, vos disponibilités…" />
+              placeholder={t('dashboard.bioPlaceholder')} />
           </div>
         </div>
 
         <div className="card" style={{ marginBottom: '1rem' }}>
-          <div style={{ fontSize: '15px', fontWeight: 500, marginBottom: '4px' }}>Mes niveaux</div>
+          <div style={{ fontSize: '15px', fontWeight: 500, marginBottom: '4px' }}>{t('dashboard.myLevels')}</div>
           <div style={{ fontSize: '13px', color: 'var(--text2)', marginBottom: '1rem' }}>
-            Cochez les étapes que vous avez franchies.
+            {t('dashboard.levelsHint')}
           </div>
           <BadgesEditor
             badge_observateur={form.badge_observateur || false}
@@ -166,13 +171,13 @@ export default function DashboardPage() {
         </div>
 
         <div className="card" style={{ marginBottom: '1rem' }}>
-          <div style={{ fontSize: '15px', fontWeight: 500, marginBottom: '1rem' }}>Compétences</div>
+          <div style={{ fontSize: '15px', fontWeight: 500, marginBottom: '1rem' }}>{t('dashboard.skills')}</div>
           <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
             <input className="form-input" style={{ flex: 1 }} value={competenceInput}
               onChange={e => setCompetenceInput(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addCompetence(competenceInput) }}}
-              placeholder="Ajouter une compétence…" />
-            <button type="button" className="btn" onClick={() => addCompetence(competenceInput)}>Ajouter</button>
+              placeholder={t('dashboard.addSkill')} />
+            <button type="button" className="btn" onClick={() => addCompetence(competenceInput)}>{t('common.add')}</button>
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '12px' }}>
             {(form.competences || []).map(c => (
@@ -187,7 +192,7 @@ export default function DashboardPage() {
               </span>
             ))}
           </div>
-          <div style={{ fontSize: '12px', color: 'var(--text2)', marginBottom: '6px' }}>Suggestions :</div>
+          <div style={{ fontSize: '12px', color: 'var(--text2)', marginBottom: '6px' }}>{t('dashboard.suggestions')}</div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
             {COMPETENCES_SUGGÉRÉES.filter(c => !(form.competences || []).includes(c)).map(c => (
               <button key={c} type="button" className="btn btn-sm" style={{ fontSize: '12px' }} onClick={() => addCompetence(c)}>{c}</button>
@@ -196,9 +201,9 @@ export default function DashboardPage() {
         </div>
 
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-          <a href={`/profile/${animateur.id}`} className="btn">Voir mon profil public</a>
+          <a href={`/profile/${animateur.id}`} className="btn">{t('dashboard.viewPublicProfile')}</a>
           <button type="submit" className="btn btn-primary" disabled={saving}>
-            {saving ? 'Sauvegarde…' : 'Sauvegarder'}
+            {saving ? t('common.saving') : t('common.save')}
           </button>
         </div>
       </form>
