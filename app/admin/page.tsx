@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import type { Animateur } from '@/lib/types'
+import { useLanguage, LanguageSwitch } from '@/lib/i18n'
 
 const REGIONS = [
   'Auvergne-Rhône-Alpes','Bourgogne-Franche-Comté','Bretagne','Centre-Val de Loire',
@@ -11,19 +12,19 @@ const REGIONS = [
 ]
 
 export default function AdminPage() {
+  const { t } = useLanguage()
   const [animateurs, setAnimateurs] = useState<Animateur[]>([])
   const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
   const [editId, setEditId] = useState<string | null>(null)
   const [editForm, setEditForm] = useState<Partial<Animateur>>({})
   const [saving, setSaving] = useState(false)
-  const [copied, setCopied] = useState(false)
   const supabase = createClient()
 
   useEffect(() => {
     const load = async () => {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { window.location.href = '/login'; return }
+      if (!user) { window.location.href = '/'; return }
       const { data: me } = await supabase.from('animateurs').select('is_admin').eq('id', user.id).single()
       if (!me?.is_admin) { window.location.href = '/'; return }
       setIsAdmin(true)
@@ -40,7 +41,7 @@ export default function AdminPage() {
   }
 
   const deleteAnimateur = async (id: string) => {
-    if (!confirm('Supprimer cet animateur ? Cette action est irréversible.')) return
+    if (!confirm(t('admin.confirmDelete'))) return
     await supabase.from('animateurs').delete().eq('id', id)
     setAnimateurs(prev => prev.filter(a => a.id !== id))
     if (editId === id) setEditId(null)
@@ -112,33 +113,36 @@ export default function AdminPage() {
     URL.revokeObjectURL(url)
   }
 
-  if (loading) return <div className="container"><div className="empty"><p>Chargement…</p></div></div>
+  if (loading) return <div className="container"><div className="empty"><p>{t('common.loading')}</p></div></div>
   if (!isAdmin) return null
 
   return (
     <div className="container">
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: 10 }}>
-        <h1 className="page-title" style={{ marginBottom: 0 }}>Administration v2</h1>
-        <a href="/annuaire" className="btn btn-sm">← Annuaire</a>
+        <h1 className="page-title" style={{ marginBottom: 0 }}>{t('admin.title')}</h1>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <LanguageSwitch />
+          <a href="/annuaire" className="btn btn-sm">← {t('nav.directory')}</a>
+        </div>
       </div>
 
       <div className="stats-bar" style={{ marginBottom: '1rem' }}>
-        <span className="stat-pill"><strong>{animateurs.length}</strong> animateurs</span>
-        <span className="stat-pill"><strong>{animateurs.filter(a => a.is_admin).length}</strong> admins</span>
-        <span className="stat-pill"><strong>{emailsAvec.length}</strong> emails renseignés</span>
+        <span className="stat-pill"><strong>{animateurs.length}</strong> {t('admin.animators')}</span>
+        <span className="stat-pill"><strong>{animateurs.filter(a => a.is_admin).length}</strong> {t('admin.admins')}</span>
+        <span className="stat-pill"><strong>{emailsAvec.length}</strong> {t('admin.emailsAvailable')}</span>
       </div>
 
       <div className="card" style={{ marginBottom: '1.25rem' }}>
-        <div style={{ fontSize: 15, fontWeight: 500, marginBottom: 4 }}>Exports</div>
+        <div style={{ fontSize: 15, fontWeight: 500, marginBottom: 4 }}>{t('admin.exports')}</div>
         <div style={{ fontSize: 13, color: 'var(--text2)', marginBottom: '1rem' }}>
-          Téléchargez les données au format CSV, lisible dans Excel ou Google Sheets.
+          {t('admin.exportsHint')}
         </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <button className="btn btn-primary" onClick={exportEmailsCSV}>
-            Télécharger les emails ({emailsAvec.length})
+            {t('admin.downloadEmails')} ({emailsAvec.length})
           </button>
           <button className="btn" onClick={exportCSV}>
-            Télécharger toutes les fiches
+            {t('admin.downloadAll')}
           </button>
         </div>
       </div>
@@ -148,11 +152,11 @@ export default function AdminPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
             <thead>
               <tr style={{ borderBottom: '0.5px solid var(--border)' }}>
-                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 500, color: 'var(--text2)' }}>Nom</th>
-                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 500, color: 'var(--text2)' }}>Email</th>
-                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 500, color: 'var(--text2)' }}>Région</th>
-                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 500, color: 'var(--text2)' }}>Inscription</th>
-                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 500, color: 'var(--text2)' }}>Admin</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 500, color: 'var(--text2)' }}>{t('admin.colName')}</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 500, color: 'var(--text2)' }}>{t('admin.colEmail')}</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 500, color: 'var(--text2)' }}>{t('admin.colRegion')}</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 500, color: 'var(--text2)' }}>{t('admin.colJoined')}</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 500, color: 'var(--text2)' }}>{t('admin.colAdmin')}</th>
                 <th style={{ padding: '10px 12px' }}></th>
               </tr>
             </thead>
@@ -175,12 +179,12 @@ export default function AdminPage() {
                     <td style={{ padding: '10px 12px', textAlign: 'right' }}>
                       <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
                         {editId === a.id ? (
-                          <button className="btn btn-sm" onClick={cancelEdit}>Annuler</button>
+                          <button className="btn btn-sm" onClick={cancelEdit}>{t('common.cancel')}</button>
                         ) : (
-                          <button className="btn btn-sm" onClick={() => startEdit(a)}>Modifier</button>
+                          <button className="btn btn-sm" onClick={() => startEdit(a)}>{t('common.edit')}</button>
                         )}
                         <button className="btn btn-sm btn-danger" onClick={() => deleteAnimateur(a.id)}>
-                          Supprimer
+                          {t('common.delete')}
                         </button>
                       </div>
                     </td>
@@ -191,42 +195,42 @@ export default function AdminPage() {
                       <td colSpan={6} style={{ padding: '0 12px 16px' }}>
                         <div style={{ background: 'var(--bg)', border: '0.5px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '1.25rem', marginTop: 4 }}>
                           <div style={{ fontSize: 14, fontWeight: 500, marginBottom: '1rem', color: 'var(--text2)' }}>
-                            Modifier la fiche de {a.nom}
+                            {t('admin.editingTitle')} {a.nom}
                           </div>
                           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
                             <div className="form-group" style={{ marginBottom: 0 }}>
-                              <label className="form-label">Nom *</label>
+                              <label className="form-label">{t('directory.name')}</label>
                               <input className="form-input" value={editForm.nom || ''} onChange={e => setF('nom', e.target.value)} />
                             </div>
                             <div className="form-group" style={{ marginBottom: 0 }}>
-                              <label className="form-label">Titre</label>
+                              <label className="form-label">{t('directory.title2')}</label>
                               <input className="form-input" value={editForm.titre || ''} onChange={e => setF('titre', e.target.value)} placeholder="Animateur certifié" />
                             </div>
                             <div className="form-group" style={{ marginBottom: 0 }}>
-                              <label className="form-label">Email</label>
+                              <label className="form-label">{t('directory.email')}</label>
                               <input className="form-input" type="email" value={editForm.email || ''} onChange={e => setF('email', e.target.value)} />
                             </div>
                             <div className="form-group" style={{ marginBottom: 0 }}>
-                              <label className="form-label">Téléphone</label>
+                              <label className="form-label">{t('directory.phone')}</label>
                               <input className="form-input" value={editForm.telephone || ''} onChange={e => setF('telephone', e.target.value)} placeholder="+33 6 …" />
                             </div>
                             <div className="form-group" style={{ marginBottom: 0 }}>
-                              <label className="form-label">Région</label>
+                              <label className="form-label">{t('directory.region')}</label>
                               <select className="form-input" value={editForm.region || ''} onChange={e => setF('region', e.target.value)}>
-                                <option value="">Sélectionner…</option>
+                                <option value="">{t('dashboard.select')}</option>
                                 {REGIONS.map(r => <option key={r} value={r}>{r}</option>)}
                               </select>
                             </div>
                             <div className="form-group" style={{ marginBottom: 0 }}>
-                              <label className="form-label">Ville</label>
+                              <label className="form-label">{t('directory.city')}</label>
                               <input className="form-input" value={editForm.ville || ''} onChange={e => setF('ville', e.target.value)} />
                             </div>
                             <div className="form-group" style={{ marginBottom: 0, gridColumn: '1 / -1' }}>
-                              <label className="form-label">Bio</label>
+                              <label className="form-label">{t('directory.bio')}</label>
                               <textarea className="form-input" value={editForm.bio || ''} onChange={e => setF('bio', e.target.value)} />
                             </div>
                             <div className="form-group" style={{ marginBottom: 0, gridColumn: '1 / -1' }}>
-                              <label className="form-label">Compétences (séparées par des virgules)</label>
+                              <label className="form-label">{t('directory.skillsLabel')}</label>
                               <input className="form-input"
                                 value={(editForm.competences || []).join(', ')}
                                 onChange={e => setF('competences', e.target.value.split(',').map(s => s.trim()).filter(Boolean))} />
@@ -234,8 +238,8 @@ export default function AdminPage() {
                           </div>
                           <div style={{ display: 'flex', gap: 16, marginBottom: '1rem' }}>
                             {[
-                              { key: 'badge_observateur', label: '👁 Observateur' },
-                              { key: 'badge_coanimateur', label: '⚡ Co-animateur' }
+                              { key: 'badge_observateur', label: '👁 ' + t('badge.observer') },
+                              { key: 'badge_coanimateur', label: '⚡ ' + t('badge.coanimator') }
                             ].map(b => (
                               <label key={b.key} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, cursor: 'pointer' }}>
                                 <input type="checkbox"
@@ -246,9 +250,9 @@ export default function AdminPage() {
                             ))}
                           </div>
                           <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                            <button className="btn" onClick={cancelEdit}>Annuler</button>
+                            <button className="btn" onClick={cancelEdit}>{t('common.cancel')}</button>
                             <button className="btn btn-primary" onClick={saveEdit} disabled={saving}>
-                              {saving ? 'Sauvegarde…' : 'Sauvegarder'}
+                              {saving ? t('common.saving') : t('common.save')}
                             </button>
                           </div>
                         </div>
