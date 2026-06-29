@@ -44,6 +44,7 @@ const DAYS = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim']
 export default function AgendaPage() {
   const [me, setMe] = useState<Animateur | null>(null)
   const [interventions, setInterventions] = useState<Intervention[]>([])
+  const [allEmails, setAllEmails] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [today] = useState(new Date())
   const [viewYear, setViewYear] = useState(new Date().getFullYear())
@@ -77,6 +78,8 @@ export default function AgendaPage() {
       const { data: meData } = await supabase.from('animateurs').select('*').eq('id', user.id).single()
       setMe(meData)
       await loadInterventions()
+      const { data: animateursData } = await supabase.from('animateurs').select('email')
+      setAllEmails((animateursData || []).map(a => a.email).filter((e): e is string => !!e))
       setLoading(false)
     }
     load()
@@ -165,6 +168,30 @@ export default function AgendaPage() {
       await supabase.from('interventions').update(payload).eq('id', selectedIntervention.id)
     } else {
       await supabase.from('interventions').insert({ ...payload, animateur_id: me.id })
+
+      // Préparer un mail d'annonce à tous les animateurs
+      const autresEmails = allEmails.filter(e => e !== me.email)
+      if (autresEmails.length > 0) {
+        const sujet = `Nouvelle intervention disponible - ${fLieu}`
+        const besoins = [
+          fObservateurs ? `${fNbObs} observateur(s)` : '',
+          fCoAnim ? `${fNbCoAnim} co-animateur(s)` : ''
+        ].filter(Boolean).join(' et ')
+        const corps = `Bonjour,
+
+${me.nom} vient de déclarer une nouvelle intervention sur l'agenda :
+
+Lieu : ${fLieu}
+Date : ${new Date(fDate).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+Heure : ${fHeure}${fEntreprise ? `\nEntreprise : ${fEntreprise}` : ''}${besoins ? `\n\nRecherche : ${besoins}` : ''}
+
+Pour candidater, rendez-vous sur l'agenda :
+https://fresque-ia-animateurs.fr/agenda
+
+À bientôt !`
+        const mailto = `mailto:?bcc=${encodeURIComponent(autresEmails.join(','))}&subject=${encodeURIComponent(sujet)}&body=${encodeURIComponent(corps)}`
+        window.location.href = mailto
+      }
     }
     await loadInterventions()
     setShowForm(false)
@@ -187,6 +214,27 @@ export default function AgendaPage() {
       role: candidaterRole
     })
     await loadInterventions()
+
+    // Préparer un mail vers l'organisateur
+    const organisateurEmail = candidaterModal.animateur?.email
+    if (organisateurEmail) {
+      const sujet = `Candidature pour votre intervention - ${candidaterModal.lieu}`
+      const corps = `Bonjour ${candidaterModal.animateur?.nom || ''},
+
+${me.nom} souhaite participer à votre intervention en tant que ${candidaterRole === 'observateur' ? 'observateur' : 'co-animateur'}.
+
+Lieu : ${candidaterModal.lieu}
+Date : ${new Date(candidaterModal.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+Heure : ${candidaterModal.heure.slice(0, 5)}
+
+Connectez-vous à l'agenda pour accepter ou refuser cette candidature :
+https://fresque-ia-animateurs.fr/agenda
+
+À bientôt !`
+      const mailto = `mailto:${organisateurEmail}?subject=${encodeURIComponent(sujet)}&body=${encodeURIComponent(corps)}`
+      window.location.href = mailto
+    }
+
     setCandidaterModal(null)
   }
 
