@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
 import type { Animateur } from '@/lib/types'
 import { BadgesDisplay } from '@/components/Badges'
+import { useLanguage, LanguageSwitch } from '@/lib/i18n'
 
 const COLORS = [
   { bg: '#EEEDFE', text: '#3C3489' }, { bg: '#E1F5EE', text: '#085041' },
@@ -20,7 +21,7 @@ function colorFor(id: string) {
   return COLORS[n % COLORS.length]
 }
 
-function InstallButton() {
+function InstallButton({ label, installedLabel }: { label: string, installedLabel: string }) {
   const [prompt, setPrompt] = useState<any>(null)
   const [installed, setInstalled] = useState(false)
 
@@ -32,19 +33,20 @@ function InstallButton() {
   }, [])
 
   if (installed) return (
-    <span style={{ fontSize: 13, color: 'var(--text2)', padding: '5px 10px' }}>✓ App installée</span>
+    <span style={{ fontSize: 13, color: 'var(--text2)', padding: '5px 10px' }}>✓ {installedLabel}</span>
   )
   if (!prompt) return null
   return (
     <button className="btn btn-sm btn-primary"
       style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
       onClick={async () => { prompt.prompt(); const { outcome } = await prompt.userChoice; if (outcome === 'accepted') setInstalled(true) }}>
-      <span style={{ fontSize: 14 }}>📲</span> Installer l&apos;app
+      <span style={{ fontSize: 14 }}>📲</span> {label}
     </button>
   )
 }
 
 export default function AnnuairePage() {
+  const { t } = useLanguage()
   const [animateurs, setAnimateurs] = useState<Animateur[]>([])
   const [me, setMe] = useState<Animateur | null>(null)
   const [search, setSearch] = useState('')
@@ -83,7 +85,7 @@ export default function AnnuairePage() {
   }
 
   const handleDelete = async (id: string, nom: string) => {
-    if (!confirm(`Supprimer ${nom} de l'annuaire ?`)) return
+    if (!confirm(t('directory.confirmDelete', { name: nom }))) return
     await supabase.from('animateurs').delete().eq('id', id)
     setAnimateurs(prev => prev.filter(a => a.id !== id))
   }
@@ -121,125 +123,126 @@ export default function AnnuairePage() {
     return matchQ && (!region || a.region === region) && (!competence || a.competences.includes(competence))
   })
 
-  if (loading) return <div className="container"><div className="empty"><p>Chargement…</p></div></div>
+  if (loading) return <div className="container"><div className="empty"><p>{t('common.loading')}</p></div></div>
 
   return (
     <div className="container">
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: 10 }}>
         <div>
-          <h1 className="page-title" style={{ marginBottom: 2 }}>Annuaire des animateurs</h1>
+          <h1 className="page-title" style={{ marginBottom: 2 }}>{t('directory.title')}</h1>
           <p style={{ fontSize: 13, color: 'var(--text2)' }}>
-            Connecté en tant que <strong>{me?.nom}</strong>
-            {me?.is_admin && <span className="badge badge-admin" style={{ marginLeft: 8 }}>Admin</span>}
+            {t('directory.connectedAs')} <strong>{me?.nom}</strong>
+            {me?.is_admin && <span className="badge badge-admin" style={{ marginLeft: 8 }}>{t('profile.admin')}</span>}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-          <Link href="/dashboard" className="btn btn-sm">Mon profil</Link>
+          <LanguageSwitch />
+          <Link href="/dashboard" className="btn btn-sm">{t('nav.myProfile')}</Link>
           {me?.is_admin && (
             <>
               <button className="btn btn-sm btn-primary" onClick={() => setShowAddForm(v => !v)}>
-                {showAddForm ? 'Annuler' : '+ Ajouter un animateur'}
+                {showAddForm ? t('common.cancel') : `+ ${t('directory.addAnimator')}`}
               </button>
-              <a href="/admin" className="btn btn-sm">Admin</a>
+              <a href="/admin" className="btn btn-sm">{t('nav.admin')}</a>
             </>
           )}
-          <button className="btn btn-sm" onClick={handleLogout}>Déconnexion</button>
+          <button className="btn btn-sm" onClick={handleLogout}>{t('nav.logout')}</button>
         </div>
       </div>
 
       <div className="card" style={{ marginBottom: '1.25rem' }}>
-        <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text2)', marginBottom: 10 }}>Ressources de la communauté</div>
+        <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text2)', marginBottom: 10 }}>{t('directory.resources')}</div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
           <a href="/agenda" className="btn btn-sm btn-primary"
             style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ fontSize: 14 }}>📅</span> Agenda des interventions
+            <span style={{ fontSize: 14 }}>📅</span> {t('directory.agendaLink')}
           </a>
           <a href="https://community.lafresquedelia.com/la-fresque-de-lia/channels/town-square"
             target="_blank" rel="noopener noreferrer" className="btn btn-sm"
             style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ fontSize: 14 }}>💬</span> Mattermost
+            <span style={{ fontSize: 14 }}>💬</span> {t('directory.mattermost')}
           </a>
           <a href="https://drive.google.com/drive/u/0/folders/15CjtB5Mw-vdrBguv4VdQtWgMU7A6lEq4"
             target="_blank" rel="noopener noreferrer" className="btn btn-sm"
             style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ fontSize: 14 }}>📁</span> Drive partagé
+            <span style={{ fontSize: 14 }}>📁</span> {t('directory.drive')}
           </a>
           <a href="https://fresquedelia.ovh/"
             target="_blank" rel="noopener noreferrer" className="btn btn-sm"
             style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ fontSize: 14 }}>🃏</span> Référentiel des cartes
+            <span style={{ fontSize: 14 }}>🃏</span> {t('directory.cardsRef')}
           </a>
-          <InstallButton />
+          <InstallButton label={t('directory.installApp')} installedLabel={t('directory.appInstalled')} />
         </div>
       </div>
 
       {me?.is_admin && showAddForm && (
         <div className="card" style={{ marginBottom: '1.5rem' }}>
-          <div style={{ fontSize: 15, fontWeight: 500, marginBottom: '1rem' }}>Nouvel animateur</div>
+          <div style={{ fontSize: 15, fontWeight: 500, marginBottom: '1rem' }}>{t('directory.newAnimator')}</div>
           <form onSubmit={handleAdd}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">Nom *</label>
+                <label className="form-label">{t('directory.name')}</label>
                 <input className="form-input" value={newNom} onChange={e => setNewNom(e.target.value)} required placeholder="Marie Dupont" />
               </div>
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">Titre</label>
+                <label className="form-label">{t('directory.title2')}</label>
                 <input className="form-input" value={newTitre} onChange={e => setNewTitre(e.target.value)} placeholder="Animatrice certifiée" />
               </div>
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">Email</label>
+                <label className="form-label">{t('directory.email')}</label>
                 <input className="form-input" type="email" value={newEmail} onChange={e => setNewEmail(e.target.value)} />
               </div>
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">Téléphone</label>
+                <label className="form-label">{t('directory.phone')}</label>
                 <input className="form-input" placeholder="+33 6 …" />
               </div>
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">Région</label>
+                <label className="form-label">{t('directory.region')}</label>
                 <input className="form-input" value={newRegion} onChange={e => setNewRegion(e.target.value)} placeholder="Île-de-France" />
               </div>
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">Ville</label>
+                <label className="form-label">{t('directory.city')}</label>
                 <input className="form-input" value={newVille} onChange={e => setNewVille(e.target.value)} placeholder="Paris" />
               </div>
               <div className="form-group" style={{ marginBottom: 0, gridColumn: '1 / -1' }}>
-                <label className="form-label">Compétences (séparées par des virgules)</label>
+                <label className="form-label">{t('directory.skillsLabel')}</label>
                 <input className="form-input" value={newCompetences} onChange={e => setNewCompetences(e.target.value)} placeholder="Facilitation, Entreprises, RSE" />
               </div>
               <div className="form-group" style={{ marginBottom: 0, gridColumn: '1 / -1' }}>
-                <label className="form-label">Bio</label>
+                <label className="form-label">{t('directory.bio')}</label>
                 <textarea className="form-input" value={newBio} onChange={e => setNewBio(e.target.value)} placeholder="Quelques mots…" />
               </div>
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-              <button type="button" className="btn" onClick={() => setShowAddForm(false)}>Annuler</button>
-              <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? 'Ajout…' : 'Ajouter'}</button>
+              <button type="button" className="btn" onClick={() => setShowAddForm(false)}>{t('common.cancel')}</button>
+              <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? '…' : t('common.add')}</button>
             </div>
           </form>
         </div>
       )}
 
       <div className="filters">
-        <input type="text" placeholder="Rechercher par nom, ville, compétence…"
+        <input type="text" placeholder={t('directory.searchPlaceholder')}
           value={search} onChange={e => setSearch(e.target.value)} />
         <select value={region} onChange={e => setRegion(e.target.value)}>
-          <option value="">Toutes les régions</option>
+          <option value="">{t('directory.allRegions')}</option>
           {regions.map(r => <option key={r} value={r}>{r}</option>)}
         </select>
         <select value={competence} onChange={e => setCompetence(e.target.value)}>
-          <option value="">Toutes les compétences</option>
+          <option value="">{t('directory.allSkills')}</option>
           {competences.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
       </div>
 
       <div className="stats-bar">
-        <span className="stat-pill"><strong>{filtered.length}</strong> animateur{filtered.length > 1 ? 's' : ''}</span>
-        <span className="stat-pill"><strong>{filtered.map(a => a.region).filter(Boolean).filter((v, i, arr) => arr.indexOf(v) === i).length}</strong> régions</span>
-        <span className="stat-pill"><strong>{filtered.flatMap(a => a.competences).filter((v, i, arr) => arr.indexOf(v) === i).length}</strong> compétences</span>
+        <span className="stat-pill"><strong>{filtered.length}</strong> {filtered.length > 1 ? t('directory.animatorCountPlural') : t('directory.animatorCount')}</span>
+        <span className="stat-pill"><strong>{filtered.map(a => a.region).filter(Boolean).filter((v, i, arr) => arr.indexOf(v) === i).length}</strong> {t('directory.regions')}</span>
+        <span className="stat-pill"><strong>{filtered.flatMap(a => a.competences).filter((v, i, arr) => arr.indexOf(v) === i).length}</strong> {t('directory.skills')}</span>
       </div>
 
       {filtered.length === 0 ? (
-        <div className="empty"><p>Aucun animateur trouvé.</p></div>
+        <div className="empty"><p>{t('directory.noResults')}</p></div>
       ) : (
         <div className="animateurs-grid">
           {filtered.map(a => {
@@ -266,7 +269,7 @@ export default function AnnuairePage() {
                 {me?.is_admin && (
                   <button onClick={() => handleDelete(a.id, a.nom)}
                     style={{ position: 'absolute', top: 8, right: 8, background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: 'var(--text3)', lineHeight: 1, padding: '2px 4px', borderRadius: 4 }}
-                    title="Supprimer">×</button>
+                    title={t('common.delete')}>×</button>
                 )}
               </div>
             )
