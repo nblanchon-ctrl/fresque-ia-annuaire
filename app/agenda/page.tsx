@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import type { Animateur } from '@/lib/types'
+import { useLanguage, LanguageSwitch } from '@/lib/i18n'
 
 interface Intervention {
   id: string
@@ -38,10 +39,17 @@ function getMonthDays(year: number, month: number) {
   return { start, daysInMonth }
 }
 
-const MONTHS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre']
-const DAYS = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim']
+const MONTHS_FR = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre']
+const MONTHS_EN = ['January','February','March','April','May','June','July','August','September','October','November','December']
+const DAYS_FR = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim']
+const DAYS_EN = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
 
 export default function AgendaPage() {
+  const { t, lang } = useLanguage()
+  const MONTHS = lang === 'en' ? MONTHS_EN : MONTHS_FR
+  const DAYS = lang === 'en' ? DAYS_EN : DAYS_FR
+  const dateLocale = lang === 'en' ? 'en-US' : 'fr-FR'
+
   const [me, setMe] = useState<Animateur | null>(null)
   const [interventions, setInterventions] = useState<Intervention[]>([])
   const [allEmails, setAllEmails] = useState<string[]>([])
@@ -169,7 +177,6 @@ export default function AgendaPage() {
     } else {
       await supabase.from('interventions').insert({ ...payload, animateur_id: me.id })
 
-      // Préparer un mail d'annonce à tous les animateurs
       const autresEmails = allEmails.filter(e => e !== me.email)
       if (autresEmails.length > 0) {
         const sujet = `Nouvelle intervention disponible - ${fLieu}`
@@ -186,7 +193,7 @@ Date : ${new Date(fDate).toLocaleDateString('fr-FR', { weekday: 'long', day: 'nu
 Heure : ${fHeure}${fEntreprise ? `\nEntreprise : ${fEntreprise}` : ''}${besoins ? `\n\nRecherche : ${besoins}` : ''}
 
 Pour candidater, rendez-vous sur l'agenda :
-https://fresque-ia-animateurs.fr/agenda
+${window.location.origin}/agenda
 
 À bientôt !`
         const mailto = `mailto:?bcc=${encodeURIComponent(autresEmails.join(','))}&subject=${encodeURIComponent(sujet)}&body=${encodeURIComponent(corps)}`
@@ -200,7 +207,7 @@ https://fresque-ia-animateurs.fr/agenda
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Supprimer cette intervention ?')) return
+    if (!confirm(t('agenda.confirmDeleteIntervention'))) return
     await supabase.from('interventions').delete().eq('id', id)
     await loadInterventions()
     setSelectedIntervention(null)
@@ -215,7 +222,6 @@ https://fresque-ia-animateurs.fr/agenda
     })
     await loadInterventions()
 
-    // Préparer un mail vers l'organisateur
     const organisateurEmail = candidaterModal.animateur?.email
     if (organisateurEmail) {
       const sujet = `Candidature pour votre intervention - ${candidaterModal.lieu}`
@@ -228,7 +234,7 @@ Date : ${new Date(candidaterModal.date).toLocaleDateString('fr-FR', { weekday: '
 Heure : ${candidaterModal.heure.slice(0, 5)}
 
 Connectez-vous à l'agenda pour accepter ou refuser cette candidature :
-https://fresque-ia-animateurs.fr/agenda
+${window.location.origin}/agenda
 
 À bientôt !`
       const mailto = `mailto:${organisateurEmail}?subject=${encodeURIComponent(sujet)}&body=${encodeURIComponent(corps)}`
@@ -280,33 +286,34 @@ https://fresque-ia-animateurs.fr/agenda
   const cells = Array(start).fill(null).concat(Array.from({ length: daysInMonth }, (_, i) => i + 1))
   while (cells.length % 7 !== 0) cells.push(null)
 
-  if (loading) return <div className="container"><div className="empty"><p>Chargement…</p></div></div>
+  if (loading) return <div className="container"><div className="empty"><p>{t('common.loading')}</p></div></div>
 
   return (
     <div className="container" style={{ maxWidth: 900 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: 10 }}>
         <div>
-          <h1 className="page-title" style={{ marginBottom: 2 }}>Agenda des interventions</h1>
-          <p style={{ fontSize: 13, color: 'var(--text2)' }}>Fresques de l'IA planifiées par la communauté</p>
+          <h1 className="page-title" style={{ marginBottom: 2 }}>{t('agenda.title')}</h1>
+          <p style={{ fontSize: 13, color: 'var(--text2)' }}>{t('agenda.subtitle')}</p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <a href="/annuaire" className="btn btn-sm">← Annuaire</a>
-          <button className="btn btn-sm btn-primary" onClick={() => openNewForm()}>+ Déclarer une intervention</button>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <LanguageSwitch />
+          <a href="/annuaire" className="btn btn-sm">← {t('nav.directory')}</a>
+          <button className="btn btn-sm btn-primary" onClick={() => openNewForm()}>+ {t('agenda.declare')}</button>
         </div>
       </div>
 
       <div style={{ display: 'flex', gap: 16, marginBottom: '1rem', fontSize: 12, color: 'var(--text2)', flexWrap: 'wrap' }}>
         <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
           <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#F472B6', display: 'inline-block' }}></span>
-          Places disponibles
+          {t('agenda.available')}
         </span>
         <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
           <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#9CA3AF', display: 'inline-block' }}></span>
-          Complet
+          {t('agenda.full')}
         </span>
         <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
           <span style={{ width: 12, height: 12, borderRadius: 3, background: 'var(--accent)', display: 'inline-block' }}></span>
-          Aujourd'hui
+          {t('agenda.today')}
         </span>
       </div>
 
@@ -362,10 +369,10 @@ https://fresque-ia-animateurs.fr/agenda
             <div style={{ fontWeight: 500, fontSize: 15 }}>
               {selectedDay} {MONTHS[viewMonth]} {viewYear}
             </div>
-            <button className="btn btn-sm btn-primary" onClick={() => openNewForm(selectedDay)}>+ Intervention ce jour</button>
+            <button className="btn btn-sm btn-primary" onClick={() => openNewForm(selectedDay)}>{t('agenda.thisDay')}</button>
           </div>
           {interventionsForDay(selectedDay).length === 0 ? (
-            <div style={{ fontSize: 13, color: 'var(--text2)' }}>Aucune intervention prévue ce jour.</div>
+            <div style={{ fontSize: 13, color: 'var(--text2)' }}>{t('agenda.noIntervention')}</div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {interventionsForDay(selectedDay).map(inv => {
@@ -382,28 +389,28 @@ https://fresque-ia-animateurs.fr/agenda
                       <div>
                         <div style={{ fontWeight: 500, fontSize: 14 }}>{inv.lieu}</div>
                         <div style={{ fontSize: 12, color: 'var(--text2)', marginTop: 2 }}>
-                          {inv.heure.slice(0, 5)} {inv.entreprise && `· ${inv.entreprise}`} {inv.nb_participants && `· ${inv.nb_participants} participants`}
+                          {inv.heure.slice(0, 5)} {inv.entreprise && `· ${inv.entreprise}`} {inv.nb_participants && `· ${inv.nb_participants} ${t('agenda.participants').toLowerCase()}`}
                         </div>
                         <div style={{ fontSize: 12, color: 'var(--text2)', marginTop: 2 }}>
-                          Par <strong>{inv.animateur?.nom}</strong>
+                          {t('agenda.by')} <strong>{inv.animateur?.nom}</strong>
                         </div>
                       </div>
                       <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
                         {complet ? (
-                          <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 20, background: '#F3F4F6', color: '#6B7280', border: '0.5px solid #D1D5DB' }}>Complet</span>
+                          <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 20, background: '#F3F4F6', color: '#6B7280', border: '0.5px solid #D1D5DB' }}>{t('agenda.full')}</span>
                         ) : (
-                          <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 20, background: '#FCE7F3', color: '#BE185D', border: '0.5px solid #F9A8D4' }}>Disponible</span>
+                          <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 20, background: '#FCE7F3', color: '#BE185D', border: '0.5px solid #F9A8D4' }}>{t('agenda.available')}</span>
                         )}
                         {!isMine && !complet && !jaiCandidate && (
                           <button className="btn btn-sm btn-primary" onClick={e => { e.stopPropagation(); setCandidaterModal(inv) }}>
-                            Candidater
+                            {t('agenda.candidate')}
                           </button>
                         )}
                         {jaiCandidate && !isMine && (
-                          <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 20, background: 'var(--accent-bg)', color: 'var(--accent-text)', border: '0.5px solid #AFA9EC' }}>Candidature envoyée</span>
+                          <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 20, background: 'var(--accent-bg)', color: 'var(--accent-text)', border: '0.5px solid #AFA9EC' }}>{t('agenda.candidateSent')}</span>
                         )}
                         {isMine && (
-                          <button className="btn btn-sm" onClick={e => { e.stopPropagation(); openEditForm(inv) }}>Modifier</button>
+                          <button className="btn btn-sm" onClick={e => { e.stopPropagation(); openEditForm(inv) }}>{t('common.edit')}</button>
                         )}
                       </div>
                     </div>
@@ -421,16 +428,16 @@ https://fresque-ia-animateurs.fr/agenda
             <div>
               <div style={{ fontWeight: 600, fontSize: 16 }}>{selectedIntervention.lieu}</div>
               <div style={{ fontSize: 13, color: 'var(--text2)', marginTop: 3 }}>
-                {new Date(selectedIntervention.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} à {selectedIntervention.heure.slice(0, 5)}
+                {new Date(selectedIntervention.date).toLocaleDateString(dateLocale, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} {lang === 'en' ? 'at' : 'à'} {selectedIntervention.heure.slice(0, 5)}
               </div>
-              {selectedIntervention.entreprise && <div style={{ fontSize: 13, color: 'var(--text2)' }}>Entreprise : {selectedIntervention.entreprise}</div>}
-              {selectedIntervention.nb_participants && <div style={{ fontSize: 13, color: 'var(--text2)' }}>{selectedIntervention.nb_participants} participants</div>}
-              <div style={{ fontSize: 13, color: 'var(--text2)', marginTop: 4 }}>Organisé par <strong>{selectedIntervention.animateur?.nom}</strong></div>
+              {selectedIntervention.entreprise && <div style={{ fontSize: 13, color: 'var(--text2)' }}>{t('agenda.company')} : {selectedIntervention.entreprise}</div>}
+              {selectedIntervention.nb_participants && <div style={{ fontSize: 13, color: 'var(--text2)' }}>{selectedIntervention.nb_participants} {t('agenda.participants').toLowerCase()}</div>}
+              <div style={{ fontSize: 13, color: 'var(--text2)', marginTop: 4 }}>{t('agenda.organizedBy')} <strong>{selectedIntervention.animateur?.nom}</strong></div>
             </div>
             {selectedIntervention.animateur_id === me?.id && (
               <div style={{ display: 'flex', gap: 6 }}>
-                <button className="btn btn-sm" onClick={() => openEditForm(selectedIntervention)}>Modifier</button>
-                <button className="btn btn-sm btn-danger" onClick={() => handleDelete(selectedIntervention.id)}>Supprimer</button>
+                <button className="btn btn-sm" onClick={() => openEditForm(selectedIntervention)}>{t('common.edit')}</button>
+                <button className="btn btn-sm btn-danger" onClick={() => handleDelete(selectedIntervention.id)}>{t('common.delete')}</button>
               </div>
             )}
           </div>
@@ -438,20 +445,20 @@ https://fresque-ia-animateurs.fr/agenda
           <hr className="divider" />
 
           <div style={{ marginBottom: '1rem' }}>
-            <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 8 }}>Recherche</div>
+            <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 8 }}>{t('agenda.search')}</div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {selectedIntervention.cherche_observateurs && (
                 <span style={{ fontSize: 12, padding: '3px 10px', borderRadius: 20, background: '#E6F1FB', color: '#0C447C', border: '0.5px solid #85B7EB' }}>
-                  👁 {selectedIntervention.nb_observateurs} observateur{selectedIntervention.nb_observateurs > 1 ? 's' : ''}
+                  👁 {selectedIntervention.nb_observateurs} {selectedIntervention.nb_observateurs > 1 ? t('agenda.observerPlural') : t('agenda.observer')}
                 </span>
               )}
               {selectedIntervention.cherche_coanimateur && (
                 <span style={{ fontSize: 12, padding: '3px 10px', borderRadius: 20, background: '#E1F5EE', color: '#085041', border: '0.5px solid #5DCAA5' }}>
-                  ⚡ {selectedIntervention.nb_coanimateurs} co-animateur{selectedIntervention.nb_coanimateurs > 1 ? 's' : ''}
+                  ⚡ {selectedIntervention.nb_coanimateurs} {selectedIntervention.nb_coanimateurs > 1 ? t('agenda.coanimatorPlural') : t('agenda.coanimator')}
                 </span>
               )}
               {!selectedIntervention.cherche_observateurs && !selectedIntervention.cherche_coanimateur && (
-                <span style={{ fontSize: 12, color: 'var(--text2)' }}>Aucun besoin déclaré</span>
+                <span style={{ fontSize: 12, color: 'var(--text2)' }}>{t('agenda.noNeedDeclared')}</span>
               )}
             </div>
           </div>
@@ -459,10 +466,10 @@ https://fresque-ia-animateurs.fr/agenda
           <hr className="divider" />
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-            <div style={{ fontSize: 13, fontWeight: 500 }}>Participants</div>
+            <div style={{ fontSize: 13, fontWeight: 500 }}>{t('agenda.participants')}</div>
             {selectedIntervention.animateur_id === me?.id && (
               <button className="btn btn-sm" onClick={() => setShowAjoutManuel(v => !v)}>
-                {showAjoutManuel ? 'Annuler' : '+ Ajouter manuellement'}
+                {showAjoutManuel ? t('common.cancel') : t('agenda.addManually')}
               </button>
             )}
           </div>
@@ -470,18 +477,18 @@ https://fresque-ia-animateurs.fr/agenda
           {showAjoutManuel && selectedIntervention.animateur_id === me?.id && (
             <div style={{ background: 'var(--bg2)', borderRadius: 8, padding: '12px', marginBottom: 12, display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'flex-end' }}>
               <div className="form-group" style={{ marginBottom: 0, flex: 1, minWidth: 160 }}>
-                <label className="form-label">Prénom et nom</label>
+                <label className="form-label">{t('agenda.manualName')}</label>
                 <input className="form-input" value={ajoutManuelNom} onChange={e => setAjoutManuelNom(e.target.value)}
                   placeholder="Marie Dupont" onKeyDown={e => e.key === 'Enter' && handleAjoutManuel()} />
               </div>
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">Rôle</label>
+                <label className="form-label">{t('agenda.role')}</label>
                 <select className="form-input" value={ajoutManuelRole} onChange={e => setAjoutManuelRole(e.target.value as 'observateur' | 'coanimateur')}>
-                  {selectedIntervention.cherche_observateurs && <option value="observateur">👁 Observateur</option>}
-                  {selectedIntervention.cherche_coanimateur && <option value="coanimateur">⚡ Co-animateur</option>}
+                  {selectedIntervention.cherche_observateurs && <option value="observateur">👁 {t('badge.observer')}</option>}
+                  {selectedIntervention.cherche_coanimateur && <option value="coanimateur">⚡ {t('badge.coanimator')}</option>}
                 </select>
               </div>
-              <button className="btn btn-primary btn-sm" onClick={handleAjoutManuel}>Ajouter</button>
+              <button className="btn btn-primary btn-sm" onClick={handleAjoutManuel}>{t('common.add')}</button>
             </div>
           )}
 
@@ -492,14 +499,14 @@ https://fresque-ia-animateurs.fr/agenda
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ fontSize: 12 }}>{c.role === 'observateur' ? '👁' : '⚡'}</span>
                     <span style={{ fontSize: 13, fontWeight: 500 }}>
-                      {c.nom_manuel ? `${c.nom_manuel} (ajouté manuellement)` : c.animateur?.nom}
+                      {c.nom_manuel ? `${c.nom_manuel} ${t('agenda.addedManually')}` : c.animateur?.nom}
                     </span>
                     <span style={{ fontSize: 11, padding: '1px 7px', borderRadius: 20,
                       background: c.statut === 'accepte' ? '#E1F5EE' : c.statut === 'refuse' ? '#FAECE7' : '#F3F4F6',
                       color: c.statut === 'accepte' ? '#085041' : c.statut === 'refuse' ? '#993C1D' : '#6B7280',
                       border: `0.5px solid ${c.statut === 'accepte' ? '#5DCAA5' : c.statut === 'refuse' ? '#F0997B' : '#D1D5DB'}`
                     }}>
-                      {c.statut === 'accepte' ? 'Accepté' : c.statut === 'refuse' ? 'Refusé' : 'En attente'}
+                      {c.statut === 'accepte' ? t('agenda.accepted') : c.statut === 'refuse' ? t('agenda.rejected') : t('agenda.pending')}
                     </span>
                   </div>
                   {selectedIntervention.animateur_id === me?.id && (
@@ -507,9 +514,9 @@ https://fresque-ia-animateurs.fr/agenda
                       {c.statut === 'en_attente' && (
                         <>
                           <button className="btn btn-sm" style={{ color: '#085041', borderColor: '#5DCAA5' }}
-                            onClick={() => handleStatutCandidature(c.id, 'accepte')}>Accepter</button>
+                            onClick={() => handleStatutCandidature(c.id, 'accepte')}>{t('agenda.accept')}</button>
                           <button className="btn btn-sm" style={{ color: '#993C1D', borderColor: '#F0997B' }}
-                            onClick={() => handleStatutCandidature(c.id, 'refuse')}>Refuser</button>
+                            onClick={() => handleStatutCandidature(c.id, 'refuse')}>{t('agenda.reject')}</button>
                         </>
                       )}
                       <button className="btn btn-sm" style={{ color: 'var(--text3)' }}
@@ -520,7 +527,7 @@ https://fresque-ia-animateurs.fr/agenda
               ))}
             </div>
           ) : (
-            <div style={{ fontSize: 13, color: 'var(--text2)' }}>Aucun participant pour l'instant.</div>
+            <div style={{ fontSize: 13, color: 'var(--text2)' }}>{t('agenda.noParticipants')}</div>
           )}
         </div>
       )}
@@ -528,32 +535,32 @@ https://fresque-ia-animateurs.fr/agenda
       {candidaterModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '1rem' }}>
           <div className="card" style={{ maxWidth: 420, width: '100%' }}>
-            <div style={{ fontWeight: 600, fontSize: 16, marginBottom: 4 }}>Candidater à cette intervention</div>
+            <div style={{ fontWeight: 600, fontSize: 16, marginBottom: 4 }}>{t('agenda.candidateModalTitle')}</div>
             <div style={{ fontSize: 13, color: 'var(--text2)', marginBottom: '1.25rem' }}>
-              {candidaterModal.lieu} · {new Date(candidaterModal.date).toLocaleDateString('fr-FR')} à {candidaterModal.heure.slice(0, 5)}
+              {candidaterModal.lieu} · {new Date(candidaterModal.date).toLocaleDateString(dateLocale)} {lang === 'en' ? 'at' : 'à'} {candidaterModal.heure.slice(0, 5)}
             </div>
             <div style={{ marginBottom: '1.25rem' }}>
-              <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 8 }}>Je souhaite participer en tant que :</div>
+              <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 8 }}>{t('agenda.candidateAs')}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {candidaterModal.cherche_observateurs && (
                   <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', padding: '10px 12px', borderRadius: 8, border: `1.5px solid ${candidaterRole === 'observateur' ? '#85B7EB' : 'var(--border)'}`, background: candidaterRole === 'observateur' ? '#E6F1FB' : 'var(--bg)' }}
                     onClick={() => setCandidaterRole('observateur')}>
                     <input type="radio" checked={candidaterRole === 'observateur'} onChange={() => setCandidaterRole('observateur')} />
-                    <span>👁 Observateur</span>
+                    <span>👁 {t('badge.observer')}</span>
                   </label>
                 )}
                 {candidaterModal.cherche_coanimateur && (
                   <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', padding: '10px 12px', borderRadius: 8, border: `1.5px solid ${candidaterRole === 'coanimateur' ? '#5DCAA5' : 'var(--border)'}`, background: candidaterRole === 'coanimateur' ? '#E1F5EE' : 'var(--bg)' }}
                     onClick={() => setCandidaterRole('coanimateur')}>
                     <input type="radio" checked={candidaterRole === 'coanimateur'} onChange={() => setCandidaterRole('coanimateur')} />
-                    <span>⚡ Co-animateur</span>
+                    <span>⚡ {t('badge.coanimator')}</span>
                   </label>
                 )}
               </div>
             </div>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <button className="btn" onClick={() => setCandidaterModal(null)}>Annuler</button>
-              <button className="btn btn-primary" onClick={handleCandidater}>Confirmer ma candidature</button>
+              <button className="btn" onClick={() => setCandidaterModal(null)}>{t('common.cancel')}</button>
+              <button className="btn btn-primary" onClick={handleCandidater}>{t('agenda.confirmCandidacy')}</button>
             </div>
           </div>
         </div>
@@ -563,59 +570,59 @@ https://fresque-ia-animateurs.fr/agenda
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', zIndex: 100, padding: '2rem 1rem', overflowY: 'auto' }}>
           <div className="card" style={{ maxWidth: 520, width: '100%' }}>
             <div style={{ fontWeight: 600, fontSize: 16, marginBottom: '1.25rem' }}>
-              {editMode ? "Modifier l'intervention" : 'Déclarer une intervention'}
+              {editMode ? t('agenda.editIntervention') : t('agenda.declare')}
             </div>
             <form onSubmit={handleSave}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                  <label className="form-label">Lieu *</label>
-                  <input className="form-input" value={fLieu} onChange={e => setFLieu(e.target.value)} required placeholder="Ex: Paris 8e, Salle de conf. A" />
+                  <label className="form-label">{t('agenda.place')}</label>
+                  <input className="form-input" value={fLieu} onChange={e => setFLieu(e.target.value)} required placeholder={t('agenda.placePlaceholder')} />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Date *</label>
+                  <label className="form-label">{t('agenda.date')}</label>
                   <input className="form-input" type="date" value={fDate} onChange={e => setFDate(e.target.value)} required />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Heure *</label>
+                  <label className="form-label">{t('agenda.time')}</label>
                   <input className="form-input" type="time" value={fHeure} onChange={e => setFHeure(e.target.value)} required />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Entreprise / Organisation</label>
-                  <input className="form-input" value={fEntreprise} onChange={e => setFEntreprise(e.target.value)} placeholder="Nom de l'entreprise" />
+                  <label className="form-label">{t('agenda.company')}</label>
+                  <input className="form-input" value={fEntreprise} onChange={e => setFEntreprise(e.target.value)} placeholder={t('agenda.companyPlaceholder')} />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Nb de participants</label>
+                  <label className="form-label">{t('agenda.nbParticipants')}</label>
                   <input className="form-input" type="number" min="1" value={fNbParticipants} onChange={e => setFNbParticipants(e.target.value)} placeholder="Ex: 20" />
                 </div>
               </div>
               <hr className="divider" />
-              <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 10 }}>Je recherche</div>
+              <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 10 }}>{t('agenda.iSearch')}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: '1rem' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
                   <input type="checkbox" checked={fObservateurs} onChange={e => setFObservateurs(e.target.checked)} />
-                  <span style={{ fontSize: 13 }}>👁 Des observateurs</span>
+                  <span style={{ fontSize: 13 }}>👁 {t('agenda.observersNeeded')}</span>
                 </label>
                 {fObservateurs && (
                   <div className="form-group" style={{ marginBottom: 0, paddingLeft: 24 }}>
-                    <label className="form-label">Nombre d'observateurs souhaités</label>
+                    <label className="form-label">{t('agenda.nbObservers')}</label>
                     <input className="form-input" type="number" min="1" value={fNbObs} onChange={e => setFNbObs(e.target.value)} style={{ width: 100 }} />
                   </div>
                 )}
                 <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
                   <input type="checkbox" checked={fCoAnim} onChange={e => setFCoAnim(e.target.checked)} />
-                  <span style={{ fontSize: 13 }}>⚡ Un ou des co-animateurs</span>
+                  <span style={{ fontSize: 13 }}>⚡ {t('agenda.coanimatorsNeeded')}</span>
                 </label>
                 {fCoAnim && (
                   <div className="form-group" style={{ marginBottom: 0, paddingLeft: 24 }}>
-                    <label className="form-label">Nombre de co-animateurs souhaités</label>
+                    <label className="form-label">{t('agenda.nbCoanimators')}</label>
                     <input className="form-input" type="number" min="1" value={fNbCoAnim} onChange={e => setFNbCoAnim(e.target.value)} style={{ width: 100 }} />
                   </div>
                 )}
               </div>
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                <button type="button" className="btn" onClick={() => { setShowForm(false); resetForm() }}>Annuler</button>
+                <button type="button" className="btn" onClick={() => { setShowForm(false); resetForm() }}>{t('common.cancel')}</button>
                 <button type="submit" className="btn btn-primary" disabled={saving}>
-                  {saving ? 'Enregistrement…' : editMode ? 'Modifier' : 'Déclarer'}
+                  {saving ? t('agenda.saving') : editMode ? t('agenda.editSubmit') : t('agenda.declareSubmit')}
                 </button>
               </div>
             </form>
