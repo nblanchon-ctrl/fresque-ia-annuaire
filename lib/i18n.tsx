@@ -266,7 +266,7 @@ export const translations: Record<Lang, Dict> = {
     'espace.directoryDesc': 'Find all facilitators, their profiles and skills.',
     'espace.agenda': 'Community calendar',
     'espace.agendaDesc': 'Upcoming events, workshops and meetups.',
-    'espace.mattermostDesc': 'Fresque de l'IA community chat.',
+    'espace.mattermostDesc': "Fresque de l'IA community chat.",
     'espace.drive': 'Shared drive',
     'espace.driveDesc': 'Community resources and tools.',
     'espace.cards': 'Card reference',
