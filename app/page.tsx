@@ -1,126 +1,150 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase'
+import type { Animateur } from '@/lib/types'
 import { useLanguage, LanguageSwitch } from '@/lib/i18n'
 
-export default function HomePage() {
+export default function EspacePage() {
   const { t } = useLanguage()
-  const [mode, setMode] = useState<'login' | 'register'>('login')
-  const [nom, setNom] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [checking, setChecking] = useState(true)
+  const [me, setMe] = useState<Animateur | null>(null)
+  const [loading, setLoading] = useState(true)
   const supabase = createClient()
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user) window.location.href = '/annuaire'
-      else setChecking(false)
-    })
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { window.location.href = '/'; return }
+      const { data } = await supabase.from('animateurs').select('*').eq('id', user.id).single()
+      setMe(data)
+      setLoading(false)
+    }
+    load()
   }, [])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-    if (mode === 'login') {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
-      if (error) { setError(t('auth.loginError')); setLoading(false) }
-      else window.location.href = '/annuaire'
-    } else {
-      if (password.length < 8) { setError(t('auth.passwordTooShort')); setLoading(false); return }
-      const { error } = await supabase.auth.signUp({ email, password, options: { data: { nom } } })
-      if (error) { setError(error.message); setLoading(false) }
-      else setSuccess(true)
-    }
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    window.location.href = '/'
   }
 
-  if (checking) return null
+  if (loading) return <div className="container"><div className="empty"><p>{t('common.loading')}</p></div></div>
 
-  if (success) {
-    return (
-      <div className="auth-wrap">
-        <div className="auth-card card">
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
-            <LanguageSwitch />
-          </div>
-          <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-            <h1 style={{ fontSize: 20 }}>{t('auth.checkEmail')}</h1>
-          </div>
-          <p style={{ color: 'var(--text2)', fontSize: 14, textAlign: 'center' }}>
-            {t('auth.confirmationSent')} <strong>{email}</strong>.
-          </p>
-          <button className="btn btn-primary" style={{ width: '100%', marginTop: '1.25rem' }}
-            onClick={() => { setSuccess(false); setMode('login') }}>
-            {t('auth.backToLogin')}
-          </button>
-        </div>
-      </div>
-    )
-  }
+  const buttons = [
+    {
+      href: '/fresqueurs',
+      icon: '👥',
+      label: t('espace.directory'),
+      desc: t('espace.directoryDesc'),
+      color: '#EEEDFE',
+      textColor: '#3C3489',
+      border: '#AFA9EC',
+    },
+    {
+      href: '/agenda',
+      icon: '📅',
+      label: t('espace.agenda'),
+      desc: t('espace.agendaDesc'),
+      color: '#E1F5EE',
+      textColor: '#085041',
+      border: '#5DCAA5',
+    },
+    {
+      href: 'https://community.lafresquedelia.com/la-fresque-de-lia/channels/town-square',
+      icon: '💬',
+      label: 'Mattermost',
+      desc: t('espace.mattermostDesc'),
+      color: '#E6F1FB',
+      textColor: '#0C447C',
+      border: '#85B7EB',
+      external: true,
+    },
+    {
+      href: 'https://drive.google.com/drive/u/0/folders/15CjtB5Mw-vdrBguv4VdQtWgMU7A6lEq4',
+      icon: '📁',
+      label: t('espace.drive'),
+      desc: t('espace.driveDesc'),
+      color: '#FAEEDA',
+      textColor: '#633806',
+      border: '#EF9F27',
+      external: true,
+    },
+    {
+      href: 'https://fresquedelia.ovh/',
+      icon: '🃏',
+      label: t('espace.cards'),
+      desc: t('espace.cardsDesc'),
+      color: '#FAECE7',
+      textColor: '#993C1D',
+      border: '#F0997B',
+      external: true,
+    },
+  ]
 
   return (
-    <div className="auth-wrap">
-      <div className="auth-card card">
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
+    <div className="container" style={{ maxWidth: 700 }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: 12 }}>
+        <div>
+          <div style={{ fontSize: 13, color: 'var(--text2)', marginBottom: 4 }}>
+            {t('espace.welcome')}, <strong>{me?.nom}</strong>
+            {me?.is_admin && <span className="badge badge-admin" style={{ marginLeft: 8 }}>Admin</span>}
+          </div>
+          <h1 style={{ fontSize: 24, fontWeight: 600, color: 'var(--text)' }}>{t('espace.title')}</h1>
+          <p style={{ fontSize: 14, color: 'var(--text2)', marginTop: 4 }}>{t('espace.subtitle')}</p>
+        </div>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
           <LanguageSwitch />
+          <a href="/dashboard" className="btn btn-sm">{t('nav.myProfile')}</a>
+          {me?.is_admin && <a href="/admin" className="btn btn-sm">{t('nav.admin')}</a>}
+          <button className="btn btn-sm" onClick={handleLogout}>{t('nav.logout')}</button>
         </div>
-        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--accent)', marginBottom: 8 }}>{t('auth.brand')}</div>
-          <h1 style={{ fontSize: 22, fontWeight: 600 }}>
-            {mode === 'login' ? t('auth.login') : t('auth.register')}
-          </h1>
-          <p style={{ color: 'var(--text2)', fontSize: 14, marginTop: 4 }}>
-            {mode === 'login' ? t('auth.loginSubtitle') : t('auth.registerSubtitle')}
-          </p>
-        </div>
+      </div>
 
-        <div style={{ display: 'flex', background: 'var(--bg2)', borderRadius: 'var(--radius)', padding: 3, marginBottom: '1.25rem', gap: 3 }}>
-          {(['login', 'register'] as const).map(m => (
-            <button key={m} onClick={() => { setMode(m); setError('') }}
-              style={{ flex: 1, padding: '7px', borderRadius: 'calc(var(--radius) - 2px)', border: 'none', cursor: 'pointer', fontWeight: 500, fontSize: 13, transition: 'all .15s',
-                background: mode === m ? 'var(--bg)' : 'transparent',
-                color: mode === m ? 'var(--text)' : 'var(--text2)' }}>
-              {m === 'login' ? t('auth.loginTab') : t('auth.registerTab')}
-            </button>
-          ))}
-        </div>
-
-        {error && <div className="alert alert-error">{error}</div>}
-
-        <form onSubmit={handleSubmit}>
-          {mode === 'register' && (
-            <div className="form-group">
-              <label className="form-label">{t('auth.fullName')}</label>
-              <input className="form-input" type="text" value={nom}
-                onChange={e => setNom(e.target.value)} required placeholder="Marie Dupont" />
+      {/* 5 boutons */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {buttons.map((b, i) => (
+          <a
+            key={i}
+            href={b.href}
+            target={b.external ? '_blank' : undefined}
+            rel={b.external ? 'noopener noreferrer' : undefined}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 18,
+              padding: '1.25rem 1.5rem',
+              background: 'var(--bg)',
+              border: `0.5px solid var(--border)`,
+              borderRadius: 'var(--radius-lg)',
+              textDecoration: 'none', color: 'inherit',
+              transition: 'border-color .15s, transform .1s, box-shadow .15s',
+              cursor: 'pointer',
+            }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLAnchorElement).style.borderColor = b.border
+              ;(e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-1px)'
+              ;(e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--border)'
+              ;(e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(0)'
+              ;(e.currentTarget as HTMLAnchorElement).style.boxShadow = 'none'
+            }}
+          >
+            <div style={{
+              width: 52, height: 52, borderRadius: 14, flexShrink: 0,
+              background: b.color, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 24
+            }}>
+              {b.icon}
             </div>
-          )}
-          <div className="form-group">
-            <label className="form-label">{t('auth.email')}</label>
-            <input className="form-input" type="email" value={email}
-              onChange={e => setEmail(e.target.value)} required autoComplete="email" />
-          </div>
-          <div className="form-group">
-            <label className="form-label">{t('auth.password')}{mode === 'register' && t('auth.passwordMin')}</label>
-            <input className="form-input" type="password" value={password}
-              onChange={e => setPassword(e.target.value)} required
-              autoComplete={mode === 'login' ? 'current-password' : 'new-password'} />
-          </div>
-          <button className="btn btn-primary" type="submit" style={{ width: '100%', marginTop: 4 }} disabled={loading}>
-            {loading ? '…' : mode === 'login' ? t('auth.submitLogin') : t('auth.submitRegister')}
-          </button>
-          {mode === 'login' && (
-            <div style={{ textAlign: 'center', marginTop: 12 }}>
-              <a href="/forgot-password" style={{ fontSize: 13, color: 'var(--accent)' }}>
-                {t('auth.forgotPassword')}
-              </a>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text)', marginBottom: 2 }}>
+                {b.label}
+                {b.external && <span style={{ fontSize: 11, color: 'var(--text3)', marginLeft: 6 }}>↗</span>}
+              </div>
+              <div style={{ fontSize: 13, color: 'var(--text2)' }}>{b.desc}</div>
             </div>
-          )}
-        </form>
+            <div style={{ color: 'var(--text3)', fontSize: 20 }}>›</div>
+          </a>
+        ))}
       </div>
     </div>
   )
