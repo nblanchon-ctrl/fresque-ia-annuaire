@@ -54,7 +54,7 @@ export const translations: Record<Lang, Dict> = {
     'espace.directoryDesc': 'Retrouvez tous les animateurs, leurs profils et compétences.',
     'espace.agenda': 'Agenda de la communauté',
     'espace.agendaDesc': 'Événements, interventions et rencontres à venir.',
-    'espace.mattermostDesc': 'Chat de la communauté Fresque de l'IA.',
+    'espace.mattermostDesc': "Chat de la communauté Fresque de l'IA.",
     'espace.drive': 'Drive partagé',
     'espace.driveDesc': 'Ressources documentaires et outils de la communauté.',
     'espace.cards': 'Référentiel des cartes',
