@@ -19,6 +19,7 @@ interface Intervention {
   nb_observateurs: number
   cherche_coanimateur: boolean
   nb_coanimateurs: number
+  description?: string
   statut: 'ouvert' | 'complet' | 'annule'
   created_at: string
   animateur?: Animateur
@@ -95,6 +96,7 @@ export default function AgendaPage() {
   const [fNbObs, setFNbObs] = useState('1')
   const [fCoAnim, setFCoAnim] = useState(false)
   const [fNbCoAnim, setFNbCoAnim] = useState('1')
+  const [fDescription, setFDescription] = useState('')
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
@@ -149,7 +151,7 @@ export default function AgendaPage() {
   const resetForm = () => {
     setFType('fresque'); setFLieu(''); setFDate(''); setFHeure(''); setFEntreprise('')
     setFNbParticipants(''); setFObservateurs(false); setFNbObs('1')
-    setFCoAnim(false); setFNbCoAnim('1')
+    setFCoAnim(false); setFNbCoAnim('1'); setFDescription('')
   }
 
   const openNewForm = (day?: number) => {
@@ -173,6 +175,7 @@ export default function AgendaPage() {
     setFNbObs(i.nb_observateurs.toString())
     setFCoAnim(i.cherche_coanimateur)
     setFNbCoAnim(i.nb_coanimateurs.toString())
+    setFDescription(i.description || '')
     setEditMode(true)
     setShowForm(true)
     setSelectedIntervention(i)
@@ -186,6 +189,7 @@ export default function AgendaPage() {
       type_evenement: fType,
       lieu: fLieu, date: fDate, heure: fHeure,
       entreprise: fEntreprise || null,
+      description: fDescription || null,
       nb_participants: fNbParticipants ? parseInt(fNbParticipants) : null,
       cherche_observateurs: fType === 'fresque' ? fObservateurs : false,
       nb_observateurs: fType === 'fresque' && fObservateurs ? parseInt(fNbObs) : 0,
@@ -468,6 +472,11 @@ export default function AgendaPage() {
                     {selectedIntervention.entreprise && <div style={{ fontSize: 13, color: 'var(--text2)' }}>{selectedIntervention.entreprise}</div>}
                     {selectedIntervention.nb_participants && <div style={{ fontSize: 13, color: 'var(--text2)' }}>{selectedIntervention.nb_participants} {t('agenda.participants').toLowerCase()}</div>}
                     <div style={{ fontSize: 13, color: 'var(--text2)', marginTop: 4 }}>{t('agenda.organizedBy')} <strong>{selectedIntervention.animateur?.nom}</strong></div>
+                    {selectedIntervention.description && (
+                      <p style={{ fontSize: 13, color: 'var(--text)', marginTop: 8, lineHeight: 1.6, padding: '10px 12px', background: 'var(--bg2)', borderRadius: 8 }}>
+                        {selectedIntervention.description}
+                      </p>
+                    )}
                   </div>
                   {selectedIntervention.animateur_id === me?.id && (
                     <div style={{ display: 'flex', gap: 6 }}>
@@ -658,6 +667,11 @@ export default function AgendaPage() {
                 <div className="form-group">
                   <label className="form-label">{t('agenda.nbParticipants')}</label>
                   <input className="form-input" type="number" min="1" value={fNbParticipants} onChange={e => setFNbParticipants(e.target.value)} placeholder="Ex: 20" />
+                </div>
+                <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                  <label className="form-label">{lang === 'en' ? 'Description' : 'Description'}</label>
+                  <textarea className="form-input" value={fDescription} onChange={e => setFDescription(e.target.value)}
+                    placeholder={lang === 'en' ? 'Describe the event, its goals, what to expect…' : "Décrivez l'événement, ses objectifs, ce que les participants peuvent en attendre…"} />
                 </div>
               </div>
 
