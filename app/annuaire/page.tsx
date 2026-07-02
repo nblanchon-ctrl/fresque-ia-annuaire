@@ -32,8 +32,8 @@ export default function EspacePage() {
     {
       href: '/fresqueurs',
       icon: '👥',
-      label: t('Annuaire'),
-      desc: t('Retrouvez tous les animateurs de la communauté'),
+      label: 'Annuaire',
+      desc: 'Retrouvez tous les animateurs de la communauté.',
       color: '#EEEDFE',
       textColor: '#3C3489',
       border: '#AFA9EC',
@@ -41,8 +41,8 @@ export default function EspacePage() {
     {
       href: '/agenda',
       icon: '📅',
-      label: t('Agenda'),
-      desc: t('Retrouvez tous les événements de la communauté'),
+      label: 'Agenda',
+      desc: 'Événements, interventions et rencontres à venir.',
       color: '#E1F5EE',
       textColor: '#085041',
       border: '#5DCAA5',
@@ -51,7 +51,7 @@ export default function EspacePage() {
       href: 'https://community.lafresquedelia.com/la-fresque-de-lia/channels/town-square',
       icon: '💬',
       label: 'Mattermost',
-      desc: t('Accédez à l'outil de chat de la communauté'),
+      desc: 'Chat de la communauté Fresque de l\'IA.',
       color: '#E6F1FB',
       textColor: '#0C447C',
       border: '#85B7EB',
@@ -60,8 +60,8 @@ export default function EspacePage() {
     {
       href: 'https://drive.google.com/drive/u/0/folders/15CjtB5Mw-vdrBguv4VdQtWgMU7A6lEq4',
       icon: '📁',
-      label: t('Drive'),
-      desc: t('Retrouvez l'ensemble des ressources documentaires de la communauté'),
+      label: 'Drive',
+      desc: 'Ressources documentaires et outils de la communauté.',
       color: '#FAEEDA',
       textColor: '#633806',
       border: '#EF9F27',
@@ -70,8 +70,8 @@ export default function EspacePage() {
     {
       href: 'https://fresquedelia.ovh/',
       icon: '🃏',
-      label: t('Cartes de la Fresque'),
-      desc: t('Retrouvez l'ensemble des cartes de La Fresque de l'IA'),
+      label: 'Cartes de la fresque',
+      desc: 'Accédez au référentiel complet des cartes.',
       color: '#FAECE7',
       textColor: '#993C1D',
       border: '#F0997B',
@@ -85,11 +85,10 @@ export default function EspacePage() {
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: 12 }}>
         <div>
           <div style={{ fontSize: 13, color: 'var(--text2)', marginBottom: 4 }}>
-            {t('espace.welcome')}, <strong>{me?.nom}</strong>
+            Bonjour, <strong>{me?.nom}</strong>
             {me?.is_admin && <span className="badge badge-admin" style={{ marginLeft: 8 }}>Admin</span>}
           </div>
-          <h1 style={{ fontSize: 24, fontWeight: 600, color: 'var(--text)' }}>{t('espace.title')}</h1>
-          <p style={{ fontSize: 14, color: 'var(--text2)', marginTop: 4 }}>{t('espace.subtitle')}</p>
+          <h1 style={{ fontSize: 24, fontWeight: 600, color: 'var(--text)' }}>Mon espace fresqueur</h1>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
           <LanguageSwitch />
