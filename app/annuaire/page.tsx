@@ -32,8 +32,8 @@ export default function EspacePage() {
     {
       href: '/fresqueurs',
       icon: '👥',
-      label: 'Annuaire',
-      desc: 'Retrouvez tous les animateurs de la communauté.',
+      label: lang === 'en' ? 'Directory' : 'Annuaire',
+      desc: lang === 'en' ? 'Find all facilitators, their profiles and skills.' : 'Retrouvez tous les animateurs de la communauté.',
       color: '#EEEDFE',
       textColor: '#3C3489',
       border: '#AFA9EC',
@@ -41,8 +41,8 @@ export default function EspacePage() {
     {
       href: '/agenda',
       icon: '📅',
-      label: 'Agenda',
-      desc: 'Événements, interventions et rencontres à venir.',
+      label: lang === 'en' ? 'Calendar' : 'Agenda',
+      desc: lang === 'en' ? 'Upcoming events, workshops and meetups.' : 'Événements, interventions et rencontres à venir.',
       color: '#E1F5EE',
       textColor: '#085041',
       border: '#5DCAA5',
@@ -60,7 +60,7 @@ export default function EspacePage() {
       href: 'https://community.lafresquedelia.com/la-fresque-de-lia/channels/town-square',
       icon: '💬',
       label: 'Mattermost',
-      desc: 'Chat de la communauté Fresque de l\'IA.',
+      desc: lang === 'en' ? 'Fresque de l\'IA community chat.' : "Chat de la communauté Fresque de l'IA.",
       color: '#E6F1FB',
       textColor: '#0C447C',
       border: '#85B7EB',
@@ -70,7 +70,7 @@ export default function EspacePage() {
       href: 'https://drive.google.com/drive/u/0/folders/15CjtB5Mw-vdrBguv4VdQtWgMU7A6lEq4',
       icon: '📁',
       label: 'Drive',
-      desc: 'Ressources documentaires et outils de la communauté.',
+      desc: lang === 'en' ? 'Community resources and tools.' : 'Ressources documentaires et outils de la communauté.',
       color: '#EAF3DE',
       textColor: '#27500A',
       border: '#97C459',
@@ -79,8 +79,8 @@ export default function EspacePage() {
     {
       href: 'https://fresquedelia.ovh/',
       icon: '🃏',
-      label: 'Cartes de la fresque',
-      desc: 'Accédez au référentiel complet des cartes.',
+      label: lang === 'en' ? 'Fresco cards' : 'Cartes de la fresque',
+      desc: lang === 'en' ? 'Access the complete card reference.' : 'Accédez au référentiel complet des cartes.',
       color: '#FBEAF0',
       textColor: '#72243E',
       border: '#F0997B',
@@ -90,14 +90,15 @@ export default function EspacePage() {
 
   return (
     <div className="container" style={{ maxWidth: 700 }}>
-      {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: 12 }}>
         <div>
           <div style={{ fontSize: 13, color: 'var(--text2)', marginBottom: 4 }}>
-            Bonjour, <strong>{me?.nom}</strong>
+            {lang === 'en' ? 'Hello' : 'Bonjour'}, <strong>{me?.nom}</strong>
             {me?.is_admin && <span className="badge badge-admin" style={{ marginLeft: 8 }}>Admin</span>}
           </div>
-          <h1 style={{ fontSize: 24, fontWeight: 600, color: 'var(--text)' }}>Mon espace fresqueur</h1>
+          <h1 style={{ fontSize: 24, fontWeight: 600, color: 'var(--text)' }}>
+            {lang === 'en' ? 'My facilitator space' : 'Mon espace fresqueur'}
+          </h1>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
           <LanguageSwitch />
@@ -107,7 +108,6 @@ export default function EspacePage() {
         </div>
       </div>
 
-      {/* 5 boutons */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {buttons.map((b, i) => (
           <a
@@ -119,21 +119,23 @@ export default function EspacePage() {
               display: 'flex', alignItems: 'center', gap: 18,
               padding: '1.25rem 1.5rem',
               background: 'var(--bg)',
-              border: `0.5px solid var(--border)`,
+              border: '0.5px solid var(--border)',
               borderRadius: 'var(--radius-lg)',
               textDecoration: 'none', color: 'inherit',
               transition: 'border-color .15s, transform .1s, box-shadow .15s',
               cursor: 'pointer',
             }}
             onMouseEnter={e => {
-              (e.currentTarget as HTMLAnchorElement).style.borderColor = b.border
-              ;(e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-1px)'
-              ;(e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'
+              const el = e.currentTarget as HTMLAnchorElement
+              el.style.borderColor = b.border
+              el.style.transform = 'translateY(-1px)'
+              el.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'
             }}
             onMouseLeave={e => {
-              (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--border)'
-              ;(e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(0)'
-              ;(e.currentTarget as HTMLAnchorElement).style.boxShadow = 'none'
+              const el = e.currentTarget as HTMLAnchorElement
+              el.style.borderColor = 'var(--border)'
+              el.style.transform = 'translateY(0)'
+              el.style.boxShadow = 'none'
             }}
           >
             <div style={{
