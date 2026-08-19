@@ -5,7 +5,7 @@ import type { Animateur } from '@/lib/types'
 import { useLanguage, LanguageSwitch } from '@/lib/i18n'
 
 export default function EspacePage() {
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
   const [me, setMe] = useState<Animateur | null>(null)
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
@@ -48,6 +48,15 @@ export default function EspacePage() {
       border: '#5DCAA5',
     },
     {
+      href: '/veille',
+      icon: '📡',
+      label: lang === 'en' ? 'AI Watch' : 'Veille IA',
+      desc: lang === 'en' ? 'Legal and use cases watch documents.' : "Documents de veille IA droit et cas d'usage.",
+      color: '#FAEEDA',
+      textColor: '#633806',
+      border: '#EF9F27',
+    },
+    {
       href: 'https://community.lafresquedelia.com/la-fresque-de-lia/channels/town-square',
       icon: '💬',
       label: 'Mattermost',
@@ -62,9 +71,9 @@ export default function EspacePage() {
       icon: '📁',
       label: 'Drive',
       desc: 'Ressources documentaires et outils de la communauté.',
-      color: '#FAEEDA',
-      textColor: '#633806',
-      border: '#EF9F27',
+      color: '#EAF3DE',
+      textColor: '#27500A',
+      border: '#97C459',
       external: true,
     },
     {
@@ -72,8 +81,8 @@ export default function EspacePage() {
       icon: '🃏',
       label: 'Cartes de la fresque',
       desc: 'Accédez au référentiel complet des cartes.',
-      color: '#FAECE7',
-      textColor: '#993C1D',
+      color: '#FBEAF0',
+      textColor: '#72243E',
       border: '#F0997B',
       external: true,
     },
