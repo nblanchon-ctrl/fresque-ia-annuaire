@@ -10,7 +10,9 @@ interface Document {
   auteur_id: string
   categorie: string
   titre: string
+  titre_en?: string
   description?: string
+  description_en?: string
   type: 'fichier' | 'lien'
   url: string
   nom_fichier?: string
@@ -46,7 +48,9 @@ export default function VeilleCategoriePage() {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [fTitre, setFTitre] = useState('')
+  const [fTitreEn, setFTitreEn] = useState('')
   const [fDescription, setFDescription] = useState('')
+  const [fDescriptionEn, setFDescriptionEn] = useState('')
   const [fType, setFType] = useState<'fichier' | 'lien'>('lien')
   const [fLien, setFLien] = useState('')
   const [fFichier, setFFichier] = useState<File | null>(null)
@@ -75,7 +79,8 @@ export default function VeilleCategoriePage() {
   }, [categorie])
 
   const resetForm = () => {
-    setFTitre(''); setFDescription(''); setFType('lien'); setFLien(''); setFFichier(null)
+    setFTitre(''); setFTitreEn(''); setFDescription(''); setFDescriptionEn('')
+    setFType('lien'); setFLien(''); setFFichier(null)
   }
 
   const handleSave = async (e: React.FormEvent) => {
@@ -88,7 +93,6 @@ export default function VeilleCategoriePage() {
 
     if (fType === 'fichier' && fFichier) {
       setUploading(true)
-      const ext = fFichier.name.split('.').pop()
       const path = `${categorie}/${Date.now()}_${fFichier.name}`
       const { error: upErr } = await supabase.storage.from('documents').upload(path, fFichier)
       if (!upErr) {
@@ -103,7 +107,9 @@ export default function VeilleCategoriePage() {
       auteur_id: me.id,
       categorie,
       titre: fTitre,
+      titre_en: fTitreEn || null,
       description: fDescription || null,
+      description_en: fDescriptionEn || null,
       type: fType,
       url,
       nom_fichier,
@@ -112,22 +118,28 @@ export default function VeilleCategoriePage() {
     if (newDoc) {
       setDocuments(prev => [newDoc, ...prev])
 
-      // Email notification
+      // Email notification bilingue
       const autresEmails = allEmails.filter(e => e !== me.email)
       if (autresEmails.length > 0) {
-        const catLabelFr = config.labelFr
-        const catLabelEn = config.labelEn
-        const sujet = lang === 'en'
-          ? `📄 New document available - ${catLabelEn}`
-          : `📄 Nouveau document disponible - ${catLabelFr}`
+        const sujet = `📄 ${fTitre}${fTitreEn ? ` / ${fTitreEn}` : ''} — ${config.labelFr} / ${config.labelEn}`
         const corps = `Bonjour / Hello,
 
-${lang === 'en' ? `${me.nom} has just added a new document in` : `${me.nom} vient d'ajouter un nouveau document dans`} "${lang === 'en' ? catLabelEn : catLabelFr}" :
+${me.nom} vient d'ajouter un nouveau document / has just added a new document :
 
-${lang === 'en' ? 'Title' : 'Titre'} : ${fTitre}${fDescription ? `\n${lang === 'en' ? 'Description' : 'Description'} : ${fDescription}` : ''}
-${lang === 'en' ? 'Link' : 'Lien'} : ${url}
+--- 🇫🇷 Français ---
+Catégorie : ${config.labelFr}
+Titre : ${fTitre}${fDescription ? `\nDescription : ${fDescription}` : ''}
+Lien : ${url}
 
-${lang === 'en' ? 'Access the AI Watch section:' : 'Accédez à la section Veille IA :'}
+Accédez à la section Veille IA :
+${window.location.origin}/veille/${categorie}
+
+--- 🇬🇧 English ---
+Category: ${config.labelEn}
+Title: ${fTitreEn || fTitre}${fDescriptionEn ? `\nDescription: ${fDescriptionEn}` : (fDescription ? `\nDescription: ${fDescription}` : '')}
+Link: ${url}
+
+Access the AI Watch section:
 ${window.location.origin}/veille/${categorie}
 
 À bientôt / See you soon !`
@@ -166,14 +178,16 @@ ${window.location.origin}/veille/${categorie}
             </h1>
           </div>
           <p style={{ fontSize: 13, color: 'var(--text2)' }}>
-            {documents.length} document{documents.length > 1 ? 's' : ''} disponible{documents.length > 1 ? 's' : ''}
+            {documents.length} document{documents.length > 1 ? 's' : ''} {lang === 'en' ? 'available' : 'disponible' + (documents.length > 1 ? 's' : '')}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <LanguageSwitch />
           {me?.is_admin && (
             <button className="btn btn-sm btn-primary" onClick={() => setShowForm(v => !v)}>
-              {showForm ? (lang === 'en' ? 'Cancel' : 'Annuler') : `+ ${lang === 'en' ? 'Add a document' : 'Ajouter un document'}`}
+              {showForm
+                ? (lang === 'en' ? 'Cancel' : 'Annuler')
+                : `+ ${lang === 'en' ? 'Add a document' : 'Ajouter un document'}`}
             </button>
           )}
         </div>
@@ -186,18 +200,8 @@ ${window.location.origin}/veille/${categorie}
             {lang === 'en' ? 'New document' : 'Nouveau document'}
           </div>
           <form onSubmit={handleSave}>
-            <div className="form-group">
-              <label className="form-label">{lang === 'en' ? 'Title *' : 'Titre *'}</label>
-              <input className="form-input" value={fTitre} onChange={e => setFTitre(e.target.value)} required
-                placeholder={lang === 'en' ? 'Document title' : 'Titre du document'} />
-            </div>
-            <div className="form-group">
-              <label className="form-label">{lang === 'en' ? 'Description' : 'Description'}</label>
-              <textarea className="form-input" value={fDescription} onChange={e => setFDescription(e.target.value)}
-                placeholder={lang === 'en' ? 'Brief description of the document…' : 'Brève description du document…'} />
-            </div>
 
-            {/* Type : lien ou fichier */}
+            {/* Type */}
             <div className="form-group">
               <label className="form-label">{lang === 'en' ? 'Type *' : 'Type *'}</label>
               <div style={{ display: 'flex', gap: 8 }}>
@@ -218,6 +222,35 @@ ${window.location.origin}/veille/${categorie}
               </div>
             </div>
 
+            {/* Titres FR / EN */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <div className="form-group">
+                <label className="form-label">🇫🇷 Titre *</label>
+                <input className="form-input" value={fTitre} onChange={e => setFTitre(e.target.value)} required
+                  placeholder="Titre en français" />
+              </div>
+              <div className="form-group">
+                <label className="form-label">🇬🇧 Title</label>
+                <input className="form-input" value={fTitreEn} onChange={e => setFTitreEn(e.target.value)}
+                  placeholder="Title in English" />
+              </div>
+            </div>
+
+            {/* Descriptions FR / EN */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <div className="form-group">
+                <label className="form-label">🇫🇷 Description</label>
+                <textarea className="form-input" value={fDescription} onChange={e => setFDescription(e.target.value)}
+                  placeholder="Description en français…" style={{ minHeight: 70 }} />
+              </div>
+              <div className="form-group">
+                <label className="form-label">🇬🇧 Description</label>
+                <textarea className="form-input" value={fDescriptionEn} onChange={e => setFDescriptionEn(e.target.value)}
+                  placeholder="Description in English…" style={{ minHeight: 70 }} />
+              </div>
+            </div>
+
+            {/* URL ou fichier */}
             {fType === 'lien' ? (
               <div className="form-group">
                 <label className="form-label">URL *</label>
@@ -240,7 +273,9 @@ ${window.location.origin}/veille/${categorie}
             )}
 
             <div style={{ background: 'var(--bg2)', borderRadius: 8, padding: '10px 12px', marginBottom: '1rem', fontSize: 12, color: 'var(--text2)' }}>
-              ✉️ {lang === 'en' ? 'After saving, your email client will open to notify all facilitators.' : "Après validation, votre client mail s'ouvrira pour notifier l'ensemble des animateurs."}
+              ✉️ {lang === 'en'
+                ? "After saving, your email client will open to notify all facilitators in French and English."
+                : "Après validation, votre client mail s'ouvrira pour notifier l'ensemble des animateurs en français et en anglais."}
             </div>
 
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
@@ -248,7 +283,9 @@ ${window.location.origin}/veille/${categorie}
                 {lang === 'en' ? 'Cancel' : 'Annuler'}
               </button>
               <button type="submit" className="btn btn-primary" disabled={saving || uploading}>
-                {saving || uploading ? (lang === 'en' ? 'Saving…' : 'Enregistrement…') : (lang === 'en' ? 'Add' : 'Ajouter')}
+                {saving || uploading
+                  ? (lang === 'en' ? 'Saving…' : 'Enregistrement…')
+                  : (lang === 'en' ? 'Add' : 'Ajouter')}
               </button>
             </div>
           </form>
@@ -258,7 +295,7 @@ ${window.location.origin}/veille/${categorie}
       {/* Liste des documents */}
       {documents.length === 0 ? (
         <div className="empty">
-          <p>{lang === 'en' ? 'No document yet.' : 'Aucun document pour l\'instant.'}</p>
+          <p>{lang === 'en' ? 'No document yet.' : "Aucun document pour l'instant."}</p>
           {me?.is_admin && (
             <p style={{ fontSize: 13, marginTop: 8 }}>
               {lang === 'en' ? 'Click "+ Add a document" to get started.' : 'Cliquez sur "+ Ajouter un document" pour commencer.'}
@@ -267,40 +304,44 @@ ${window.location.origin}/veille/${categorie}
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {documents.map(doc => (
-            <div key={doc.id} className="card" style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-              <div style={{
-                width: 44, height: 44, borderRadius: 10, flexShrink: 0,
-                background: config.color, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 20
-              }}>
-                {doc.type === 'lien' ? '🔗' : '📄'}
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <a href={doc.url} target="_blank" rel="noopener noreferrer"
-                  style={{ fontSize: 15, fontWeight: 500, color: 'var(--accent)', display: 'block', marginBottom: 2 }}>
-                  {doc.titre}
-                </a>
-                {doc.description && (
-                  <p style={{ fontSize: 13, color: 'var(--text2)', margin: '4px 0', lineHeight: 1.5 }}>{doc.description}</p>
-                )}
-                {doc.nom_fichier && (
-                  <span style={{ fontSize: 11, color: 'var(--text3)' }}>{doc.nom_fichier}</span>
-                )}
-                <div style={{ fontSize: 11, color: 'var(--text3)', marginTop: 4 }}>
-                  {lang === 'en' ? 'Added by' : 'Ajouté par'} {doc.auteur?.nom} · {new Date(doc.created_at).toLocaleDateString(lang === 'en' ? 'en-US' : 'fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+          {documents.map(doc => {
+            const titre = lang === 'en' && doc.titre_en ? doc.titre_en : doc.titre
+            const description = lang === 'en' && doc.description_en ? doc.description_en : doc.description
+            return (
+              <div key={doc.id} className="card" style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+                <div style={{
+                  width: 44, height: 44, borderRadius: 10, flexShrink: 0,
+                  background: config.color, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 20
+                }}>
+                  {doc.type === 'lien' ? '🔗' : '📄'}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <a href={doc.url} target="_blank" rel="noopener noreferrer"
+                    style={{ fontSize: 15, fontWeight: 500, color: 'var(--accent)', display: 'block', marginBottom: 2 }}>
+                    {titre}
+                  </a>
+                  {description && (
+                    <p style={{ fontSize: 13, color: 'var(--text2)', margin: '4px 0', lineHeight: 1.5 }}>{description}</p>
+                  )}
+                  {doc.nom_fichier && (
+                    <span style={{ fontSize: 11, color: 'var(--text3)' }}>{doc.nom_fichier}</span>
+                  )}
+                  <div style={{ fontSize: 11, color: 'var(--text3)', marginTop: 4 }}>
+                    {lang === 'en' ? 'Added by' : 'Ajouté par'} {doc.auteur?.nom} · {new Date(doc.created_at).toLocaleDateString(lang === 'en' ? 'en-US' : 'fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                  <a href={doc.url} target="_blank" rel="noopener noreferrer" className="btn btn-sm">
+                    {doc.type === 'lien' ? (lang === 'en' ? 'Open' : 'Ouvrir') : (lang === 'en' ? 'Download' : 'Télécharger')}
+                  </a>
+                  {me?.is_admin && (
+                    <button className="btn btn-sm btn-danger" onClick={() => handleDelete(doc.id)}>×</button>
+                  )}
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-                <a href={doc.url} target="_blank" rel="noopener noreferrer" className="btn btn-sm">
-                  {doc.type === 'lien' ? (lang === 'en' ? 'Open' : 'Ouvrir') : (lang === 'en' ? 'Download' : 'Télécharger')}
-                </a>
-                {me?.is_admin && (
-                  <button className="btn btn-sm btn-danger" onClick={() => handleDelete(doc.id)}>×</button>
-                )}
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>
