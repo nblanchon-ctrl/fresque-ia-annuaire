@@ -37,6 +37,14 @@ const CATEGORIE_CONFIG = {
     textColor: '#085041',
     border: '#5DCAA5',
   },
+  rse: {
+    icon: '🌱',
+    labelFr: 'Veille RSE & IA',
+    labelEn: 'CSR & AI Watch',
+    color: '#EAF3DE',
+    textColor: '#27500A',
+    border: '#97C459',
+  },
 }
 
 export default function VeilleCategoriePage() {
