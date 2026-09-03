@@ -29,7 +29,7 @@ export default function VeillePage() {
       icon: '⚖️',
       labelFr: 'Veille IA & Droit',
       labelEn: 'Legal Watch',
-      descFr: 'Réglementations, lois et actualités juridiques autour de l\'IA.',
+      descFr: "Réglementations, lois et actualités juridiques autour de l'IA.",
       descEn: 'Regulations, laws and legal news around AI.',
       color: '#E6F1FB',
       textColor: '#0C447C',
@@ -40,11 +40,22 @@ export default function VeillePage() {
       icon: '🔍',
       labelFr: "Veille Cas d'usage IA",
       labelEn: 'AI Use Cases Watch',
-      descFr: 'Exemples concrets et retours d\'expérience sur les usages de l\'IA.',
+      descFr: "Exemples concrets et retours d'expérience sur les usages de l'IA.",
       descEn: 'Concrete examples and feedback on AI use cases.',
       color: '#E1F5EE',
       textColor: '#085041',
       border: '#5DCAA5',
+    },
+    {
+      href: '/veille/rse',
+      icon: '🌱',
+      labelFr: 'Veille RSE & IA',
+      labelEn: 'CSR & AI Watch',
+      descFr: "Responsabilité sociale, impact environnemental et éthique de l'IA.",
+      descEn: 'Social responsibility, environmental impact and AI ethics.',
+      color: '#EAF3DE',
+      textColor: '#27500A',
+      border: '#97C459',
     },
   ]
 
@@ -53,11 +64,13 @@ export default function VeillePage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem', flexWrap: 'wrap', gap: 12 }}>
         <div>
           <div style={{ marginBottom: 6 }}>
-            <a href="/annuaire" style={{ fontSize: 13, color: 'var(--text2)' }}>← {lang === 'en' ? 'My space' : 'Mon espace fresqueur'}</a>
+            <a href="/annuaire" style={{ fontSize: 13, color: 'var(--text2)' }}>
+              ← {lang === 'en' ? 'My facilitator space' : 'Mon espace fresqueur'}
+            </a>
           </div>
           <h1 style={{ fontSize: 24, fontWeight: 600 }}>{lang === 'en' ? 'AI Watch' : 'Veille IA'}</h1>
           <p style={{ fontSize: 14, color: 'var(--text2)', marginTop: 4 }}>
-            {lang === 'en' ? 'Stay up to date with AI news and regulations.' : 'Restez informé des actualités et réglementations IA.'}
+            {lang === 'en' ? 'Stay up to date with AI news and regulations.' : "Restez informé des actualités et réglementations IA."}
           </p>
         </div>
         <LanguageSwitch />
@@ -89,8 +102,7 @@ export default function VeillePage() {
             }}>
             <div style={{
               width: 52, height: 52, borderRadius: 14, flexShrink: 0,
-              background: c.color, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 24
+              background: c.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24
             }}>
               {c.icon}
             </div>
