@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase'
 import { useLanguage, LanguageSwitch } from '@/lib/i18n'
 
 export default function HomePage() {
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
   const [mode, setMode] = useState<'login' | 'register'>('login')
   const [nom, setNom] = useState('')
   const [email, setEmail] = useState('')
@@ -115,8 +115,11 @@ export default function HomePage() {
           </button>
           {mode === 'login' && (
             <div style={{ textAlign: 'center', marginTop: 12 }}>
-              <a href="/forgot-password" style={{ fontSize: 13, color: 'var(--accent)' }}>
-                {t('auth.forgotPassword')}
+              <a
+                href="mailto:n.blanchon@galancesconseil.fr?subject=Probl%C3%A8me%20de%20connexion%20%E2%80%94%20Espace%20Fresque%20de%20l%27IA&body=Bonjour%2C%0A%0AJe%20n%27arrive%20pas%20%C3%A0%20me%20connecter%20%C3%A0%20mon%20espace%20animateur.%0A%0AMon%20email%20%3A%20%0A%0AMerci%20de%20votre%20aide."
+                style={{ fontSize: 13, color: 'var(--accent)' }}
+              >
+                {lang === 'en' ? 'Contact the admin' : 'Contacter l’admin'}
               </a>
             </div>
           )}
