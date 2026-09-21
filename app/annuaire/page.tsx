@@ -102,6 +102,10 @@ export default function EspacePage() {
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
           <LanguageSwitch />
+          <a href="/formation" className="btn btn-sm btn-primary"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+            🎓 {lang === 'en' ? 'Training' : 'Se former'}
+          </a>
           <a href="/dashboard" className="btn btn-sm">{t('nav.myProfile')}</a>
           {me?.is_admin && <a href="/admin" className="btn btn-sm">{t('nav.admin')}</a>}
           <button className="btn btn-sm" onClick={handleLogout}>{t('nav.logout')}</button>
