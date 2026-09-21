@@ -114,6 +114,54 @@ function AIChipBadge({ size = 100 }: { size?: number }) {
   )
 }
 
+
+
+type DepthItem = { summary: string; detail: string; example?: string; further?: string; diagram?: string[] }
+const LEARNING_DEPTH: Record<number, DepthItem> = {
+0:{summary:"Ce parcours raconte un changement de méthode : programmer des règles, formaliser une expertise, apprendre à partir de données, puis générer.",detail:"Les quatre âges sont une grille pédagogique, pas quatre périodes qui se remplacent. Aujourd'hui encore, une même application peut combiner du code classique, des règles métier, du machine learning et un LLM.",example:"Une banque peut utiliser du code classique pour calculer des intérêts, des règles pour des contrôles, un modèle pour détecter une anomalie et un LLM pour rédiger une synthèse.",further:"L'histoire réelle de l'IA est faite de branches parallèles : IA symbolique, statistiques, réseaux neuronaux, optimisation, robotique…"},
+1:{summary:"En informatique traditionnelle, le comportement attendu est décrit explicitement par le programme.",detail:"Le développeur transforme un besoin en instructions : lire une donnée, tester une condition, effectuer un calcul, enregistrer ou afficher un résultat. Pour une même entrée et les mêmes règles, un programme déterministe produit le même résultat.",example:"Un logiciel de paie applique des règles de calcul connues. Si une règle change, son code ou son paramétrage doit être mis à jour.",further:"Un programme traditionnel n'est pas forcément simple : il peut contenir des millions de lignes de code. 'Traditionnel' décrit ici la manière de spécifier le comportement, pas la taille du logiciel.",diagram:["DONNÉE","RÈGLES ÉCRITES","CALCUL","RÉSULTAT"]},
+2:{summary:"Un arbre de décision enchaîne des conditions pour orienter une donnée vers une conclusion.",detail:"À chaque nœud, le programme pose une condition précise. La réponse détermine la branche suivante. Notre chat est volontairement simplifié : dans un vrai système de classification écrit à la main, il faudrait prévoir des critères beaucoup plus discriminants.",example:"Pour classer une dépense : montant > 1 000 € ? Oui → validation manager ; non → circuit standard.",further:"Les arbres de décision existent aussi en machine learning. La différence est alors que leurs règles peuvent être apprises à partir de données plutôt qu'écrites une par une par un humain.",diagram:["IMAGE","CONDITION 1","CONDITION 2","CATÉGORIE"]},
+3:{summary:"Le binaire explique comment l'information numérique peut être représentée ; il n'explique pas à lui seul la logique d'un programme.",detail:"Les circuits numériques distinguent des états physiques que l'on abstrait en 0 et 1. À partir de ces bits, on encode nombres, lettres, images et instructions. Notre arbre Oui/Non ressemble visuellement à deux branches, mais c'est une structure logique distincte.",example:"La lettre A peut être encodée numériquement, puis en bits. Cela ne signifie pas qu'un logiciel qui traite la lettre A doit poser une succession de questions Oui/Non.",further:"Un bit vaut 0 ou 1. Huit bits forment un octet. Les processeurs combinent d'immenses quantités d'opérations logiques sur ces représentations binaires.",diagram:["MONDE PHYSIQUE","0 / 1","DONNÉES NUMÉRIQUES","PROGRAMME"]},
+4:{summary:"Des règles écrites pour un cas ne généralisent pas automatiquement à tous les cas voisins.",detail:"Notre arbre du chat peut accepter un chien si ses critères sont trop vagues. Il faut donc enrichir ou corriger les règles. C'est l'un des problèmes des systèmes entièrement décrits à la main : les cas particuliers s'accumulent.",example:"Un filtre anti-spam basé seulement sur le mot 'gratuit' bloquerait aussi un message légitime : 'entrée gratuite au musée'.",further:"En génie logiciel, tests unitaires, tests d'intégration et gestion des exceptions servent notamment à vérifier ces comportements inattendus."},
+5:{summary:"La force des règles explicites est la traçabilité ; leur faiblesse est le coût de conception et de maintenance.",detail:"Quand le chemin de décision est explicite, on peut souvent montrer quelle règle a produit quel résultat. Mais plus le domaine comporte de situations, plus la combinaison des règles devient difficile à maintenir.",example:"Une règle fiscale peut être parfaitement explicable, mais des centaines de règles, exceptions et changements annuels rendent le système complexe.",further:"Traçable ne veut pas dire automatiquement simple, juste ou exempt de bugs. Cela signifie surtout que la logique est explicitement représentée."},
+6:{summary:"Le système expert cherche à capturer une partie du savoir d'un spécialiste.",detail:"On ne veut plus seulement coder une suite d'actions : on veut représenter des connaissances du domaine et permettre à un moteur de les mobiliser pour conclure.",example:"Un technicien peut formaliser : SI température élevée ET pression faible, ALORS vérifier telle panne.",further:"Cette famille appartient à l'IA dite symbolique : les connaissances sont représentées par des symboles et des règles manipulables."},
+7:{summary:"Un système expert combine connaissances explicites et mécanisme de raisonnement.",detail:"L'ingénieur de la connaissance interroge l'expert, formalise ses règles et identifie les faits nécessaires. Le moteur d'inférence détermine quelles règles sont applicables à la situation courante.",example:"En diagnostic : symptômes = faits ; connaissances médicales formalisées = règles ; hypothèse diagnostique = conclusion.",further:"DENDRAL et MYCIN sont des exemples historiques classiques de systèmes experts développés dans les années 1960-1970."},
+8:{summary:"Faits, règles et moteur d'inférence jouent trois rôles différents.",detail:"Les faits décrivent la situation observée. Les règles expriment des relations du type SI… ALORS…. Le moteur d'inférence applique les règles pertinentes aux faits pour produire de nouvelles conclusions.",example:"Faits : carte insérée + code correct. Règle : SI carte valide ET code correct ALORS autoriser l'étape suivante.",further:"Deux stratégies classiques sont le chaînage avant, qui part des faits, et le chaînage arrière, qui part d'une hypothèse à vérifier.",diagram:["FAITS","RÈGLES","MOTEUR D’INFÉRENCE","CONCLUSION"]},
+9:{summary:"La recette est une analogie utile pour comprendre un algorithme : une procédure structurée pour obtenir un résultat.",detail:"Un algorithme précise des opérations et leur ordre. Il peut inclure conditions, répétitions et calculs. Contrairement à une recette humaine parfois approximative, une procédure informatique doit être suffisamment précise pour être exécutée.",example:"Chercher le plus grand nombre d'une liste : lire le premier, le mémoriser, comparer chaque suivant, remplacer si plus grand.",further:"Un même problème peut être résolu par plusieurs algorithmes, avec des différences de vitesse, mémoire ou précision."},
+10:{summary:"Deep Blue illustre surtout la puissance d'une IA spécialisée.",detail:"En 1997, Deep Blue bat Garry Kasparov lors d'un match. Il explore énormément de positions et utilise des fonctions d'évaluation spécialisées. Il ne s'agit pas d'une intelligence générale ni d'un système expert classique pur.",example:"Être meilleur qu'un champion du monde aux échecs ne donne aucune compétence automatique pour conduire, traduire ou cuisiner.",further:"La distinction utile est celle entre système spécialisé, conçu pour une tâche, et ambition d'intelligence plus générale."},
+11:{summary:"Le changement suivant consiste à apprendre certains paramètres plutôt qu'à écrire toutes les règles de reconnaissance.",detail:"Pour des tâches comme reconnaître une image, décrire manuellement toutes les caractéristiques possibles devient très difficile. L'apprentissage automatique propose d'utiliser des exemples pour ajuster un modèle.",example:"Plutôt que d'écrire 10 000 règles sur les chats, on fournit de nombreuses images étiquetées chat / pas chat."},
+12:{summary:"Les réseaux neuronaux ont une histoire ancienne et parallèle à l'IA symbolique.",detail:"Des modèles de neurones apparaissent dès les années 1940 ; le perceptron de Rosenblatt devient emblématique à la fin des années 1950. Les réseaux connaîtront ensuite plusieurs périodes d'intérêt et de recul avant l'essor du deep learning.",example:"Le perceptron apprend une frontière de décision simple à partir d'exemples.",further:"Le regain des années 1980, puis les données massives, GPU et progrès algorithmiques des années 2000-2010 expliquent une partie de l'essor moderne."},
+13:{summary:"Un neurone artificiel est une abstraction mathématique, pas une copie biologique.",detail:"Il reçoit des valeurs, les combine avec des poids, applique une transformation et transmet un résultat. L'inspiration vient du vocabulaire neuronal, mais la réalité biologique est infiniment plus complexe.",example:"On peut imaginer plusieurs signaux d'entrée dont certains comptent davantage que d'autres grâce à leurs poids.",further:"Le néocortex est souvent décrit en six couches, mais les couches d'un réseau artificiel ne reproduisent pas ces couches biologiques."},
+14:{summary:"Les couches transforment progressivement l'information ; les poids déterminent l'influence des connexions.",detail:"Une couche reçoit des nombres, effectue des calculs et transmet de nouvelles représentations à la suivante. Pendant l'entraînement, les poids sont ajustés pour améliorer la prédiction.",example:"Dans une image, des couches peuvent apprendre progressivement des motifs utiles, sans qu'on programme explicitement 'moustaches = chat'.",further:"Un réseau 'profond' possède plusieurs couches de transformation : c'est l'origine de l'expression deep learning.",diagram:["ENTRÉE","COUCHES CACHÉES","POIDS AJUSTÉS","SORTIE"]},
+15:{summary:"Apprendre signifie comparer une prédiction à une cible puis réduire l'erreur.",detail:"Le modèle reçoit un exemple, calcule une sortie, mesure l'écart avec la réponse attendue et ajuste ses paramètres. Cette boucle est répétée sur de nombreux exemples.",example:"Image de chat → prédiction 'chien' → erreur élevée → ajustement → nouvel essai.",further:"La rétropropagation calcule les gradients ; un optimiseur, souvent fondé sur la descente de gradient, utilise ces informations pour mettre à jour les poids.",diagram:["EXEMPLE","PRÉDICTION","ERREUR","AJUSTEMENT","NOUVEL ESSAI"]},
+16:{summary:"Un modèle utile doit généraliser, pas simplement mémoriser ses exemples.",detail:"Après l'entraînement, on teste le modèle sur des données qu'il n'a pas vues. S'il réussit seulement sur son jeu d'entraînement, il est en surapprentissage.",example:"Reconnaître un chat noir photographié de côté alors que cette photo précise n'était pas dans l'entraînement.",further:"On sépare généralement les données en ensembles d'entraînement, validation et test pour mesurer cette capacité."},
+17:{summary:"Le passage clé est : règles écrites explicitement → paramètres appris à partir de données.",detail:"L'humain reste indispensable : il choisit le problème, les données, l'architecture, l'objectif, les métriques et les contrôles. Ce qui change est que certaines règles de décision ne sont plus écrites une par une.",example:"Un filtre visuel apprend à distinguer des catégories à partir d'images annotées.",further:"Machine learning est plus large que réseaux neuronaux : arbres, régressions, SVM et autres méthodes peuvent aussi apprendre à partir de données."},
+18:{summary:"La boîte noire désigne une difficulté d'interprétation, pas une absence totale de connaissance.",detail:"Nous connaissons l'architecture et les calculs, mais une décision peut résulter de l'interaction de millions ou milliards de paramètres. Il est difficile de la traduire en quelques règles humaines simples.",example:"Pour un refus de candidature, citer un poids isolé n'explique pas de manière intelligible pourquoi la décision a été produite.",further:"L'IA explicable regroupe des méthodes d'interprétation, d'attribution et d'analyse du comportement des modèles."},
+19:{summary:"L'essor moderne combine davantage de données, de calcul et des innovations d'architecture.",detail:"Internet et la numérisation fournissent des volumes de données considérables ; les GPU accélèrent les calculs parallèles ; de nouvelles architectures permettent d'entraîner des modèles beaucoup plus grands.",example:"Un GPU peut effectuer de nombreux calculs matriciels en parallèle, particulièrement utiles pour les réseaux neuronaux.",further:"Le Transformer publié en 2017 devient une architecture majeure des grands modèles de langage."},
+20:{summary:"Une IA générative produit de nouveaux contenus à partir des régularités apprises pendant son entraînement.",detail:"Texte, image, audio ou vidéo peuvent être générés par différentes familles de modèles. Ici, on se concentre sur les LLM, spécialisés dans le traitement et la génération du langage.",example:"Un LLM peut continuer un texte, résumer un document ou rédiger une réponse à partir d'instructions.",further:"Tous les modèles génératifs ne sont pas des LLM : les modèles d'image ou d'audio peuvent reposer sur d'autres architectures et objectifs."},
+21:{summary:"Le token est l'unité numérique de texte manipulée par le modèle.",detail:"Avant le traitement, un tokenizer découpe le texte selon son vocabulaire. Un token peut correspondre à un mot, un morceau de mot ou un signe. Le modèle travaille ensuite avec des identifiants numériques associés à ces tokens.",example:"Un mot rare ou long peut être découpé en plusieurs morceaux alors qu'un mot fréquent peut tenir dans un seul token.",further:"Le nombre de tokens compte pour la fenêtre de contexte, la vitesse et souvent le coût d'utilisation des API."},
+22:{summary:"Le sac de billes sert uniquement à construire l'intuition d'une estimation probabiliste conditionnée par des observations.",detail:"Si l'on observe plusieurs tirages rouges, on peut réviser notre croyance sur la composition du sac. Pour un LLM, le mécanisme réel est différent : il calcule une distribution de probabilité sur son vocabulaire à partir du contexte.",example:"Le contexte 'Paris est la capitale de la…' rend certains tokens beaucoup plus probables que d'autres.",further:"Ne pas confondre cette analogie avec l'affirmation qu'un LLM serait simplement un modèle bayésien qui pioche des mots dans un sac."},
+23:{summary:"Un LLM génère généralement un token, l'ajoute au contexte, puis recommence.",detail:"À chaque étape, le modèle attribue une probabilité aux suites possibles. La stratégie de décodage choisit ensuite le prochain token ; la génération n'est donc pas forcément le choix systématique du token le plus probable.",example:"'Bonjour, comment ça…' rend 'va' très plausible, mais d'autres suites restent possibles.",further:"Température, top-k et top-p sont des paramètres pouvant modifier la diversité de la sélection des tokens."},
+24:{summary:"Le sens utile d'un mot dépend fortement de son contexte.",detail:"'Lapin' peut désigner un animal vivant, une peluche, un plat, un surnom… Le modèle doit exploiter les autres éléments du contexte pour construire une représentation pertinente.",example:"'Mon fils dort avec son lapin' et 'le cuisinier prépare le lapin' orientent vers deux sens très différents.",further:"Cette contextualisation est une différence majeure avec une simple table où chaque mot aurait toujours une représentation fixe."},
+25:{summary:"Les vecteurs traduisent des éléments en coordonnées numériques manipulables par le réseau.",detail:"Un embedding est une représentation vectorielle apprise. Les dimensions ne correspondent pas nécessairement à des concepts nommables par un humain, mais leurs relations permettent au modèle de capturer des régularités sémantiques et contextuelles.",example:"Des représentations liées à des notions proches peuvent présenter des relations mathématiques exploitables par le modèle.",further:"Dans les Transformers modernes, les représentations deviennent contextuelles : le vecteur associé à un token évolue au fil des couches selon les autres tokens présents."},
+26:{summary:"GPT signifie Generative Pre-trained Transformer.",detail:"Generative : produit une suite ; Pre-trained : apprend d'abord sur de grandes quantités de données ; Transformer : architecture utilisant notamment des mécanismes d'attention.",example:"Après le pré-entraînement, un modèle peut être adapté et aligné pour mieux suivre des instructions.",further:"Le pré-entraînement n'est qu'une phase : instruction tuning, préférences humaines ou autres techniques peuvent ensuite modifier le comportement du modèle."},
+27:{summary:"L'attention aide le modèle à pondérer les relations entre les éléments du contexte.",detail:"Pour chaque token, le mécanisme calcule quelles autres positions sont utiles à sa représentation. Cela permet de relier des éléments parfois éloignés dans une phrase ou un document.",example:"Dans 'Marie a posé la tasse sur la table parce qu'elle était vide', le contexte aide à interpréter les relations entre les mots.",further:"La self-attention utilise notamment des vecteurs appelés queries, keys et values. Plusieurs têtes d'attention apprennent des relations différentes.",diagram:["TOKENS","EMBEDDINGS","ATTENTION","TRANSFORMATIONS","PROBABILITÉS"]},
+28:{summary:"Un agent ajoute une boucle d'action autour du modèle : objectif, outils, résultats, nouvelles décisions.",detail:"Un chatbot répond surtout dans la conversation. Un agent peut recevoir un objectif, choisir une étape, appeler un outil autorisé, observer le résultat puis poursuivre jusqu'à un critère d'arrêt.",example:"Préparer une réunion : consulter l'agenda → retrouver des documents → les résumer → produire un brief.",further:"L'autonomie n'est jamais absolue : permissions, validations humaines, limites d'outils et journalisation sont essentielles.",diagram:["OBJECTIF","PLAN","OUTIL","ACTION","OBSERVATION","SUITE"]},
+29:{summary:"Les world models cherchent à apprendre des représentations permettant d'anticiper l'évolution d'un environnement.",detail:"L'idée est de ne pas réduire l'apprentissage au texte : un système peut chercher à représenter objets, espace, temps, dynamique et conséquences possibles des actions.",example:"Un robot doit anticiper qu'en poussant un objet au bord d'une table, celui-ci peut tomber.",further:"Yann LeCun défend notamment des architectures prédictives apprenant des représentations abstraites du monde ; le domaine est plus large qu'une seule approche."},
+30:{summary:"Les quatre âges se distinguent surtout par la manière dont la solution est spécifiée ou apprise.",detail:"Traditionnel : instructions explicites. Expert : connaissances et règles. Réseau neuronal : paramètres appris. Génératif : représentations apprises permettant de produire du contenu. Agents : capacité supplémentaire d'enchaîner des actions.",example:"Dans une entreprise, ces briques peuvent coexister dans un même processus plutôt que se remplacer.",further:"La bonne question n'est donc pas 'quelle technologie est la plus moderne ?', mais 'quelle approche est adaptée au problème, au risque et au niveau d'explicabilité attendu ?"}
+}
+
+function DepthPanel({ step }: { step: number }) {
+  const d = LEARNING_DEPTH[step]; const [open,setOpen] = useState(false)
+  if (!d) return null
+  return <div style={{marginTop:18,display:'flex',flexDirection:'column',gap:10}}>
+    <div style={{padding:14,borderRadius:12,background:'#EEF2FF',border:'1px solid #C7D2FE'}}><div style={{fontSize:11,fontWeight:800,color:'#4338CA',marginBottom:5,textTransform:'uppercase'}}>🧭 À comprendre</div><div style={{fontSize:13,lineHeight:1.65,color:'var(--text)'}}>{d.detail}</div></div>
+    {d.diagram && <div style={{padding:14,borderRadius:12,background:'var(--bg2)'}}><div style={{fontSize:11,fontWeight:800,color:'var(--text2)',marginBottom:10}}>SCHÉMA MENTAL</div><div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:6,flexWrap:'wrap'}}>{d.diagram.map((x,i)=><span key={x} style={{display:'contents'}}><span style={{padding:'7px 9px',borderRadius:8,background:'var(--bg)',border:'1px solid var(--border)',fontSize:11,fontWeight:700}}>{x}</span>{i<d.diagram!.length-1&&<span style={{color:'var(--accent)',fontWeight:900}}>→</span>}</span>)}</div></div>}
+    {d.example && <div style={{padding:14,borderRadius:12,background:'#E1F5EE',border:'1px solid #9FE1CB'}}><div style={{fontSize:11,fontWeight:800,color:'#085041',marginBottom:5}}>🌍 EXEMPLE CONCRET</div><div style={{fontSize:13,lineHeight:1.65,color:'#0a6050'}}>{d.example}</div></div>}
+    <div style={{padding:14,borderRadius:12,background:'#FAEEDA',border:'1px solid #FAC775'}}><div style={{fontSize:11,fontWeight:800,color:'#633806',marginBottom:5}}>🧠 À RETENIR</div><div style={{fontSize:13,lineHeight:1.6,color:'#633806',fontWeight:600}}>{d.summary}</div></div>
+    {d.further && <div><button onClick={()=>setOpen(v=>!v)} style={{width:'100%',padding:'12px 14px',borderRadius:12,border:'1px solid var(--border)',background:'var(--bg)',textAlign:'left',fontWeight:700,color:'var(--text)',cursor:'pointer'}}>🔎 Pour aller plus loin <span style={{float:'right'}}>{open?'−':'+'}</span></button>{open&&<div style={{padding:'12px 14px',fontSize:12,lineHeight:1.7,color:'var(--text2)',background:'var(--bg2)',borderRadius:'0 0 12px 12px'}}>{d.further}</div>}</div>}
+  </div>
+}
 function ProgressBar({ step, phase }: { step: number, phase: number }) {
   const pct = Math.round((step / (TOTAL_LEARNING + QUIZ_LENGTH)) * 100)
   const phases = ['💻','🧪','🔗','✨','🤖','❓']
@@ -369,7 +417,7 @@ export default function ModulePage() {
           </div>
           <p style={{ marginTop: 16, fontSize: 12, color: 'var(--text3)' }}>Ces technologies coexistent et se combinent. Ce n'est pas une histoire linéaire.</p>
         </div>
-      </Wrap>}
+      <DepthPanel step={s} /></Wrap>}
 
       {/* STEP 1 — Traditional computing intro */}
       {s === 1 && <Wrap onNext={next}>
@@ -378,45 +426,28 @@ export default function ModulePage() {
         <p style={{ fontSize: 14, color: 'var(--text2)', lineHeight: 1.7, marginBottom: 16 }}>Dans l'informatique traditionnelle, <strong>l'humain écrit les instructions</strong>. La machine les exécute fidèlement.</p>
         <div style={{ background: 'var(--bg2)', borderRadius: 12, padding: 14, marginBottom: 14, fontFamily: 'monospace', fontSize: 15, fontWeight: 600 }}>SI [condition] → ALORS [action]</div><FlowDiagram items={[{icon:'📥',title:'ENTRÉE',text:'une donnée : prix, nom, image…'},{icon:'⚙️',title:'RÈGLES',text:'instructions écrites par l’humain'},{icon:'📤',title:'SORTIE',text:'classement, calcul ou action'}]} caption="Le programme ne « devine » pas la règle : elle a été définie avant l’exécution." /><PedagogyBox title="Exemple concret : une fiche de paie" icon="🏢">Si le salaire brut est X et que telle règle de cotisation s’applique, le logiciel calcule le montant correspondant. Si la règle change, il faut modifier le programme ou son paramétrage.</PedagogyBox>
         <p style={{ fontSize: 13, color: 'var(--text2)', lineHeight: 1.6 }}>À la fin du XIXe siècle, les machines à cartes perforées de Herman Hollerith montrent déjà comment mécaniser le tri et le comptage de grandes quantités d’informations. IBM, créée ensuite en 1911 sous le nom CTR puis renommée IBM en 1924, fera de ce traitement de l’information un cœur historique de son activité. Une bonne manière de comprendre l’informatique traditionnelle est donc : <strong>des données entrent, des instructions explicites les transforment, un résultat sort.</strong></p>
-      </Wrap>}
+      <DepthPanel step={s} /></Wrap>}
 
       {/* STEP 2 — Cat decision tree */}
       {s === 2 && <Wrap onNext={catStep >= 3 ? next : undefined} canNext={catStep >= 3} nextLabel="Suite →">
-        <div style={{ textAlign: 'center', marginBottom: 14 }}>
-          <div style={{ fontSize: 48, marginBottom: 6 }}>🐱</div>
-          <h3 style={{ fontSize: 17, fontWeight: 700 }}>Comment classer cet animal ?</h3>
-          <p style={{ fontSize: 13, color: 'var(--text2)', marginTop: 4 }}>Un système traditionnel construit un arbre de décision</p>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {[['A-t-il des poils ?','🔸'],['A-t-il des oreilles ?','🔸'],['A-t-il une queue ?','🔸'],['🐱 CHAT !','✅']].map(([q,icon],i)=> catStep > i ? (
-            <div key={i} style={{ padding: '12px 14px', borderRadius: 10, background: i===3?'#E1F5EE':'var(--bg2)', border: `1.5px solid ${i===3?'#5DCAA5':'var(--border)'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', animation: 'fadeIn .3s ease' }}>
-              <span style={{ fontSize: i===3?15:14, fontWeight: i===3?700:500 }}>{q}</span><span style={{ fontSize: 16 }}>{icon}</span>
-            </div>
-          ) : null)}
-        </div>
-        {catStep < 3 && (
-          <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-            <Btn onClick={()=>setCatStep(s=>s+1)}>OUI 👍</Btn>
-            <Btn variant="secondary" onClick={()=>setCatStep(s=>s+1)}>NON 👎</Btn>
-          </div>
-        )}
-        {catStep >= 3 && <div style={{ marginTop: 14, padding: 12, background: 'var(--accent-bg)', borderRadius: 10, fontSize: 13, color: 'var(--accent-text)' }}>💡 L'idée fondamentale : <strong>les règles ont été définies à l'avance par des humains.</strong></div>}
+        <div style={{ textAlign:'center', marginBottom:14 }}><div style={{fontSize:48}}>🐱</div><h3 style={{fontSize:18,fontWeight:800,margin:'6px 0'}}>Construisons la décision, une condition à la fois</h3><p style={{fontSize:13,color:'var(--text2)',lineHeight:1.6}}>Un programme ne peut pas répondre « oui » ou « non » dans le vide : <strong>il lui faut d'abord une condition précise à tester.</strong></p></div>
+        <div style={{padding:12,background:'var(--bg2)',borderRadius:12,marginBottom:14,fontSize:13,lineHeight:1.6}}><strong>Mission :</strong> nous voulons classer l'image. Pour simplifier, imaginons que le développeur a écrit trois conditions successives. Réponds à la condition affichée pour faire avancer l'arbre.</div>
+        {catStep < 3 && <div style={{padding:16,border:'2px solid var(--accent)',borderRadius:14,background:'var(--accent-bg)',marginBottom:12,textAlign:'center'}}><div style={{fontSize:11,fontWeight:800,color:'var(--accent-text)',marginBottom:6}}>CONDITION {catStep+1} / 3</div><div style={{fontSize:17,fontWeight:800}}>{['Cet animal a-t-il des poils ?','Cet animal a-t-il des oreilles pointues ?','Cet animal possède-t-il des moustaches visibles ?'][catStep]}</div></div>}
+        <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:12}}>{['A-t-il des poils ?','A-t-il des oreilles pointues ?','A-t-il des moustaches visibles ?'].map((q,i)=>i<catStep&&<div key={q} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'10px 12px',background:'#E1F5EE',borderRadius:10,border:'1px solid #9FE1CB'}}><span style={{fontSize:13}}>{q}</span><strong style={{color:'#085041'}}>OUI ✓</strong></div>)}{catStep>=3&&<div style={{padding:14,background:'#E1F5EE',borderRadius:12,textAlign:'center',fontWeight:800,color:'#085041'}}>🐱 Conclusion de notre arbre simplifié : CHAT</div>}</div>
+        {catStep < 3 && <div style={{display:'flex',gap:10}}><Btn onClick={()=>setCatStep(v=>v+1)}>OUI 👍</Btn><Btn variant="secondary" onClick={()=>setCatStep(v=>v+1)}>NON 👎</Btn></div>}
+        <div style={{marginTop:12,fontSize:11,color:'var(--text3)',lineHeight:1.55}}>⚠️ Cet arbre est volontairement pédagogique : ces trois caractéristiques ne suffisent évidemment pas à distinguer tous les chats des autres animaux. Le but est de comprendre la logique <strong>condition → branche → nouvelle condition → conclusion</strong>.</div>
+        <DepthPanel step={s} />
       </Wrap>}
 
       {/* STEP 3 — Binary */}
       {s === 3 && <Wrap onNext={next}>
-        <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 14 }}>Le 0 et le 1</h3>
-        <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginBottom: 16 }}>
-          {[['0','courant ne passe pas','#1a1a18','white','#6B7280'],['1','courant passe','var(--accent)','white','#CECBF6']].map(([n,d,bg,c,dc],i)=>(
-            <div key={i} style={{ textAlign: 'center', padding: '18px 28px', background: bg, color: c, borderRadius: 12 }}>
-              <div style={{ fontSize: 36, fontWeight: 900 }}>{n}</div>
-              <div style={{ fontSize: 11, marginTop: 4, color: dc }}>{d}</div>
-            </div>
-          ))}
-        </div>
-        <div style={{ padding: 14, background: '#FAECE7', borderRadius: 12, border: '1px solid #F0997B', fontSize: 14, lineHeight: 1.6 }}>
-          ⚠️ <strong>Important :</strong> le fonctionnement binaire (0/1) et un arbre de décision (oui/non) sont deux choses différentes. Un programme n'est pas obligatoirement un arbre binaire.
-        </div>
+        <h3 style={{fontSize:18,fontWeight:800,marginBottom:8}}>Du « oui / non » de notre arbre au 0 / 1 de l'ordinateur</h3>
+        <p style={{fontSize:13,color:'var(--text2)',lineHeight:1.7,marginBottom:14}}>Nous venons de construire un arbre dans lequel chaque <strong>condition</strong> ouvrait une branche. Cela donne une bonne occasion de parler du binaire, mais il faut éviter une confusion : <strong>le binaire et l'arbre de décision ne sont pas la même chose.</strong></p>
+        <div style={{padding:14,background:'var(--bg2)',borderRadius:12,marginBottom:14}}><div style={{fontSize:12,fontWeight:800,marginBottom:8}}>1. AU NIVEAU DU MATÉRIEL</div><p style={{fontSize:13,lineHeight:1.6,margin:0}}>Un ordinateur numérique représente l'information à partir d'états discrets. On les note <strong>0 et 1</strong>. L'image « courant ne passe pas / courant passe » est une simplification utile pour visualiser deux états électroniques.</p></div>
+        <div style={{display:'flex',gap:12,justifyContent:'center',marginBottom:14}}>{[['0','état logique 0'],['1','état logique 1']].map(([n,d],i)=><div key={n} style={{flex:1,maxWidth:180,textAlign:'center',padding:16,borderRadius:12,background:i?'var(--accent)':'#1a1a18',color:'white'}}><div style={{fontSize:34,fontWeight:900}}>{n}</div><div style={{fontSize:11,opacity:.8}}>{d}</div></div>)}</div>
+        <div style={{padding:14,background:'var(--bg2)',borderRadius:12,marginBottom:14}}><div style={{fontSize:12,fontWeight:800,marginBottom:8}}>2. AU NIVEAU DE NOTRE PROGRAMME</div><p style={{fontSize:13,lineHeight:1.6,margin:0}}>Notre développeur a choisi un <strong>arbre de décision</strong> : « si la condition est vraie, suivre telle branche ; sinon, suivre l'autre ». Il aurait pu programmer une boucle, un calcul, une recherche dans une base de données ou beaucoup d'autres structures.</p></div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr auto 1fr',alignItems:'center',gap:8,padding:12,background:'#FAEEDA',borderRadius:12,border:'1px solid #FAC775'}}><div style={{textAlign:'center'}}><strong>BINAIRE</strong><div style={{fontSize:11,marginTop:3}}>représentation de l'information</div></div><div style={{fontSize:20}}>≠</div><div style={{textAlign:'center'}}><strong>ARBRE OUI/NON</strong><div style={{fontSize:11,marginTop:3}}>organisation d'une décision</div></div></div>
+        <DepthPanel step={s} />
       </Wrap>}
 
       {/* STEP 4 — Dog challenge */}
@@ -432,7 +463,7 @@ export default function ModulePage() {
           ))}
         </div>
         {dogAnswer!==null && <div style={{ marginTop:14, padding:14, background:'#E1F5EE', borderRadius:12, fontSize:13, lineHeight:1.6, color:'#085041' }}><strong>✓ Bien vu !</strong> Si une nouvelle situation n'a pas été anticipée par les règles, le système peut échouer. Les règles doivent être adaptées.</div>}
-      </Wrap>}
+      <DepthPanel step={s} /></Wrap>}
 
       {/* STEP 5 — Advantages/limits */}
       {s === 5 && <Wrap onNext={next}>
@@ -451,7 +482,7 @@ export default function ModulePage() {
             <div style={{ fontSize:12, color:'#7a2e10', lineHeight:1.5 }}>Plus les situations se multiplient, plus écrire et maintenir toutes les règles devient difficile.</div>
           </div>
         </div>
-      </Wrap>}
+      <DepthPanel step={s} /></Wrap>}
 
       {/* STEP 6 — Transition to expert systems */}
       {s === 6 && <Wrap onNext={next} nextLabel="Découvrir le 2e âge →">
@@ -460,14 +491,14 @@ export default function ModulePage() {
           <h3 style={{ fontSize:20, fontWeight:800, marginBottom:10 }}>Et si on mettait directement l'expertise humaine dans la machine ?</h3>
           <p style={{ fontSize:14, color:'var(--text2)', lineHeight:1.7 }}>Plutôt que de programmer toutes les situations possibles, que se passerait-il si on formalisait le raisonnement d'un expert ?</p>
         </div>
-      </Wrap>}
+      <DepthPanel step={s} /></Wrap>}
 
       {/* STEP 7 — Expert systems intro */}
       {s === 7 && <Wrap onNext={next}>
         <Tag color="#FAEEDA"><span style={{ color:'#633806' }}>🧪 ÂGE 2 — Années 1970-1980</span></Tag>
         <h2 style={{ fontSize:22, fontWeight:800, marginBottom:10 }}>« Mettons l'expert dans la machine. »</h2>
         <p style={{ fontSize:14, color:'var(--text2)', lineHeight:1.7 }}>Un <strong>ingénieur de la connaissance</strong> rencontre un spécialiste — médecin, ingénieur, technicien — et transforme son expertise en connaissances exploitables par un ordinateur.</p>
-      </Wrap>}
+      <DepthPanel step={s} /></Wrap>}
 
       {/* STEP 8 — Expert system builder */}
       {s === 8 && <Wrap onNext={expertStep>=3?next:undefined} canNext={expertStep>=3}>
@@ -491,7 +522,7 @@ export default function ModulePage() {
           </div>
         ))}
         {expertStep>=3 && <><FlowDiagram items={[{icon:'📊',title:'FAITS',text:'Température : 39°C'},{icon:'📋',title:'RÈGLE',text:'SI fièvre élevée…'},{icon:'⚙️',title:'INFÉRENCE',text:'la règle est applicable'},{icon:'💡',title:'CONCLUSION',text:'hypothèse / action proposée'}]} caption="Le moteur n’invente pas l’expertise : il applique les connaissances formalisées dans sa base."/><PedagogyBox title="Pourquoi c’est différent d’un simple arbre ?">Le moteur peut enchaîner plusieurs règles : une première conclusion devient un nouveau fait, qui peut déclencher une autre règle. On obtient ainsi un raisonnement symbolique explicite.</PedagogyBox></>}
-      </Wrap>}
+      <DepthPanel step={s} /></Wrap>}
 
       {/* STEP 9 — Algorithm recipe */}
       {s === 9 && <Wrap onNext={next}>
@@ -510,7 +541,7 @@ export default function ModulePage() {
           </div>
         </div>
         <div style={{ padding:12, background:'var(--bg2)', borderRadius:10, fontSize:12, color:'var(--text2)' }}>⚠️ C'est une analogie. Un algorithme est une <strong>procédure structurée pour résoudre un problème</strong>, pas littéralement une recette.</div>
-      </Wrap>}
+      <DepthPanel step={s} /></Wrap>}
 
       {/* STEP 10 — Deep Blue */}
       {s === 10 && <Wrap onNext={next}>
@@ -531,7 +562,7 @@ export default function ModulePage() {
           </div>
           <div style={{ padding:12, background:'var(--bg2)', borderRadius:12, fontSize:13, fontWeight:600, lineHeight:1.5 }}>Une machine peut être extraordinaire dans un domaine précis <em>sans</em> savoir faire autre chose.</div>
         </div>
-      </Wrap>}
+      <DepthPanel step={s} /></Wrap>}
 
       {/* STEP 11 — Transition to neural networks */}
       {s === 11 && <Wrap onNext={next} nextLabel="Découvrir les réseaux →">
@@ -540,7 +571,7 @@ export default function ModulePage() {
           <h3 style={{ fontSize:20, fontWeight:800, marginBottom:10 }}>Et si nous arrêtions de donner toutes les règles à la machine ?</h3>
           <p style={{ fontSize:16, color:'var(--accent)', fontWeight:700 }}>Et si elle pouvait apprendre ?</p>
         </div>
-      </Wrap>}
+      <DepthPanel step={s} /></Wrap>}
 
       {/* STEP 12 — Neural networks intro + timeline */}
       {s === 12 && <Wrap onNext={next}>
@@ -552,7 +583,7 @@ export default function ModulePage() {
             <div style={{ fontSize:13, color:'var(--text)', paddingTop:3, lineHeight:1.5 }}>{t}</div>
           </div>
         ))}
-      </Wrap>}
+      <DepthPanel step={s} /></Wrap>}
 
       {/* STEP 13 — Brain vs network */}
       {s === 13 && <Wrap onNext={next}>
@@ -562,7 +593,7 @@ export default function ModulePage() {
           <div style={{ padding:14, background:'var(--accent-bg)', borderRadius:12, textAlign:'center' }}><div style={{ fontSize:34, marginBottom:6 }}>🔗</div><div style={{ fontWeight:600, fontSize:12, color:'var(--accent-text)' }}>RÉSEAU ARTIFICIEL</div><div style={{ fontSize:11, color:'var(--accent-text)', marginTop:4, lineHeight:1.5 }}>Unités mathématiques + connexions pondérées</div></div>
         </div>
         <div style={{ padding:14, background:'#FAECE7', borderRadius:12, border:'1.5px solid #F0997B', fontSize:13, lineHeight:1.6 }}>⚠️ <strong>Un réseau de neurones artificiels n'est PAS un cerveau miniature.</strong> C'est une architecture mathématique librement inspirée de certaines idées biologiques.</div>
-      </Wrap>}
+      <DepthPanel step={s} /></Wrap>}
 
       {/* STEP 14 — Layers and weights */}
       {s === 14 && <Wrap onNext={next}>
@@ -579,7 +610,7 @@ export default function ModulePage() {
           <div style={{ fontSize:28 }}>🎚️</div>
           <div><div style={{ fontWeight:600, fontSize:14 }}>Les poids = boutons de réglage</div><div style={{ fontSize:13, color:'var(--text2)', marginTop:4, lineHeight:1.5 }}>Certains signaux ont plus d'influence. <strong>L'apprentissage ajuste ces poids</strong> pour réduire les erreurs.</div></div>
         </div>
-      </Wrap>}
+      <DepthPanel step={s} /></Wrap>}
 
       {/* STEP 15 — Cat learning */}
       {s === 15 && <Wrap onNext={next}>
@@ -601,7 +632,7 @@ export default function ModulePage() {
           </div>
         ))}
         <FlowDiagram items={[{icon:'🐱',title:'EXEMPLE',text:'image étiquetée chat'},{icon:'🧠',title:'PRÉDICTION',text:'le réseau propose une classe'},{icon:'📏',title:'ERREUR',text:'écart avec la bonne réponse'},{icon:'🎚️',title:'AJUSTEMENT',text:'les poids évoluent'}]} caption="Cette boucle est répétée sur de très nombreux exemples. Le modèle ne reçoit pas une règle « un chat a des moustaches » : il ajuste des paramètres qui deviennent utiles pour la tâche."/><PedagogyBox title="À ne pas confondre : entraînement et utilisation" icon="🧪">Pendant l’entraînement, les poids sont ajustés. Une fois le modèle entraîné, lorsqu’on lui présente une nouvelle image pour obtenir une prédiction, on parle d’inférence : les poids appris sont alors utilisés pour calculer une réponse.</PedagogyBox>
-      </Wrap>}
+      <DepthPanel step={s} /></Wrap>}
 
       {/* STEP 16 — Generalization */}
       {s === 16 && <Wrap onNext={next}>
@@ -616,7 +647,7 @@ export default function ModulePage() {
             </div>
           ))}
         </div>
-      </Wrap>}
+      <DepthPanel step={s} /></Wrap>}
 
       {/* STEP 17 — Big comparison */}
       {s === 17 && <Wrap onNext={next}>
@@ -630,7 +661,7 @@ export default function ModulePage() {
           <div style={{ fontWeight:700, fontSize:12, color:'var(--accent-text)', marginBottom:8 }}>🔗 MACHINE LEARNING</div>
           <div style={{ fontSize:13, color:'var(--accent-text)' }}>👨‍💻 Données + objectif → 🧠 Le réseau <strong>apprend ses propres paramètres</strong></div>
         </div>
-      </Wrap>}
+      <DepthPanel step={s} /></Wrap>}
 
       {/* STEP 18 — Black box */}
       {s === 18 && <Wrap onNext={next}>
@@ -647,7 +678,7 @@ export default function ModulePage() {
           </div>
           Un grand réseau peut avoir des milliards de paramètres interconnectés. Traduire une décision en règles compréhensibles est très difficile. C'est pourquoi il existe un domaine entier consacré à l'<strong>explicabilité de l'IA</strong>.
         </div>
-      </Wrap>}
+      <DepthPanel step={s} /></Wrap>}
 
       {/* STEP 19 — Generative AI acceleration */}
       {s === 19 && <Wrap onNext={next} nextLabel="Découvrir l'IA générative →">
@@ -661,7 +692,7 @@ export default function ModulePage() {
             </div>
           ))}
         </div>
-      </Wrap>}
+      <DepthPanel step={s} /></Wrap>}
 
       {/* STEP 20 — Gen AI intro */}
       {s === 20 && <Wrap onNext={next}>
@@ -675,7 +706,7 @@ export default function ModulePage() {
             </div>
           ))}
         </div>
-      </Wrap>}
+      <DepthPanel step={s} /></Wrap>}
 
       {/* STEP 21 — Tokens */}
       {s === 21 && <Wrap onNext={next}>
@@ -690,7 +721,7 @@ export default function ModulePage() {
           </div>
         </div>
         <div style={{ padding:12, background:'var(--bg2)', borderRadius:10, fontSize:13, lineHeight:1.6 }}>Un token peut être un mot, une partie de mot, un signe de ponctuation… Le modèle génère du texte <strong>token après token</strong>.</div>
-      </Wrap>}
+      <DepthPanel step={s} /></Wrap>}
 
       {/* STEP 22 — Marble bag */}
       {s === 22 && <Wrap onNext={marbles.length>=6?next:undefined} canNext={marbles.length>=6}>
@@ -712,7 +743,7 @@ export default function ModulePage() {
           </div>
         )}
         {marbles.length>=6 && <div style={{ padding:10, background:'var(--bg2)', borderRadius:10, fontSize:11, color:'var(--text3)' }}>💡 Analogie pédagogique — un LLM ne met évidemment pas ses tokens dans un sac !</div>}
-      </Wrap>}
+      <DepthPanel step={s} /></Wrap>}
 
       {/* STEP 23 — Word prediction */}
       {s === 23 && <Wrap onNext={wordChoice!==null?next:undefined} canNext={wordChoice!==null}>
@@ -731,7 +762,7 @@ export default function ModulePage() {
           ))}
         </div>
         {wordChoice!==null && <div style={{ marginTop:14, padding:12, background:'#E1F5EE', borderRadius:10, fontSize:13, lineHeight:1.6, color:'#085041' }}><strong>À partir du contexte, le modèle calcule une distribution de probabilités sur les tokens susceptibles de suivre.</strong> Token après token, une phrase entière se construit.</div>}
-      </Wrap>}
+      <DepthPanel step={s} /></Wrap>}
 
       {/* STEP 24 — Rabbit */}
       {s === 24 && <Wrap onNext={rabbitCtx!==null?next:undefined} canNext={rabbitCtx!==null}>
@@ -747,7 +778,7 @@ export default function ModulePage() {
           ))}
         </div>
         {rabbitCtx!==null && <div style={{ marginTop:14, padding:12, background:'#E1F5EE', borderRadius:10, fontSize:13, lineHeight:1.6, color:'#085041' }}><strong>Exact !</strong> Le même mot « lapin » n'est pas interprété de la même façon selon le contexte. C'est là qu'interviennent les vecteurs.</div>}
-      </Wrap>}
+      <DepthPanel step={s} /></Wrap>}
 
       {/* STEP 25 — Vectors */}
       {s === 25 && <Wrap onNext={next}>
@@ -762,7 +793,7 @@ export default function ModulePage() {
           </div>
         </div>
         <div style={{ padding:10, background:'var(--bg2)', borderRadius:10, fontSize:11, color:'var(--text3)' }}>⚠️ Il n'existe pas un «vecteur doudou» préprogrammé. Ce sont des représentations mathématiques <em>apprises</em> par le modèle.</div>
-      </Wrap>}
+      <DepthPanel step={s} /></Wrap>}
 
       {/* STEP 26 — GPT reveal */}
       {s === 26 && <Wrap onNext={gptReveal>=3?next:undefined} canNext={gptReveal>=3}>
@@ -776,7 +807,7 @@ export default function ModulePage() {
             {gptReveal>i ? <div><div style={{ fontWeight:700, fontSize:14, color:'var(--accent-text)' }}>{item.w}</div><div style={{ fontSize:12, color:'var(--text2)', marginTop:2 }}>{item.d}</div></div> : <div style={{ fontSize:13, color:'var(--text3)' }}>Appuie pour révéler</div>}
           </div>
         ))}
-      </Wrap>}
+      <DepthPanel step={s} /></Wrap>}
 
       {/* STEP 27 — Attention */}
       {s === 27 && <Wrap onNext={next}>
@@ -787,7 +818,7 @@ export default function ModulePage() {
         </div>
         <div style={{ padding:12, background:'var(--accent-bg)', borderRadius:12, fontSize:13, lineHeight:1.6, color:'var(--accent-text)', marginBottom:10 }}>L'<strong>attention</strong> permet au modèle d'évaluer quelles parties du contexte sont les plus pertinentes entre elles pour comprendre «lui».</div>
         <FlowDiagram items={[{icon:'🔤',title:'TOKENS',text:'le texte est découpé'},{icon:'📍',title:'VECTEURS',text:'les unités deviennent des nombres'},{icon:'👁️',title:'ATTENTION',text:'le contexte est mis en relation'},{icon:'🎲',title:'PROBABILITÉS',text:'une suite est évaluée'}]} caption="Ce schéma est volontairement simplifié : dans un Transformer réel, ces opérations se répètent à travers de nombreuses couches et transformations."/><PedagogyBox title="Exemple concret" icon="🧩">Dans « La banque refuse le prêt car elle juge son dossier incomplet », le mot « elle » doit être relié à « la banque ». L’attention aide le modèle à exploiter ce type de dépendance contextuelle.</PedagogyBox>
-      </Wrap>}
+      <DepthPanel step={s} /></Wrap>}
 
       {/* STEP 28 — Agents */}
       {s === 28 && <Wrap onNext={next}>
@@ -804,7 +835,7 @@ export default function ModulePage() {
           </div>
         </div>
         <FlowDiagram items={[{icon:'🎯',title:'OBJECTIF',text:'Prépare mon rendez-vous'},{icon:'📅',title:'OUTIL 1',text:'consulte le calendrier'},{icon:'📁',title:'OUTIL 2',text:'cherche les documents'},{icon:'📝',title:'ACTION',text:'produit un brief'}]} caption="Un agent devient utile quand le modèle peut agir sur un environnement via des outils autorisés."/><div style={{ marginTop:10, padding:10, background:'var(--bg2)', borderRadius:10, fontSize:11, color:'var(--text2)', lineHeight:1.5 }}>Son niveau d'autonomie dépend de sa conception, des permissions accordées et des contrôles humains mis en place. Un agent n’est donc pas synonyme d’autonomie totale.</div>
-      </Wrap>}
+      <DepthPanel step={s} /></Wrap>}
 
       {/* STEP 29 — World models */}
       {s === 29 && <Wrap onNext={next}>
@@ -817,7 +848,7 @@ export default function ModulePage() {
           ))}
         </div>
         <div style={{ padding:12, background:'var(--accent-bg)', borderRadius:12, fontSize:13, lineHeight:1.6, color:'var(--accent-text)' }}>L'ambition : permettre à une machine d'anticiper <strong>l'évolution d'un environnement et les conséquences possibles d'une action</strong> — pas seulement prédire le prochain token.</div>
-      </Wrap>}
+      <DepthPanel step={s} /></Wrap>}
 
       {/* STEP 30 — Summary */}
       {s === 30 && <Wrap onNext={next} nextLabel="Passer au quiz final →">
@@ -833,7 +864,7 @@ export default function ModulePage() {
             <div><div style={{ fontWeight:700, fontSize:12, color:c }}>{icon} {t}</div><div style={{ fontSize:11, color:c, marginTop:3, lineHeight:1.5 }}>{b}</div></div>
           </div>
         ))}
-      </Wrap>}
+      <DepthPanel step={s} /></Wrap>}
     </div>
   )
 }
