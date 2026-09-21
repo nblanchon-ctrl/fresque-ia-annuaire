@@ -38,6 +38,7 @@ export default function FresqueursPage() {
   const [newCompetences, setNewCompetences] = useState('')
   const [newBio, setNewBio] = useState('')
   const [saving, setSaving] = useState(false)
+  const [formés, setFormés] = useState<Set<string>>(new Set())
   const supabase = createClient()
 
   useEffect(() => {
@@ -50,6 +51,13 @@ export default function FresqueursPage() {
       ])
       setMe(meData)
       setAnimateurs(list || [])
+      // Charger les animateurs ayant validé au moins un module
+      const { data: progs } = await supabase
+        .from('progressions')
+        .select('animateur_id')
+        .eq('completed', true)
+      const formésSet = new Set((progs || []).map((p: { animateur_id: string }) => p.animateur_id))
+      setFormés(formésSet)
       setLoading(false)
     }
     load()
@@ -190,8 +198,23 @@ export default function FresqueursPage() {
             return (
               <div key={a.id} style={{ position: 'relative' }}>
                 <Link href={`/profile/${a.id}`} className="animateur-card">
-                  <div className="avatar" style={{ background: c.bg, color: c.text }}>
-                    {a.photo_url ? <img src={a.photo_url} alt={a.nom} /> : initials(a.nom)}
+                  <div style={{ position: 'relative', display: 'inline-block', marginBottom: 10 }}>
+                    <div className="avatar" style={{ background: c.bg, color: c.text, marginBottom: 0 }}>
+                      {a.photo_url ? <img src={a.photo_url} alt={a.nom} /> : initials(a.nom)}
+                    </div>
+                    {formés.has(a.id) && (
+                      <div style={{
+                        position: 'absolute', bottom: -2, right: -4,
+                        width: 20, height: 20, borderRadius: '50%',
+                        background: 'linear-gradient(135deg, #085041, #5DCAA5)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 11,
+                        boxShadow: '0 1px 4px rgba(8,80,65,0.4)',
+                        border: '1.5px solid white',
+                      }} title="Module(s) de formation validé(s)">
+                        🏅
+                      </div>
+                    )}
                   </div>
                   <div className="name">{a.nom}</div>
                   {a.titre && <div style={{ fontSize: 12, color: 'var(--text2)', marginBottom: 2 }}>{a.titre}</div>}
