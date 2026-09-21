@@ -4,357 +4,765 @@ import { useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { useLanguage, LanguageSwitch } from '@/lib/i18n'
 
-interface Module {
-  id: string
-  titre: string
-  titre_en?: string
-  description?: string
-  description_en?: string
-  contenu?: string
-  contenu_en?: string
-  video_url?: string
+const TOTAL_LEARNING = 31
+const QUIZ = [
+  { q: "Dans l'informatique traditionnelle, qui définit principalement les règles ?", opts: ["Le développeur", "Le réseau de neurones", "La machine elle-même", "Les utilisateurs finaux"], correct: 0, expl: "Dans l'informatique traditionnelle, ce sont les développeurs (humains) qui écrivent explicitement chaque règle." },
+  { q: "Quel est l'avantage d'un système déterministe à règles explicites ?", opts: ["Il apprend seul", "Il ne commet jamais d'erreur", "Son chemin de décision peut généralement être retracé", "Il comprend le langage naturel"], correct: 2, expl: "La traçabilité est un avantage clé : on peut revenir sur chaque condition et expliquer le résultat." },
+  { q: "Dans un système expert, à quoi sert le moteur d'inférence ?", opts: ["À créer des images", "À appliquer des règles aux faits disponibles", "À remplacer la base de connaissances", "À entraîner un réseau neuronal"], correct: 1, expl: "Le moteur d'inférence confronte les faits aux règles pour déduire une conclusion." },
+  { q: "Pourquoi Deep Blue est-il intéressant dans cette histoire ?", opts: ["Il a inventé les LLM", "Il était capable de tout faire", "Il utilisait ChatGPT", "Il illustre la très forte performance possible sur une tâche spécialisée"], correct: 3, expl: "Deep Blue illustre qu'une machine peut être extraordinairement performante dans un domaine précis sans savoir faire autre chose." },
+  { q: "Quel changement caractérise le mieux le machine learning ?", opts: ["La machine n'utilise plus de calculs", "Le modèle apprend des paramètres à partir de données plutôt que toutes les règles étant écrites explicitement", "Les ordinateurs abandonnent le binaire", "Internet devient inutile"], correct: 1, expl: "La rupture : au lieu d'écrire les règles, on fournit des données et un objectif, et le modèle apprend ses paramètres." },
+  { q: "Qu'est-ce qu'un neurone artificiel ?", opts: ["Une copie exacte d'un neurone biologique", "Une cellule créée artificiellement", "Un composant possédant une conscience", "Une unité de calcul mathématique"], correct: 3, expl: "Un neurone artificiel est essentiellement une fonction mathématique. Ce n'est pas une reproduction fidèle du cerveau." },
+  { q: "Dans un réseau neuronal, que représente un poids ?", opts: ["La taille du serveur", "Le volume de données", "Une valeur influençant l'importance d'un signal dans le calcul", "Le nombre d'utilisateurs"], correct: 2, expl: "Les poids sont comme des boutons de réglage. L'apprentissage les ajuste pour réduire les erreurs." },
+  { q: "Pendant l'entraînement, que cherche-t-on à réduire ?", opts: ["L'erreur entre prédiction et résultat attendu", "Le nombre de touches du clavier", "La taille de l'écran", "Le nombre d'utilisateurs"], correct: 0, expl: "L'apprentissage consiste à ajuster les poids pour réduire l'erreur entre prédiction et résultat attendu." },
+  { q: "À quoi sert la rétropropagation ?", opts: ["À transformer le réseau en système expert", "À déterminer comment les paramètres ont contribué à l'erreur afin de les ajuster", "À supprimer les données", "À traduire le texte"], correct: 1, expl: "La rétropropagation calcule la contribution de chaque paramètre à l'erreur, combinée à la descente de gradient." },
+  { q: "Que désigne la 'boîte noire' ?", opts: ["Un ordinateur éteint", "Un serveur sécurisé", "Un modèle secret", "La difficulté à traduire le fonctionnement interne en explication humaine simple"], correct: 3, expl: "Un grand réseau peut avoir des milliards de paramètres. Expliquer une décision en règles compréhensibles est très difficile." },
+  { q: "Qu'est-ce qu'un token ?", opts: ["Une unité dans laquelle le texte peut être découpé pour être traité", "Une réponse complète", "Un neurone biologique", "Un moteur de recherche"], correct: 0, expl: "Le texte est découpé en tokens : un mot entier, une partie de mot, un signe de ponctuation..." },
+  { q: "Pourquoi 'va' est-il une suite plausible de 'Bonjour, comment ça...' ?", opts: ["Le système d'exploitation l'impose", "Tous les prompts se terminent ainsi", "Le modèle estime les suites possibles en fonction du contexte et de son apprentissage", "'Va' est toujours le mot le plus fréquent"], correct: 2, expl: "Le modèle calcule une distribution de probabilités sur les tokens susceptibles de suivre le contexte." },
+  { q: "À quoi sert l'exemple du sac de billes ?", opts: ["À expliquer les processeurs", "À montrer que l'IA fonctionne au hasard", "À représenter physiquement les tokens", "À introduire intuitivement la notion de probabilité conditionnelle"], correct: 3, expl: "Le sac de billes est une analogie pour comprendre qu'une probabilité peut être estimée à partir des observations." },
+  { q: "Pourquoi utilise-t-on des vecteurs ?", opts: ["Pour représenter numériquement les tokens et des relations apprises entre eux", "Pour dessiner uniquement des images", "Pour remplacer les réseaux neuronaux", "Pour créer des fichiers Word"], correct: 0, expl: "Les tokens sont transformés en vecteurs : des coordonnées dans un espace à des centaines de dimensions qui capturent le sens." },
+  { q: "Que montre principalement l'exemple du lapin ?", opts: ["Que l'IA sait cuisiner", "Que le contexte peut modifier le sens pertinent d'une même formulation", "Que les chasseurs utilisent l'IA", "Que chaque mot a toujours une seule signification"], correct: 1, expl: "Le mot 'lapin' n'est pas interprété de la même façon selon que le contexte évoque un enfant avec une peluche ou un chasseur." },
+  { q: "Que signifie le T de GPT ?", opts: ["Token", "Training", "Transformer", "Technology"], correct: 2, expl: "GPT = Generative Pre-trained Transformer. Le Transformer est l'architecture introduite en 2017, avec son mécanisme d'attention." },
+  { q: "Quel mécanisme est particulièrement associé au Transformer ?", opts: ["L'attention", "La carte perforée", "Le moteur d'inférence", "L'arbre binaire"], correct: 0, expl: "Le mécanisme d'attention permet d'évaluer quelles parties du contexte sont les plus pertinentes entre elles." },
+  { q: "Quelle description correspond le mieux à un agent IA ?", opts: ["Un chatbot donnant toujours une phrase", "Un système pouvant associer modèle, instructions et outils pour enchaîner des actions vers un objectif", "Une base de données", "Une IA obligatoirement totalement autonome"], correct: 1, expl: "Un agent IA combine un modèle avec des instructions et des outils pour enchaîner des actions et atteindre un objectif." },
+  { q: "Pourquoi parle-t-on de world models ?", opts: ["Pour créer des cartes", "Pour remplacer les IA par des robots", "Pour explorer des systèmes capables d'apprendre des représentations permettant d'anticiper l'évolution d'un environnement", "Pour augmenter la quantité de texte"], correct: 2, expl: "Les world models visent à permettre aux machines d'anticiper les conséquences de leurs actions dans le monde physique." },
+  { q: "Quelle phrase résume le mieux l'évolution présentée ?", opts: ["Les ordinateurs modernes n'utilisent plus d'algorithmes", "Chaque technologie a complètement remplacé la précédente", "L'IA fonctionne désormais sans intervention humaine", "Nous sommes progressivement passés de règles explicitement programmées à des systèmes capables d'apprendre des paramètres à partir de données"], correct: 3, expl: "L'évolution clé : de règles écrites par des humains, nous sommes passés à des systèmes qui apprennent leurs paramètres à partir de données." },
+]
+
+function AIChipBadge({ size = 100 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg"
+      style={{ filter: 'drop-shadow(0 0 16px #534AB7)', animation: 'chipGlow 2s ease-in-out infinite' }}>
+      <style>{`@keyframes chipGlow{0%,100%{filter:drop-shadow(0 0 8px #534AB7)}50%{filter:drop-shadow(0 0 24px #7F77DD)}}`}</style>
+      <rect x="28" y="28" width="64" height="64" rx="8" fill="#1a1560" stroke="#534AB7" strokeWidth="2"/>
+      <rect x="36" y="36" width="48" height="48" rx="4" fill="#0d0a40" stroke="#7F77DD" strokeWidth="1"/>
+      {[[45,45],[60,45],[75,45],[45,60],[60,60],[75,60],[45,75],[60,75],[75,75]].map(([cx,cy],i)=>(<circle key={i} cx={cx} cy={cy} r="3" fill="#7F77DD"/>))}
+      {[[45,45,60,45],[60,45,75,45],[45,60,60,60],[60,60,75,60],[45,75,60,75],[60,75,75,75],[45,45,45,60],[60,45,60,60],[75,45,75,60],[45,60,45,75],[60,60,60,75],[75,60,75,75],[45,45,60,60],[60,60,75,75]].map(([x1,y1,x2,y2],i)=>(<line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#534AB7" strokeWidth="0.8" opacity="0.7"/>))}
+      <circle cx="60" cy="60" r="6" fill="#EEEDFE"/>
+      <circle cx="60" cy="60" r="3" fill="white"/>
+      {[38,50,62,74,86].map((x,i)=>[<rect key={`t${i}`} x={x} y="22" width="4" height="6" rx="1" fill="#5DCAA5"/>,<rect key={`b${i}`} x={x} y="92" width="4" height="6" rx="1" fill="#5DCAA5"/>])}
+      {[38,50,62,74,86].map((y,i)=>[<rect key={`l${i}`} x="22" y={y} width="6" height="4" rx="1" fill="#5DCAA5"/>,<rect key={`r${i}`} x="92" y={y} width="6" height="4" rx="1" fill="#5DCAA5"/>])}
+    </svg>
+  )
 }
 
-interface Question {
-  id: string
-  question: string
-  question_en?: string
-  options: string[]
-  options_en?: string[]
-  correct_index: number
-  ordre: number
+function ProgressBar({ step, phase }: { step: number, phase: number }) {
+  const pct = Math.round((step / (TOTAL_LEARNING + QUIZ.length)) * 100)
+  const phases = ['💻','🧪','🔗','✨','🤖','❓']
+  return (
+    <div style={{ padding: '10px 16px', background: 'var(--bg)', borderBottom: '0.5px solid var(--border)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+        <div style={{ flex: 1, height: 6, background: 'var(--bg2)', borderRadius: 3, overflow: 'hidden' }}>
+          <div style={{ width: `${pct}%`, height: '100%', background: 'linear-gradient(90deg,#534AB7,#5DCAA5)', borderRadius: 3, transition: 'width .4s' }}/>
+        </div>
+        <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--accent)', minWidth: 30 }}>{pct}%</span>
+      </div>
+      <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
+        {phases.map((p, i) => (
+          <div key={i} style={{
+            width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 13,
+            background: i < phase ? '#E1F5EE' : i === phase ? 'var(--accent)' : 'var(--bg2)',
+            border: `2px solid ${i === phase ? 'var(--accent)' : 'transparent'}`,
+          }} title={['Traditionnel','Experts','Neurones','Génératif','Maintenant','Quiz'][i]}>
+            {i < phase ? '✓' : p}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
 }
 
-type Step = 'intro' | 'contenu' | 'quiz' | 'result'
+function Btn({ children, onClick, disabled, variant = 'primary', full = true }: { children: React.ReactNode, onClick?: () => void, disabled?: boolean, variant?: 'primary' | 'secondary', full?: boolean }) {
+  return (
+    <button onClick={onClick} disabled={disabled} style={{
+      width: full ? '100%' : 'auto', padding: '14px 20px', borderRadius: 12, border: 'none',
+      background: disabled ? 'var(--bg2)' : variant === 'primary' ? 'var(--accent)' : 'var(--bg2)',
+      color: disabled ? 'var(--text3)' : variant === 'primary' ? 'white' : 'var(--text)',
+      fontWeight: 700, fontSize: 15, cursor: disabled ? 'default' : 'pointer', transition: 'all .2s'
+    }}>{children}</button>
+  )
+}
+
+function FeedbackBar({ correct, expl, onNext, last }: { correct: boolean, expl: string, onNext: () => void, last: boolean }) {
+  const msgs = ['Exact !', 'Bien vu !', 'Parfait !', 'Tu as compris !']
+  return (
+    <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: correct ? '#E1F5EE' : '#FAECE7', borderTop: `2px solid ${correct ? '#5DCAA5' : '#F0997B'}`, padding: '14px 20px 22px', zIndex: 100 }}>
+      <div style={{ maxWidth: 700, margin: '0 auto' }}>
+        <div style={{ fontWeight: 700, fontSize: 16, color: correct ? '#085041' : '#993C1D', marginBottom: 4 }}>
+          {correct ? `✓ ${msgs[Math.floor(Math.random()*msgs.length)]}` : '✗ Pas tout à fait…'}
+        </div>
+        <div style={{ fontSize: 13, lineHeight: 1.5, color: correct ? '#0a6050' : '#7a2e10', marginBottom: 12 }}>{expl}</div>
+        <Btn onClick={onNext}>{last ? 'Voir mes résultats →' : 'Continuer →'}</Btn>
+      </div>
+    </div>
+  )
+}
+
+function Wrap({ children, onNext, canNext = true, nextLabel = 'Continuer →' }: { children: React.ReactNode, onNext?: () => void, canNext?: boolean, nextLabel?: string }) {
+  return (
+    <div style={{ padding: '20px 16px 100px', maxWidth: 700, margin: '0 auto' }}>
+      {children}
+      {onNext && (
+        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '10px 16px 18px', background: 'var(--bg)', borderTop: '0.5px solid var(--border)' }}>
+          <div style={{ maxWidth: 700, margin: '0 auto' }}>
+            <Btn onClick={onNext} disabled={!canNext}>{nextLabel}</Btn>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function Tag({ children, color }: { children: React.ReactNode, color: string }) {
+  return <div style={{ display: 'inline-block', background: color, fontSize: 12, fontWeight: 700, padding: '4px 12px', borderRadius: 20, marginBottom: 12 }}>{children}</div>
+}
 
 export default function ModulePage() {
   const { id } = useParams<{ id: string }>()
   const { lang } = useLanguage()
-  const [module, setModule] = useState<Module | null>(null)
-  const [questions, setQuestions] = useState<Question[]>([])
   const [userId, setUserId] = useState<string | null>(null)
-  const [progression, setProgression] = useState<{ completed: boolean; attempts: number } | null>(null)
+  const [moduleTitle, setModuleTitle] = useState('')
   const [loading, setLoading] = useState(true)
-  const [step, setStep] = useState<Step>('intro')
-  const [answers, setAnswers] = useState<Record<string, number>>({})
-  const [result, setResult] = useState<{ correct: number; total: number; passed: boolean } | null>(null)
-  const [saving, setSaving] = useState(false)
+
+  // Learning state
+  const [step, setStep] = useState(0)
+  const [catStep, setCatStep] = useState(0)
+  const [dogAnswer, setDogAnswer] = useState<boolean | null>(null)
+  const [expertStep, setExpertStep] = useState(0)
+  const [marbles, setMarbles] = useState<string[]>([])
+  const [wordChoice, setWordChoice] = useState<number | null>(null)
+  const [rabbitCtx, setRabbitCtx] = useState<number | null>(null)
+  const [gptReveal, setGptReveal] = useState(0)
+
+  // Quiz state
+  const [answers, setAnswers] = useState<(number | null)[]>(Array(QUIZ.length).fill(null))
+  const [feedback, setFeedback] = useState<boolean | null>(null)
+  const [showFb, setShowFb] = useState(false)
+  const [score, setScore] = useState(0)
+  const [saved, setSaved] = useState(false)
+
   const supabase = createClient()
 
   useEffect(() => {
-    const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+    supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) { window.location.href = '/'; return }
       setUserId(user.id)
-      const [{ data: mod }, { data: qs }, { data: prog }] = await Promise.all([
-        supabase.from('modules').select('*').eq('id', id).single(),
-        supabase.from('quiz_questions').select('*').eq('module_id', id).order('ordre'),
-        supabase.from('progressions').select('*').eq('animateur_id', user.id).eq('module_id', id).single()
-      ])
-      setModule(mod)
-      setQuestions(qs || [])
-      setProgression(prog || null)
-      setLoading(false)
-    }
-    load()
+      supabase.from('modules').select('titre').eq('id', id as string).single().then(({ data }) => {
+        if (data) setModuleTitle(data.titre)
+        setLoading(false)
+      })
+    })
   }, [id])
 
-  const handleAnswer = (questionId: string, optionIndex: number) => {
-    if (result) return
-    setAnswers(prev => ({ ...prev, [questionId]: optionIndex }))
+  const next = () => setStep(s => s + 1)
+
+  const qIdx = step - TOTAL_LEARNING
+  const isQuiz = step >= TOTAL_LEARNING && step < TOTAL_LEARNING + QUIZ.length
+  const isResult = step >= TOTAL_LEARNING + QUIZ.length
+
+  const phase = step < 2 ? 0 : step < 7 ? 0 : step < 12 ? 1 : step < 20 ? 2 : step < 28 ? 3 : step < 31 ? 4 : 5
+
+  const pickAnswer = async (optIdx: number) => {
+    if (answers[qIdx] !== null) return
+    const correct = QUIZ[qIdx].correct === optIdx
+    const na = [...answers]; na[qIdx] = optIdx; setAnswers(na)
+    setFeedback(correct); setShowFb(true)
+    if (correct) setScore(s => s + 1)
+    if (step === TOTAL_LEARNING + QUIZ.length - 1 && !saved) {
+      setSaved(true)
+      const finalScore = score + (correct ? 1 : 0)
+      await supabase.from('progressions').upsert({
+        animateur_id: userId!, module_id: id,
+        completed: finalScore === QUIZ.length,
+        completed_at: finalScore === QUIZ.length ? new Date().toISOString() : null,
+        attempts: 1,
+      }, { onConflict: 'animateur_id,module_id' })
+    }
   }
 
-  const handleSubmitQuiz = async () => {
-    if (!userId || !module) return
-    const correct = questions.filter(q => answers[q.id] === q.correct_index).length
-    const total = questions.length
-    const passed = correct === total
-
-    setSaving(true)
-
-    // Upsert progression
-    const attempts = (progression?.attempts || 0) + 1
-    await supabase.from('progressions').upsert({
-      animateur_id: userId,
-      module_id: module.id,
-      completed: passed,
-      completed_at: passed ? new Date().toISOString() : null,
-      attempts,
-    }, { onConflict: 'animateur_id,module_id' })
-
-    setProgression({ completed: passed, attempts })
-    setResult({ correct, total, passed })
-    setStep('result')
-    setSaving(false)
-  }
-
-  const resetQuiz = () => {
-    setAnswers({})
-    setResult(null)
-    setStep('quiz')
-  }
+  const nextQuiz = () => { setShowFb(false); setFeedback(null); next() }
 
   if (loading) return <div className="container"><div className="empty"><p>Chargement…</p></div></div>
-  if (!module) return <div className="container"><div className="empty"><p>Module introuvable.</p></div></div>
 
-  const titre = lang === 'en' && module.titre_en ? module.titre_en : module.titre
-  const contenu = lang === 'en' && module.contenu_en ? module.contenu_en : module.contenu
-  const allAnswered = questions.every(q => answers[q.id] !== undefined)
-
-  return (
-    <div className="container" style={{ maxWidth: 760 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', flexWrap: 'wrap', gap: 12 }}>
-        <div>
-          <div style={{ marginBottom: 6 }}>
-            <a href="/formation/modules" style={{ fontSize: 13, color: 'var(--text2)' }}>
-              ← {lang === 'en' ? 'Modules' : 'Modules'}
-            </a>
-          </div>
-          <h1 style={{ fontSize: 22, fontWeight: 600 }}>{titre}</h1>
-          {progression?.completed && (
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, padding: '3px 10px', borderRadius: 20, background: '#E1F5EE', color: '#085041', border: '0.5px solid #5DCAA5', marginTop: 6 }}>
-              🏅 {lang === 'en' ? 'Completed' : 'Module validé'}
-            </span>
-          )}
-        </div>
+  const header = (
+    <div style={{ position: 'sticky', top: 0, zIndex: 20 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', background: 'var(--bg)', borderBottom: '0.5px solid var(--border)' }}>
+        <a href="/formation/modules" style={{ fontSize: 13, color: 'var(--text2)' }}>← Modules</a>
+        <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--text2)', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{moduleTitle}</span>
         <LanguageSwitch />
       </div>
+      {!isResult && <ProgressBar step={step} phase={phase} />}
+    </div>
+  )
 
-      {/* Navigation par étapes */}
-      {step !== 'result' && (
-        <div style={{ display: 'flex', gap: 4, marginBottom: '1.5rem' }}>
-          {[
-            { key: 'intro', label: lang === 'en' ? 'Overview' : 'Aperçu' },
-            { key: 'contenu', label: lang === 'en' ? 'Content' : 'Contenu' },
-            { key: 'quiz', label: 'Quiz' },
-          ].map(s => (
-            <div key={s.key}
-              onClick={() => s.key !== 'quiz' || step === 'quiz' ? setStep(s.key as Step) : null}
-              style={{
-                padding: '6px 14px', borderRadius: 20, fontSize: 13, fontWeight: 500,
-                cursor: 'pointer',
-                background: step === s.key ? 'var(--accent)' : 'var(--bg2)',
-                color: step === s.key ? 'white' : 'var(--text2)',
-                border: '0.5px solid ' + (step === s.key ? 'transparent' : 'var(--border)'),
-              }}>
-              {s.label}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* INTRO */}
-      {step === 'intro' && (
-        <div className="card">
-          <div style={{ fontSize: 15, fontWeight: 500, marginBottom: '1rem' }}>
-            {lang === 'en' ? 'About this module' : 'À propos de ce module'}
-          </div>
-          <p style={{ fontSize: 14, color: 'var(--text2)', lineHeight: 1.7, marginBottom: '1.5rem' }}>
-            {lang === 'en' && module.description_en ? module.description_en : module.description || ''}
-          </p>
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text2)' }}>
-              <span>📝</span> {questions.length} {lang === 'en' ? 'quiz question(s)' : 'question(s) de quiz'}
-            </div>
-            {module.video_url && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text2)' }}>
-                <span>🎥</span> {lang === 'en' ? 'Video available' : 'Vidéo disponible'}
-              </div>
-            )}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--danger)' }}>
-              <span>🎯</span> {lang === 'en' ? '100% required to validate' : '100% de bonnes réponses requis'}
-            </div>
-          </div>
-          <hr className="divider" style={{ margin: '1.25rem 0' }} />
-          <button className="btn btn-primary" onClick={() => setStep('contenu')} style={{ width: '100%' }}>
-            {lang === 'en' ? 'Start module →' : 'Suivre le module →'}
-          </button>
-        </div>
-      )}
-
-      {/* CONTENU */}
-      {step === 'contenu' && (
-        <div>
-          {/* Vidéo si disponible */}
-          {module.video_url && (
-            <div className="card" style={{ marginBottom: '1rem' }}>
-              <div style={{ fontSize: 14, fontWeight: 500, marginBottom: '0.75rem' }}>
-                🎥 {lang === 'en' ? 'Summary video' : 'Vidéo résumé'}
-              </div>
-              <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, borderRadius: 8, overflow: 'hidden', background: '#000' }}>
-                <iframe
-                  src={module.video_url.replace('watch?v=', 'embed/').replace('youtu.be/', 'www.youtube.com/embed/')}
-                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
-                  allowFullScreen
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Contenu texte */}
-          {contenu && (
-            <div className="card" style={{ marginBottom: '1rem' }}>
-              <div style={{ fontSize: 14, fontWeight: 500, marginBottom: '0.75rem' }}>
-                📖 {lang === 'en' ? 'Module content' : 'Contenu du module'}
-              </div>
-              <div style={{ fontSize: 14, lineHeight: 1.8, color: 'var(--text)', whiteSpace: 'pre-wrap' }}>
-                {contenu}
-              </div>
-            </div>
-          )}
-
-          <div style={{ display: 'flex', gap: 10, justifyContent: 'space-between' }}>
-            <button className="btn" onClick={() => setStep('intro')}>← {lang === 'en' ? 'Back' : 'Retour'}</button>
-            <button className="btn btn-primary" onClick={() => setStep('quiz')}>
-              {lang === 'en' ? 'Take the quiz →' : 'Passer le quiz →'}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* QUIZ */}
-      {step === 'quiz' && (
-        <div>
-          <div className="card" style={{ marginBottom: '1rem', background: 'var(--accent-bg)', border: '0.5px solid #AFA9EC' }}>
-            <div style={{ fontSize: 13, color: 'var(--accent-text)', fontWeight: 500 }}>
-              🎯 {lang === 'en' ? '100% of correct answers required to validate this module.' : '100% de bonnes réponses requis pour valider ce module.'}
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: '1.5rem' }}>
-            {questions.map((q, qi) => {
-              const question = lang === 'en' && q.question_en ? q.question_en : q.question
-              const options = lang === 'en' && q.options_en ? q.options_en : q.options
+  // ── QUIZ ────────────────────────────────────────────────────────────────────
+  if (isQuiz) {
+    const q = QUIZ[qIdx]
+    const ua = answers[qIdx]
+    const labels = ['A','B','C','D']
+    return (
+      <div style={{ minHeight: '100vh', background: 'var(--bg3)' }}>
+        <style>{`@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}`}</style>
+        {header}
+        <div style={{ padding: '20px 16px 120px', maxWidth: 700, margin: '0 auto' }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--accent)', marginBottom: 12 }}>Question {qIdx + 1} / {QUIZ.length} &nbsp;·&nbsp; ✓ {score}</div>
+          <h3 style={{ fontSize: 18, fontWeight: 700, lineHeight: 1.5, marginBottom: 20 }}>{q.q}</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {q.opts.map((opt, i) => {
+              const sel = ua === i, cor = i === q.correct, shown = ua !== null
               return (
-                <div key={q.id} className="card">
-                  <div style={{ fontSize: 14, fontWeight: 600, marginBottom: '1rem' }}>
-                    {qi + 1}. {question}
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {options.map((opt, oi) => (
-                      <div key={oi} onClick={() => handleAnswer(q.id, oi)}
-                        style={{
-                          padding: '10px 14px', borderRadius: 8, cursor: 'pointer',
-                          fontSize: 14, lineHeight: 1.5,
-                          border: answers[q.id] === oi ? '1.5px solid var(--accent)' : '0.5px solid var(--border)',
-                          background: answers[q.id] === oi ? 'var(--accent-bg)' : 'var(--bg2)',
-                          color: answers[q.id] === oi ? 'var(--accent-text)' : 'var(--text)',
-                          transition: 'all .15s',
-                        }}>
-                        {opt}
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <button key={i} onClick={() => pickAnswer(i)} style={{
+                  display: 'flex', gap: 12, alignItems: 'flex-start', padding: '14px 16px', borderRadius: 12, border: `2px solid ${!shown ? 'var(--border)' : cor ? '#5DCAA5' : sel ? '#F0997B' : 'var(--border)'}`,
+                  background: !shown ? 'var(--bg)' : cor ? '#E1F5EE' : sel ? '#FAECE7' : 'var(--bg)',
+                  cursor: shown ? 'default' : 'pointer', textAlign: 'left', animation: 'fadeIn .2s ease',
+                }}>
+                  <span style={{ minWidth: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 12, flexShrink: 0, background: !shown ? 'var(--bg2)' : cor ? '#5DCAA5' : sel ? '#F0997B' : 'var(--bg2)', color: !shown ? 'var(--text2)' : (cor || sel) ? 'white' : 'var(--text2)' }}>{labels[i]}</span>
+                  <span style={{ fontSize: 14, lineHeight: 1.5, color: 'var(--text)' }}>{opt}</span>
+                </button>
               )
             })}
           </div>
-
-          <div style={{ display: 'flex', gap: 10, justifyContent: 'space-between' }}>
-            <button className="btn" onClick={() => setStep('contenu')}>← {lang === 'en' ? 'Back to content' : 'Retour au contenu'}</button>
-            <button className="btn btn-primary" disabled={!allAnswered || saving} onClick={handleSubmitQuiz}>
-              {saving ? '…' : (lang === 'en' ? 'Submit my answers' : 'Valider mes réponses')}
-            </button>
-          </div>
         </div>
-      )}
+        {showFb && <FeedbackBar correct={feedback!} expl={q.expl} onNext={nextQuiz} last={qIdx === QUIZ.length - 1} />}
+      </div>
+    )
+  }
 
-      {/* RÉSULTAT */}
-      {step === 'result' && result && (
-        <div>
-          {result.passed ? (
-            <div className="card" style={{ textAlign: 'center', padding: '2.5rem 1.5rem', border: '1.5px solid #5DCAA5' }}>
-              {/* Macaron */}
-              <div style={{
-                width: 100, height: 100, borderRadius: '50%', margin: '0 auto 1.25rem',
-                background: 'linear-gradient(135deg, #085041, #5DCAA5)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 44,
-                boxShadow: '0 4px 20px rgba(8,80,65,0.35)',
-              }}>
-                🏅
-              </div>
-              <h2 style={{ fontSize: 20, fontWeight: 700, color: '#085041', marginBottom: 8 }}>
-                {lang === 'en' ? 'Module validated!' : 'Module validé !'}
-              </h2>
-              <p style={{ fontSize: 14, color: 'var(--text2)', marginBottom: '0.5rem' }}>
-                {result.correct}/{result.total} {lang === 'en' ? 'correct answers' : 'bonnes réponses'} — 100% ✓
-              </p>
-              <p style={{ fontSize: 13, color: 'var(--text2)', marginBottom: '1.5rem' }}>
-                {lang === 'en'
-                  ? 'You have earned a badge for this module. It appears in your progress dashboard.'
-                  : 'Vous avez obtenu un macaron pour ce module. Il apparaît dans votre tableau de bord de progression.'}
-              </p>
-              <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-                <a href="/formation/progression" className="btn btn-primary">
-                  {lang === 'en' ? 'View my progress' : 'Voir ma progression'}
-                </a>
-                <a href="/formation/modules" className="btn">
-                  {lang === 'en' ? 'Other modules' : 'Autres modules'}
-                </a>
-              </div>
+  // ── RESULT ──────────────────────────────────────────────────────────────────
+  if (isResult) {
+    const total = answers.filter((a, i) => a === QUIZ[i].correct).length
+    const perfect = total === QUIZ.length
+    const pct = Math.round((total / QUIZ.length) * 100)
+    const wrongs = answers.map((a, i) => a !== QUIZ[i].correct ? i : -1).filter(x => x >= 0)
+    const restart = () => { setStep(TOTAL_LEARNING); setAnswers(Array(QUIZ.length).fill(null)); setScore(0); setShowFb(false); setFeedback(null); setSaved(false) }
+    return (
+      <div style={{ minHeight: '100vh', background: 'var(--bg3)' }}>
+        <style>{`@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}} @keyframes chipGlow{0%,100%{filter:drop-shadow(0 0 8px #534AB7)}50%{filter:drop-shadow(0 0 24px #7F77DD)}}`}</style>
+        {header}
+        <div style={{ padding: '24px 16px 40px', maxWidth: 700, margin: '0 auto' }}>
+          {perfect ? (
+            <div style={{ textAlign: 'center', marginBottom: 24, animation: 'fadeIn .5s ease' }}>
+              <div style={{ marginBottom: 12 }}><AIChipBadge size={96} /></div>
+              <div style={{ display: 'inline-block', background: 'var(--accent)', color: 'white', fontSize: 11, fontWeight: 700, padding: '4px 14px', borderRadius: 20, marginBottom: 8, letterSpacing: 1 }}>BADGE DÉBLOQUÉ ✦</div>
+              <h2 style={{ fontSize: 26, fontWeight: 900, marginBottom: 4 }}>MAÎTRISE IA 🧠</h2>
+              <div style={{ fontSize: 32, fontWeight: 900, color: 'var(--accent)', marginBottom: 8 }}>20 / 20 — 100 %</div>
+              <p style={{ fontSize: 14, color: 'var(--text2)', lineHeight: 1.6 }}>Parfait ! Tu maîtrises les fondamentaux des 4 âges de l'IA.</p>
             </div>
           ) : (
-            <div className="card" style={{ textAlign: 'center', padding: '2rem 1.5rem', border: '1.5px solid var(--border2)' }}>
-              <div style={{ fontSize: 44, marginBottom: '1rem' }}>😕</div>
-              <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>
-                {lang === 'en' ? 'Not quite there yet…' : 'Pas encore…'}
-              </h2>
-              <p style={{ fontSize: 14, color: 'var(--text2)', marginBottom: '0.5rem' }}>
-                {result.correct}/{result.total} {lang === 'en' ? 'correct answers' : 'bonnes réponses'}
-              </p>
-              <p style={{ fontSize: 13, color: 'var(--text2)', marginBottom: '1.5rem' }}>
-                {lang === 'en'
-                  ? '100% is required. Review the content and try again!'
-                  : '100% est requis pour valider le module. Révisez le contenu et réessayez !'}
-              </p>
-              <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-                <button className="btn btn-primary" onClick={resetQuiz}>
-                  {lang === 'en' ? 'Try again' : 'Réessayer le quiz'}
-                </button>
-                <button className="btn" onClick={() => setStep('contenu')}>
-                  {lang === 'en' ? 'Review content' : 'Revoir le contenu'}
-                </button>
-              </div>
+            <div style={{ textAlign: 'center', marginBottom: 24 }}>
+              <div style={{ fontSize: 52, marginBottom: 12 }}>{pct >= 80 ? '🎯' : '💪'}</div>
+              <div style={{ fontSize: 32, fontWeight: 900, color: 'var(--accent)', marginBottom: 8 }}>{total} / {QUIZ.length}</div>
+              <p style={{ fontSize: 14, color: 'var(--text2)', lineHeight: 1.6 }}>{pct >= 80 ? 'Beau parcours ! Quelques notions méritent encore un peu d\'entraînement.' : pct >= 60 ? 'Bon début ! Revois les questions manquées pour progresser.' : 'Continue à apprendre ! Le module t\'attend pour une révision.'}</p>
             </div>
           )}
-
-          {/* Récapitulatif des réponses */}
-          {!result.passed && (
-            <div style={{ marginTop: '1.5rem' }}>
-              <div style={{ fontSize: 14, fontWeight: 500, marginBottom: '1rem', color: 'var(--text2)' }}>
-                {lang === 'en' ? 'Your answers:' : 'Vos réponses :'}
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {questions.map((q, qi) => {
-                  const question = lang === 'en' && q.question_en ? q.question_en : q.question
-                  const options = lang === 'en' && q.options_en ? q.options_en : q.options
-                  const isCorrect = answers[q.id] === q.correct_index
-                  return (
-                    <div key={q.id} style={{
-                      padding: '12px 14px', borderRadius: 10,
-                      background: isCorrect ? '#E1F5EE' : '#FAECE7',
-                      border: `0.5px solid ${isCorrect ? '#5DCAA5' : '#F0997B'}`,
-                    }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
-                        {qi + 1}. {question}
-                      </div>
-                      <div style={{ fontSize: 12, color: isCorrect ? '#085041' : '#993C1D' }}>
-                        {isCorrect ? '✓' : '✗'} {lang === 'en' ? 'Your answer:' : 'Votre réponse :'} <strong>{options[answers[q.id]]}</strong>
-                      </div>
-                      {!isCorrect && (
-                        <div style={{ fontSize: 12, color: '#085041', marginTop: 3 }}>
-                          ✓ {lang === 'en' ? 'Correct answer:' : 'Bonne réponse :'} <strong>{options[q.correct_index]}</strong>
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
+          {wrongs.length > 0 && (
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text2)', marginBottom: 10 }}>Questions manquées :</div>
+              {wrongs.map(i => (
+                <div key={i} style={{ padding: 12, background: '#FAECE7', borderRadius: 10, border: '0.5px solid #F0997B', marginBottom: 8, fontSize: 13 }}>
+                  <div style={{ fontWeight: 600, marginBottom: 4 }}>Q{i+1}. {QUIZ[i].q.substring(0, 70)}…</div>
+                  <div style={{ color: '#085041' }}>✓ {QUIZ[i].opts[QUIZ[i].correct]}</div>
+                  {answers[i] !== null && <div style={{ color: '#993C1D', marginTop: 2 }}>✗ {QUIZ[i].opts[answers[i]!]}</div>}
+                </div>
+              ))}
             </div>
           )}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <Btn onClick={restart}>Refaire le quiz</Btn>
+            <Btn variant="secondary" onClick={() => window.location.href = '/formation/modules'}>← Retour aux modules</Btn>
+          </div>
         </div>
-      )}
+      </div>
+    )
+  }
+
+  // ── LEARNING STEPS ──────────────────────────────────────────────────────────
+  const s = step
+  return (
+    <div style={{ minHeight: '100vh', background: 'var(--bg3)' }}>
+      <style>{`@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}`}</style>
+      {header}
+
+      {/* STEP 0 — Cover */}
+      {s === 0 && <Wrap onNext={next} nextLabel="Commencer →">
+        <div style={{ textAlign: 'center', padding: '12px 0', animation: 'fadeIn .4s ease' }}>
+          <div style={{ fontSize: 52, marginBottom: 14 }}>💡</div>
+          <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 10, lineHeight: 1.3 }}>Sans technologie,<br/>pas d'intelligence artificielle.</h1>
+          <p style={{ fontSize: 14, color: 'var(--text2)', lineHeight: 1.7, marginBottom: 20 }}>Comment sommes-nous passés d'ordinateurs auxquels il fallait expliquer précisément quoi faire à des IA capables de dialoguer, créer et générer ?</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center' }}>
+            {[['💻','Informatique traditionnelle'],['🧪','Systèmes experts'],['🔗','Réseaux de neurones'],['✨','IA générative'],['🤖','Et maintenant ?']].map(([icon,label],i)=>(
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 20px', background: 'var(--bg)', borderRadius: 12, width: '100%', maxWidth: 280, border: '0.5px solid var(--border)' }}>
+                <span style={{ fontSize: 18 }}>{icon}</span><span style={{ fontSize: 14, fontWeight: 500 }}>{label}</span>
+              </div>
+            ))}
+          </div>
+          <p style={{ marginTop: 16, fontSize: 12, color: 'var(--text3)' }}>Ces technologies coexistent et se combinent. Ce n'est pas une histoire linéaire.</p>
+        </div>
+      </Wrap>}
+
+      {/* STEP 1 — Traditional computing intro */}
+      {s === 1 && <Wrap onNext={next}>
+        <Tag color="var(--accent-bg)"><span style={{ color: 'var(--accent-text)' }}>💻 ÂGE 1 — Informatique traditionnelle</span></Tag>
+        <h2 style={{ fontSize: 24, fontWeight: 800, marginBottom: 10 }}>« Dis-moi exactement quoi faire. »</h2>
+        <p style={{ fontSize: 14, color: 'var(--text2)', lineHeight: 1.7, marginBottom: 16 }}>Dans l'informatique traditionnelle, <strong>l'humain écrit les instructions</strong>. La machine les exécute fidèlement.</p>
+        <div style={{ background: 'var(--bg2)', borderRadius: 12, padding: 14, marginBottom: 14, fontFamily: 'monospace', fontSize: 15, fontWeight: 600 }}>SI [condition] → ALORS [action]</div>
+        <p style={{ fontSize: 13, color: 'var(--text2)', lineHeight: 1.6 }}>Dès 1890, IBM se développait grâce aux machines à cartes perforées — trier, classer, gérer de grandes quantités d'information. Une informatique de <strong>traitement déterministe</strong>.</p>
+      </Wrap>}
+
+      {/* STEP 2 — Cat decision tree */}
+      {s === 2 && <Wrap onNext={catStep >= 3 ? next : undefined} canNext={catStep >= 3} nextLabel="Suite →">
+        <div style={{ textAlign: 'center', marginBottom: 14 }}>
+          <div style={{ fontSize: 48, marginBottom: 6 }}>🐱</div>
+          <h3 style={{ fontSize: 17, fontWeight: 700 }}>Comment classer cet animal ?</h3>
+          <p style={{ fontSize: 13, color: 'var(--text2)', marginTop: 4 }}>Un système traditionnel construit un arbre de décision</p>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {[['A-t-il des poils ?','🔸'],['A-t-il des oreilles ?','🔸'],['A-t-il une queue ?','🔸'],['🐱 CHAT !','✅']].map(([q,icon],i)=> catStep > i ? (
+            <div key={i} style={{ padding: '12px 14px', borderRadius: 10, background: i===3?'#E1F5EE':'var(--bg2)', border: `1.5px solid ${i===3?'#5DCAA5':'var(--border)'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', animation: 'fadeIn .3s ease' }}>
+              <span style={{ fontSize: i===3?15:14, fontWeight: i===3?700:500 }}>{q}</span><span style={{ fontSize: 16 }}>{icon}</span>
+            </div>
+          ) : null)}
+        </div>
+        {catStep < 3 && (
+          <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+            <Btn onClick={()=>setCatStep(s=>s+1)}>OUI 👍</Btn>
+            <Btn variant="secondary" onClick={()=>setCatStep(s=>s+1)}>NON 👎</Btn>
+          </div>
+        )}
+        {catStep >= 3 && <div style={{ marginTop: 14, padding: 12, background: 'var(--accent-bg)', borderRadius: 10, fontSize: 13, color: 'var(--accent-text)' }}>💡 L'idée fondamentale : <strong>les règles ont été définies à l'avance par des humains.</strong></div>}
+      </Wrap>}
+
+      {/* STEP 3 — Binary */}
+      {s === 3 && <Wrap onNext={next}>
+        <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 14 }}>Le 0 et le 1</h3>
+        <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginBottom: 16 }}>
+          {[['0','courant ne passe pas','#1a1a18','white','#6B7280'],['1','courant passe','var(--accent)','white','#CECBF6']].map(([n,d,bg,c,dc],i)=>(
+            <div key={i} style={{ textAlign: 'center', padding: '18px 28px', background: bg, color: c, borderRadius: 12 }}>
+              <div style={{ fontSize: 36, fontWeight: 900 }}>{n}</div>
+              <div style={{ fontSize: 11, marginTop: 4, color: dc }}>{d}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ padding: 14, background: '#FAECE7', borderRadius: 12, border: '1px solid #F0997B', fontSize: 14, lineHeight: 1.6 }}>
+          ⚠️ <strong>Important :</strong> le fonctionnement binaire (0/1) et un arbre de décision (oui/non) sont deux choses différentes. Un programme n'est pas obligatoirement un arbre binaire.
+        </div>
+      </Wrap>}
+
+      {/* STEP 4 — Dog challenge */}
+      {s === 4 && <Wrap onNext={dogAnswer!==null?next:undefined} canNext={dogAnswer!==null}>
+        <div style={{ textAlign: 'center', marginBottom: 16 }}>
+          <div style={{ fontSize: 48, marginBottom: 8 }}>🐶</div>
+          <h3 style={{ fontSize: 17, fontWeight: 700 }}>Mini-défi</h3>
+          <p style={{ fontSize: 14, color: 'var(--text2)', marginTop: 8, lineHeight: 1.6 }}>On vient de construire un système pour reconnaître un chat. Si on lui présente un chien — <strong>fonctionne-t-il automatiquement ?</strong></p>
+        </div>
+        <div style={{ display: 'flex', gap: 10 }}>
+          {['Oui, forcément 😎','Pas forcément 🤔'].map((opt,i)=>(
+            <button key={i} onClick={()=>setDogAnswer(i===1)} style={{ flex:1, padding:'14px 10px', borderRadius:12, border:`2px solid ${dogAnswer===(i===1)?'var(--accent)':'var(--border)'}`, background:dogAnswer===(i===1)?'var(--accent-bg)':'var(--bg)', cursor:'pointer', fontWeight:600, fontSize:13, color:'var(--text)' }}>{opt}</button>
+          ))}
+        </div>
+        {dogAnswer!==null && <div style={{ marginTop:14, padding:14, background:'#E1F5EE', borderRadius:12, fontSize:13, lineHeight:1.6, color:'#085041' }}><strong>✓ Bien vu !</strong> Si une nouvelle situation n'a pas été anticipée par les règles, le système peut échouer. Les règles doivent être adaptées.</div>}
+      </Wrap>}
+
+      {/* STEP 5 — Advantages/limits */}
+      {s === 5 && <Wrap onNext={next}>
+        <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 14, textAlign: 'center' }}>À retenir</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div style={{ padding:14, background:'#E1F5EE', borderRadius:12, border:'1.5px solid #5DCAA5' }}>
+            <div style={{ fontSize:24, marginBottom:6 }}>👍</div>
+            <div style={{ fontWeight:700, fontSize:13, color:'#085041', marginBottom:4 }}>AVANTAGE</div>
+            <div style={{ fontWeight:600, fontSize:15, color:'#085041', marginBottom:6 }}>Traçabilité</div>
+            <div style={{ fontSize:12, color:'#0a6050', lineHeight:1.5 }}>Les règles sont explicites. On peut retracer le chemin ayant conduit au résultat.</div>
+          </div>
+          <div style={{ padding:14, background:'#FAECE7', borderRadius:12, border:'1.5px solid #F0997B' }}>
+            <div style={{ fontSize:24, marginBottom:6 }}>⚠️</div>
+            <div style={{ fontWeight:700, fontSize:13, color:'#993C1D', marginBottom:4 }}>LIMITE</div>
+            <div style={{ fontWeight:600, fontSize:15, color:'#993C1D', marginBottom:6 }}>Complexité</div>
+            <div style={{ fontSize:12, color:'#7a2e10', lineHeight:1.5 }}>Plus les situations se multiplient, plus écrire et maintenir toutes les règles devient difficile.</div>
+          </div>
+        </div>
+      </Wrap>}
+
+      {/* STEP 6 — Transition to expert systems */}
+      {s === 6 && <Wrap onNext={next} nextLabel="Découvrir le 2e âge →">
+        <div style={{ textAlign:'center', padding:'20px 0', animation:'fadeIn .4s ease' }}>
+          <div style={{ fontSize:36, marginBottom:14 }}>💭</div>
+          <h3 style={{ fontSize:20, fontWeight:800, marginBottom:10 }}>Et si on mettait directement l'expertise humaine dans la machine ?</h3>
+          <p style={{ fontSize:14, color:'var(--text2)', lineHeight:1.7 }}>Plutôt que de programmer toutes les situations possibles, que se passerait-il si on formalisait le raisonnement d'un expert ?</p>
+        </div>
+      </Wrap>}
+
+      {/* STEP 7 — Expert systems intro */}
+      {s === 7 && <Wrap onNext={next}>
+        <Tag color="#FAEEDA"><span style={{ color:'#633806' }}>🧪 ÂGE 2 — Années 1970-1980</span></Tag>
+        <h2 style={{ fontSize:22, fontWeight:800, marginBottom:10 }}>« Mettons l'expert dans la machine. »</h2>
+        <p style={{ fontSize:14, color:'var(--text2)', lineHeight:1.7 }}>Un <strong>ingénieur de la connaissance</strong> rencontre un spécialiste — médecin, ingénieur, technicien — et transforme son expertise en connaissances exploitables par un ordinateur.</p>
+      </Wrap>}
+
+      {/* STEP 8 — Expert system builder */}
+      {s === 8 && <Wrap onNext={expertStep>=3?next:undefined} canNext={expertStep>=3}>
+        <h3 style={{ fontSize:16, fontWeight:700, marginBottom:4 }}>🎮 Construis le système expert</h3>
+        <p style={{ fontSize:12, color:'var(--text2)', marginBottom:14 }}>Clique pour découvrir chaque composant</p>
+        {[{title:'BASE DE RÈGLES',icon:'📋',body:'SI A + B → ALORS C · Les connaissances de l\'expert sous forme de règles.',bg:'#E6F1FB',tc:'#0C447C',bc:'#85B7EB'},
+          {title:'BASE DE FAITS',icon:'📊',body:'Les informations sur la situation actuelle : résultats d\'analyses, observations, données.',bg:'#FAEEDA',tc:'#633806',bc:'#EF9F27'},
+          {title:'MOTEUR D\'INFÉRENCE',icon:'⚙️',body:'Applique les règles aux faits disponibles pour déduire une conclusion.',bg:'#E1F5EE',tc:'#085041',bc:'#5DCAA5'}
+        ].map((c,i)=>(
+          <div key={i} style={{ marginBottom:10 }}>
+            {expertStep>i ? (
+              <div style={{ padding:14, borderRadius:12, background:c.bg, border:`1.5px solid ${c.bc}`, animation:'fadeIn .3s ease' }}>
+                <div style={{ fontWeight:700, fontSize:12, color:c.tc, marginBottom:4 }}>{c.icon} {c.title}</div>
+                <div style={{ fontSize:13, color:c.tc, lineHeight:1.5 }}>{c.body}</div>
+              </div>
+            ) : (
+              <button onClick={()=>setExpertStep(s=>s+1)} style={{ width:'100%', padding:'14px', borderRadius:12, background:'var(--bg2)', border:'2px dashed var(--border)', cursor:'pointer', color:'var(--text2)', fontSize:13, fontWeight:500 }}>
+                {['① Révéler la base de règles','② Révéler la base de faits','③ Révéler le moteur d\'inférence'][i]}
+              </button>
+            )}
+          </div>
+        ))}
+        {expertStep>=3 && <div style={{ textAlign:'center', padding:10, background:'var(--bg2)', borderRadius:10, fontSize:12, fontWeight:600 }}>FAITS + RÈGLES ⚙️ MOTEUR → CONCLUSION</div>}
+      </Wrap>}
+
+      {/* STEP 9 — Algorithm recipe */}
+      {s === 9 && <Wrap onNext={next}>
+        <div style={{ textAlign:'center', marginBottom:16 }}><div style={{ fontSize:44 }}>🍳</div></div>
+        <h3 style={{ fontSize:17, fontWeight:700, marginBottom:10 }}>L'algorithme, c'est comme une recette</h3>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:14 }}>
+          <div style={{ padding:12, background:'var(--bg2)', borderRadius:12, textAlign:'center' }}>
+            <div style={{ fontSize:22 }}>📖</div>
+            <div style={{ fontWeight:600, fontSize:12, marginTop:4 }}>RECETTE</div>
+            <div style={{ fontSize:11, color:'var(--text2)', marginTop:4 }}>Ingrédients + instructions → plat</div>
+          </div>
+          <div style={{ padding:12, background:'var(--accent-bg)', borderRadius:12, textAlign:'center' }}>
+            <div style={{ fontSize:22 }}>💻</div>
+            <div style={{ fontWeight:600, fontSize:12, marginTop:4, color:'var(--accent-text)' }}>ALGORITHME</div>
+            <div style={{ fontSize:11, color:'var(--accent-text)', marginTop:4 }}>Données + instructions → résultat</div>
+          </div>
+        </div>
+        <div style={{ padding:12, background:'var(--bg2)', borderRadius:10, fontSize:12, color:'var(--text2)' }}>⚠️ C'est une analogie. Un algorithme est une <strong>procédure structurée pour résoudre un problème</strong>, pas littéralement une recette.</div>
+      </Wrap>}
+
+      {/* STEP 10 — Deep Blue */}
+      {s === 10 && <Wrap onNext={next}>
+        <div style={{ textAlign:'center', padding:'10px 0' }}>
+          <div style={{ fontSize:44, marginBottom:6 }}>♟️</div>
+          <h3 style={{ fontSize:20, fontWeight:800 }}>Deep Blue vs Kasparov</h3>
+          <div style={{ fontSize:22, fontWeight:300, color:'var(--text3)', margin:'4px 0' }}>1997</div>
+          <p style={{ fontSize:13, color:'var(--text2)', lineHeight:1.6, marginBottom:16 }}>Deep Blue bat le champion du monde d'échecs. Ce n'était pas un système expert classique — il combinait recherche dans l'arbre des coups, fonctions d'évaluation et matériel spécialisé.</p>
+          <div style={{ display:'flex', gap:10, marginBottom:14 }}>
+            <div style={{ flex:1, padding:12, background:'#E1F5EE', borderRadius:12, textAlign:'center' }}>
+              <div style={{ fontWeight:700, fontSize:12, color:'#085041' }}>Deep Blue aux échecs</div>
+              <div style={{ fontSize:18, margin:'4px 0' }}>⭐⭐⭐⭐⭐</div>
+            </div>
+            <div style={{ flex:1, padding:12, background:'#FAECE7', borderRadius:12, textAlign:'center' }}>
+              <div style={{ fontWeight:700, fontSize:12, color:'#993C1D' }}>Deep Blue 🥞 crêpes</div>
+              <div style={{ fontSize:14, margin:'6px 0', fontWeight:600, color:'#993C1D' }}>❌ Aucune compétence</div>
+            </div>
+          </div>
+          <div style={{ padding:12, background:'var(--bg2)', borderRadius:12, fontSize:13, fontWeight:600, lineHeight:1.5 }}>Une machine peut être extraordinaire dans un domaine précis <em>sans</em> savoir faire autre chose.</div>
+        </div>
+      </Wrap>}
+
+      {/* STEP 11 — Transition to neural networks */}
+      {s === 11 && <Wrap onNext={next} nextLabel="Découvrir les réseaux →">
+        <div style={{ textAlign:'center', padding:'20px 0', animation:'fadeIn .4s ease' }}>
+          <div style={{ fontSize:36, marginBottom:14 }}>🤔</div>
+          <h3 style={{ fontSize:20, fontWeight:800, marginBottom:10 }}>Et si nous arrêtions de donner toutes les règles à la machine ?</h3>
+          <p style={{ fontSize:16, color:'var(--accent)', fontWeight:700 }}>Et si elle pouvait apprendre ?</p>
+        </div>
+      </Wrap>}
+
+      {/* STEP 12 — Neural networks intro + timeline */}
+      {s === 12 && <Wrap onNext={next}>
+        <Tag color="#E6F1FB"><span style={{ color:'#0C447C' }}>🔗 ÂGE 3 — Réseaux de neurones</span></Tag>
+        <h2 style={{ fontSize:22, fontWeight:800, marginBottom:14 }}>« Et si la machine apprenait ? »</h2>
+        {[{y:'1943',t:'McCulloch & Pitts : premier modèle mathématique du neurone'},{y:'1956',t:'Atelier de Dartmouth — le champ de l\'IA se structure'},{y:'1957-58',t:'Rosenblatt développe le perceptron'},{y:'Ensuite…',t:'Développement progressif des réseaux neuronaux jusqu\'à aujourd\'hui'}].map(({y,t},i)=>(
+          <div key={i} style={{ display:'flex', gap:10, alignItems:'flex-start', marginBottom:10 }}>
+            <div style={{ minWidth:56, padding:'3px 6px', background:'var(--accent-bg)', color:'var(--accent-text)', borderRadius:8, fontSize:10, fontWeight:700, textAlign:'center' }}>{y}</div>
+            <div style={{ fontSize:13, color:'var(--text)', paddingTop:3, lineHeight:1.5 }}>{t}</div>
+          </div>
+        ))}
+      </Wrap>}
+
+      {/* STEP 13 — Brain vs network */}
+      {s === 13 && <Wrap onNext={next}>
+        <h3 style={{ fontSize:16, fontWeight:700, marginBottom:14, textAlign:'center' }}>Cerveau vs Réseau artificiel</h3>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:14 }}>
+          <div style={{ padding:14, background:'var(--bg2)', borderRadius:12, textAlign:'center' }}><div style={{ fontSize:34, marginBottom:6 }}>🧠</div><div style={{ fontWeight:600, fontSize:12 }}>CERVEAU</div><div style={{ fontSize:11, color:'var(--text2)', marginTop:4, lineHeight:1.5 }}>Neurones biologiques + synapses</div></div>
+          <div style={{ padding:14, background:'var(--accent-bg)', borderRadius:12, textAlign:'center' }}><div style={{ fontSize:34, marginBottom:6 }}>🔗</div><div style={{ fontWeight:600, fontSize:12, color:'var(--accent-text)' }}>RÉSEAU ARTIFICIEL</div><div style={{ fontSize:11, color:'var(--accent-text)', marginTop:4, lineHeight:1.5 }}>Unités mathématiques + connexions pondérées</div></div>
+        </div>
+        <div style={{ padding:14, background:'#FAECE7', borderRadius:12, border:'1.5px solid #F0997B', fontSize:13, lineHeight:1.6 }}>⚠️ <strong>Un réseau de neurones artificiels n'est PAS un cerveau miniature.</strong> C'est une architecture mathématique librement inspirée de certaines idées biologiques.</div>
+      </Wrap>}
+
+      {/* STEP 14 — Layers and weights */}
+      {s === 14 && <Wrap onNext={next}>
+        <h3 style={{ fontSize:16, fontWeight:700, marginBottom:14 }}>Couches et poids</h3>
+        <div style={{ display:'flex', justifyContent:'center', alignItems:'center', gap:6, marginBottom:18, flexWrap:'wrap' }}>
+          {['ENTRÉE','●●','●●','●●','SORTIE'].map((l,i)=>(
+            <div key={i} style={{ display:'flex', alignItems:'center', gap:6 }}>
+              {i>0&&<div style={{ color:'var(--text3)', fontSize:16 }}>→</div>}
+              <div style={{ padding:'8px 6px', background:i===0||i===4?'var(--accent)':'var(--bg2)', color:i===0||i===4?'white':'var(--text)', borderRadius:8, fontSize:11, fontWeight:600, minWidth:40, textAlign:'center' }}>{l}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ display:'flex', alignItems:'center', gap:12, padding:14, background:'var(--bg2)', borderRadius:12 }}>
+          <div style={{ fontSize:28 }}>🎚️</div>
+          <div><div style={{ fontWeight:600, fontSize:14 }}>Les poids = boutons de réglage</div><div style={{ fontSize:13, color:'var(--text2)', marginTop:4, lineHeight:1.5 }}>Certains signaux ont plus d'influence. <strong>L'apprentissage ajuste ces poids</strong> pour réduire les erreurs.</div></div>
+        </div>
+      </Wrap>}
+
+      {/* STEP 15 — Cat learning */}
+      {s === 15 && <Wrap onNext={next}>
+        <h3 style={{ fontSize:16, fontWeight:700, marginBottom:4 }}>🎮 Apprenons à reconnaître un chat</h3>
+        <p style={{ fontSize:12, color:'var(--text2)', marginBottom:14 }}>Le réseau fait des erreurs au début… puis il apprend !</p>
+        {[{p:'CAMION',pct:72,ok:false},{p:'CHIEN',pct:58,ok:false},{p:'FÉLIN 🟠',pct:84,ok:false},{p:'CHAT ✅',pct:96,ok:true}].map((a,i)=>(
+          <div key={i} style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 12px', background:a.ok?'#E1F5EE':'var(--bg2)', border:`1.5px solid ${a.ok?'#5DCAA5':'var(--border)'}`, borderRadius:10, marginBottom:8, animation:'fadeIn .3s ease' }}>
+            <span style={{ fontSize:18 }}>🐱</span>
+            <div style={{ flex:1 }}>
+              <div style={{ display:'flex', justifyContent:'space-between', marginBottom:4 }}>
+                <span style={{ fontSize:13, fontWeight:600 }}>→ {a.p}</span>
+                <span style={{ fontSize:11, color:'var(--text2)' }}>{a.pct}%</span>
+              </div>
+              <div style={{ height:4, background:'var(--bg3)', borderRadius:2, overflow:'hidden' }}>
+                <div style={{ width:`${a.pct}%`, height:'100%', background:a.ok?'#5DCAA5':'var(--accent)', borderRadius:2 }}/>
+              </div>
+            </div>
+            <span style={{ fontSize:14 }}>{a.ok?'✅':'❌'}</span>
+          </div>
+        ))}
+        <div style={{ padding:10, background:'var(--accent-bg)', borderRadius:10, fontSize:12, color:'var(--accent-text)', marginTop:4 }}>IMAGE → PRÉDICTION → ERREUR → AJUSTEMENT → RECOMMENCER. Des millions de fois.</div>
+      </Wrap>}
+
+      {/* STEP 16 — Generalization */}
+      {s === 16 && <Wrap onNext={next}>
+        <h3 style={{ fontSize:16, fontWeight:700, marginBottom:8 }}>La généralisation</h3>
+        <p style={{ fontSize:14, color:'var(--text2)', marginBottom:14, lineHeight:1.6 }}>L'objectif n'est pas de reconnaître uniquement les images déjà vues. Le modèle doit <strong>généraliser à de nouvelles situations</strong>.</p>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+          {[['🐈','Chat noir'],['🐈‍⬛','Chat de nuit'],['🐱','Chat de côté'],['😺','Chat stylisé']].map(([icon,label],i)=>(
+            <div key={i} style={{ padding:'12px', background:'#E1F5EE', border:'1.5px solid #5DCAA5', borderRadius:10, textAlign:'center' }}>
+              <div style={{ fontSize:26 }}>{icon}</div>
+              <div style={{ fontSize:11, color:'#085041', marginTop:3 }}>{label}</div>
+              <div style={{ fontSize:11, color:'#5DCAA5', fontWeight:700, marginTop:2 }}>CHAT ✓</div>
+            </div>
+          ))}
+        </div>
+      </Wrap>}
+
+      {/* STEP 17 — Big comparison */}
+      {s === 17 && <Wrap onNext={next}>
+        <h3 style={{ fontSize:16, fontWeight:700, marginBottom:14, textAlign:'center' }}>Le grand changement</h3>
+        <div style={{ padding:14, background:'var(--bg2)', borderRadius:12, marginBottom:10 }}>
+          <div style={{ fontWeight:700, fontSize:12, color:'var(--text2)', marginBottom:8 }}>💻 INFORMATIQUE TRADITIONNELLE</div>
+          <div style={{ fontSize:13 }}>👨‍💻 L'humain écrit les règles → 💻 La machine les applique</div>
+        </div>
+        <div style={{ textAlign:'center', fontSize:20, margin:'4px 0' }}>⚡</div>
+        <div style={{ padding:14, background:'var(--accent-bg)', borderRadius:12, border:'1.5px solid var(--accent)' }}>
+          <div style={{ fontWeight:700, fontSize:12, color:'var(--accent-text)', marginBottom:8 }}>🔗 MACHINE LEARNING</div>
+          <div style={{ fontSize:13, color:'var(--accent-text)' }}>👨‍💻 Données + objectif → 🧠 Le réseau <strong>apprend ses propres paramètres</strong></div>
+        </div>
+      </Wrap>}
+
+      {/* STEP 18 — Black box */}
+      {s === 18 && <Wrap onNext={next}>
+        <div style={{ textAlign:'center', marginBottom:16 }}>
+          <div style={{ display:'inline-block', background:'#E1F5EE', padding:'10px 20px', borderRadius:12, marginBottom:12 }}><span style={{ fontSize:14, fontWeight:700, color:'#085041' }}>✨ LA CAPACITÉ D'APPRENDRE</span></div>
+          <div style={{ fontSize:20, color:'#993C1D', fontWeight:700, marginBottom:8 }}>…mais une difficulté apparaît.</div>
+          <div style={{ display:'inline-block', background:'#FAECE7', padding:'10px 20px', borderRadius:12, marginBottom:14 }}><span style={{ fontSize:14, fontWeight:700, color:'#993C1D' }}>🔲 L'EXPLICABILITÉ</span></div>
+        </div>
+        <div style={{ padding:12, background:'var(--bg2)', borderRadius:12, fontSize:13, lineHeight:1.6 }}>
+          <div style={{ padding:10, background:'var(--bg)', borderRadius:8, marginBottom:10 }}>
+            <div style={{ fontStyle:'italic' }}>« Pourquoi ma candidature a-t-elle été rejetée ? »</div>
+            <div style={{ color:'var(--text3)', fontSize:11, marginTop:4 }}>Réponse : « Parce que le paramètre X28 vaut 0,728. »</div>
+            <div style={{ color:'#993C1D', fontWeight:600, fontSize:11, marginTop:3 }}>❌ Pas une explication satisfaisante.</div>
+          </div>
+          Un grand réseau peut avoir des milliards de paramètres interconnectés. Traduire une décision en règles compréhensibles est très difficile. C'est pourquoi il existe un domaine entier consacré à l'<strong>explicabilité de l'IA</strong>.
+        </div>
+      </Wrap>}
+
+      {/* STEP 19 — Generative AI acceleration */}
+      {s === 19 && <Wrap onNext={next} nextLabel="Découvrir l'IA générative →">
+        <div style={{ textAlign:'center', padding:'10px 0', animation:'fadeIn .4s ease' }}>
+          {[['🌐','Internet'],['📚','Données massives'],['⚡','Puissance de calcul / GPU'],['🔀','Transformer (2017)'],['✨','IA GÉNÉRATIVE']].map(([icon,label],i)=>(
+            <div key={i}>
+              <div style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'8px 16px', background:i===4?'var(--accent)':'var(--bg2)', borderRadius:10, color:i===4?'white':'var(--text)', marginBottom:4 }}>
+                <span style={{ fontSize:16 }}>{icon}</span><span style={{ fontSize:13, fontWeight:i===4?700:400 }}>{label}</span>
+              </div>
+              {i<4&&<div style={{ color:'var(--text3)', fontSize:16, margin:'0 0 4px' }}>↓</div>}
+            </div>
+          ))}
+        </div>
+      </Wrap>}
+
+      {/* STEP 20 — Gen AI intro */}
+      {s === 20 && <Wrap onNext={next}>
+        <Tag color="#FBEAF0"><span style={{ color:'#72243E' }}>✨ ÂGE 4 — IA Générative</span></Tag>
+        <h2 style={{ fontSize:21, fontWeight:800, marginBottom:10 }}>La machine ne fait plus seulement reconnaître. Elle peut aussi <em>générer</em>.</h2>
+        <p style={{ fontSize:13, color:'var(--text2)', lineHeight:1.7, marginBottom:14 }}>L'IA générative existait avant ChatGPT. On se concentre ici sur les <strong>LLM — Large Language Models</strong> : de très grands réseaux entraînés sur d'immenses volumes de texte.</p>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+          {[['🔤','TOKENS'],['📍','VECTEURS'],['👁️','ATTENTION'],['🎲','PROBABILITÉS']].map(([icon,label],i)=>(
+            <div key={i} style={{ padding:'12px', background:'var(--bg2)', border:'1.5px dashed var(--border)', borderRadius:10, textAlign:'center' }}>
+              <div style={{ fontSize:22, marginBottom:3 }}>{icon}</div><div style={{ fontSize:11, fontWeight:600, color:'var(--text2)' }}>{label}</div>
+            </div>
+          ))}
+        </div>
+      </Wrap>}
+
+      {/* STEP 21 — Tokens */}
+      {s === 21 && <Wrap onNext={next}>
+        <h3 style={{ fontSize:17, fontWeight:700, marginBottom:4 }}>🔤 Les tokens</h3>
+        <p style={{ fontSize:13, color:'var(--text2)', marginBottom:14 }}>Un token est l'unité élémentaire que le modèle manipule.</p>
+        <div style={{ marginBottom:14 }}>
+          <div style={{ fontSize:12, color:'var(--text2)', marginBottom:8 }}>La phrase « Bonjour le monde ! » devient :</div>
+          <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
+            {['Bonjour',' le',' monde',' !'].map((t,i)=>(
+              <div key={i} style={{ padding:'6px 12px', background:['var(--accent-bg)','#E1F5EE','#FAEEDA','#FAECE7'][i], color:['var(--accent-text)','#085041','#633806','#993C1D'][i], borderRadius:8, fontWeight:600, fontSize:14, fontFamily:'monospace' }}>{t}</div>
+            ))}
+          </div>
+        </div>
+        <div style={{ padding:12, background:'var(--bg2)', borderRadius:10, fontSize:13, lineHeight:1.6 }}>Un token peut être un mot, une partie de mot, un signe de ponctuation… Le modèle génère du texte <strong>token après token</strong>.</div>
+      </Wrap>}
+
+      {/* STEP 22 — Marble bag */}
+      {s === 22 && <Wrap onNext={marbles.length>=6?next:undefined} canNext={marbles.length>=6}>
+        <h3 style={{ fontSize:17, fontWeight:700, marginBottom:4 }}>🎲 Le sac de billes</h3>
+        <p style={{ fontSize:12, color:'var(--text2)', marginBottom:14 }}>Pioche des billes pour comprendre les probabilités</p>
+        <div style={{ textAlign:'center', padding:'18px', background:'var(--bg2)', borderRadius:14, marginBottom:14 }}>
+          <div style={{ fontSize:44, marginBottom:6 }}>🎒</div>
+          <div style={{ fontSize:12, color:'var(--text2)', marginBottom:10 }}>Billes rouges 🔴 et vertes 🟢 à l'intérieur</div>
+          {marbles.length<6 ? (
+            <Btn onClick={()=>setMarbles(m=>[...m,'🔴'])} full={false}>Piocher ({6-marbles.length} restantes)</Btn>
+          ) : <div style={{ fontSize:13, fontWeight:600, color:'var(--accent)' }}>6 tirages effectués !</div>}
+        </div>
+        {marbles.length>0 && (
+          <div style={{ marginBottom:10 }}>
+            <div style={{ fontSize:22, letterSpacing:4, marginBottom:8 }}>{marbles.join(' ')}</div>
+            <div style={{ padding:10, background:'var(--bg2)', borderRadius:10, fontSize:13, lineHeight:1.6 }}>
+              {marbles.length<6 ? 'Continue…' : `${marbles.filter(m=>m==='🔴').length} rouges sur 6 tirages. Ces observations modifient-elles ton estimation ? Oui ! C'est l'intuition de la probabilité conditionnelle.`}
+            </div>
+          </div>
+        )}
+        {marbles.length>=6 && <div style={{ padding:10, background:'var(--bg2)', borderRadius:10, fontSize:11, color:'var(--text3)' }}>💡 Analogie pédagogique — un LLM ne met évidemment pas ses tokens dans un sac !</div>}
+      </Wrap>}
+
+      {/* STEP 23 — Word prediction */}
+      {s === 23 && <Wrap onNext={wordChoice!==null?next:undefined} canNext={wordChoice!==null}>
+        <div style={{ textAlign:'center', marginBottom:18 }}>
+          <h3 style={{ fontSize:22, fontWeight:800, marginBottom:6 }}>Bonjour, comment ça…</h3>
+          <p style={{ fontSize:13, color:'var(--text2)' }}>Quel token suit naturellement ?</p>
+        </div>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+          {[{t:'🐘 éléphant',ok:false},{t:'👍 va',ok:true},{t:'💻 ordinateur',ok:false},{t:'🥫 mayonnaise',ok:false}].map((w,i)=>(
+            <button key={i} onClick={()=>setWordChoice(i)} style={{
+              padding:'14px 10px', borderRadius:12, fontWeight:600, fontSize:14, cursor:wordChoice===null?'pointer':'default',
+              border:`2px solid ${wordChoice===null?'var(--border)':i===wordChoice&&w.ok?'#5DCAA5':i===wordChoice&&!w.ok?'#F0997B':w.ok&&wordChoice!==null?'#5DCAA5':'var(--border)'}`,
+              background:wordChoice===null?'var(--bg)':i===wordChoice&&w.ok?'#E1F5EE':i===wordChoice&&!w.ok?'#FAECE7':w.ok&&wordChoice!==null?'#E1F5EE':'var(--bg)',
+              color:'var(--text)'
+            }}>{w.t}{wordChoice!==null&&w.ok&&' ✓'}</button>
+          ))}
+        </div>
+        {wordChoice!==null && <div style={{ marginTop:14, padding:12, background:'#E1F5EE', borderRadius:10, fontSize:13, lineHeight:1.6, color:'#085041' }}><strong>À partir du contexte, le modèle calcule une distribution de probabilités sur les tokens susceptibles de suivre.</strong> Token après token, une phrase entière se construit.</div>}
+      </Wrap>}
+
+      {/* STEP 24 — Rabbit */}
+      {s === 24 && <Wrap onNext={rabbitCtx!==null?next:undefined} canNext={rabbitCtx!==null}>
+        <h3 style={{ fontSize:16, fontWeight:700, marginBottom:14 }}>🐰 Le défi du lapin</h3>
+        <p style={{ fontSize:15, fontWeight:700, marginBottom:10, textAlign:'center' }}>« Qu'est-ce que je fais de mon lapin ? »</p>
+        <p style={{ fontSize:13, color:'var(--text2)', marginBottom:12 }}>La réponse devrait être différente selon le contexte. Lequel ?</p>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+          {[{icon:'👦🎄🧸',label:'Enfant + Noël + peluche',ctx:0},{icon:'🏹🐇🍳',label:'Chasseur + gibier + cuisine',ctx:1}].map(({icon,label,ctx})=>(
+            <button key={ctx} onClick={()=>setRabbitCtx(ctx)} style={{ padding:'16px', borderRadius:12, border:`2px solid ${rabbitCtx===ctx?'var(--accent)':'var(--border)'}`, background:rabbitCtx===ctx?'var(--accent-bg)':'var(--bg2)', cursor:'pointer', textAlign:'center' }}>
+              <div style={{ fontSize:22, marginBottom:6 }}>{icon}</div>
+              <div style={{ fontSize:12, fontWeight:500 }}>{label}</div>
+            </button>
+          ))}
+        </div>
+        {rabbitCtx!==null && <div style={{ marginTop:14, padding:12, background:'#E1F5EE', borderRadius:10, fontSize:13, lineHeight:1.6, color:'#085041' }}><strong>Exact !</strong> Le même mot « lapin » n'est pas interprété de la même façon selon le contexte. C'est là qu'interviennent les vecteurs.</div>}
+      </Wrap>}
+
+      {/* STEP 25 — Vectors */}
+      {s === 25 && <Wrap onNext={next}>
+        <h3 style={{ fontSize:17, fontWeight:700, marginBottom:8 }}>📍 Les vecteurs</h3>
+        <p style={{ fontSize:13, color:'var(--text2)', lineHeight:1.6, marginBottom:14 }}>Les tokens sont transformés en <strong>représentations numériques</strong> dans un espace à des centaines de dimensions.</p>
+        <div style={{ padding:14, background:'var(--bg2)', borderRadius:12, marginBottom:10, textAlign:'center' }}>
+          <div style={{ fontWeight:700, fontSize:15, marginBottom:10 }}>« Une immense carte mathématique du sens »</div>
+          <div style={{ display:'flex', gap:8, justifyContent:'center', flexWrap:'wrap' }}>
+            {[['👦🎄🧸 lapin','#E6F1FB','#0C447C'],['🏹🐇🍳 lapin','#FAEEDA','#633806']].map(([l,bg,c],i)=>(
+              <div key={i} style={{ padding:'6px 12px', background:bg, color:c, borderRadius:20, fontSize:13, fontWeight:600 }}>{l}</div>
+            ))}
+          </div>
+        </div>
+        <div style={{ padding:10, background:'var(--bg2)', borderRadius:10, fontSize:11, color:'var(--text3)' }}>⚠️ Il n'existe pas un «vecteur doudou» préprogrammé. Ce sont des représentations mathématiques <em>apprises</em> par le modèle.</div>
+      </Wrap>}
+
+      {/* STEP 26 — GPT reveal */}
+      {s === 26 && <Wrap onNext={gptReveal>=3?next:undefined} canNext={gptReveal>=3}>
+        <div style={{ textAlign:'center', marginBottom:18 }}>
+          <h3 style={{ fontSize:34, fontWeight:900, letterSpacing:5 }}>GPT</h3>
+          <p style={{ fontSize:12, color:'var(--text2)' }}>Clique pour révéler chaque lettre</p>
+        </div>
+        {[{l:'G',w:'Generative',d:'Le modèle génère du contenu'},{l:'P',w:'Pre-trained',d:'Pré-entraîné sur de très grandes quantités de données'},{l:'T',w:'Transformer',d:"L'architecture du modèle (2017)"}].map((item,i)=>(
+          <div key={i} onClick={()=>gptReveal===i&&setGptReveal(i+1)} style={{ display:'flex', alignItems:'center', gap:12, padding:'12px 14px', background:gptReveal>i?'var(--accent-bg)':'var(--bg2)', border:`1.5px solid ${gptReveal>i?'var(--accent)':'var(--border)'}`, borderRadius:12, marginBottom:10, cursor:gptReveal===i?'pointer':'default' }}>
+            <div style={{ width:38, height:38, borderRadius:10, background:gptReveal>i?'var(--accent)':'var(--bg3)', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:900, fontSize:18, color:gptReveal>i?'white':'var(--text3)', flexShrink:0 }}>{item.l}</div>
+            {gptReveal>i ? <div><div style={{ fontWeight:700, fontSize:14, color:'var(--accent-text)' }}>{item.w}</div><div style={{ fontSize:12, color:'var(--text2)', marginTop:2 }}>{item.d}</div></div> : <div style={{ fontSize:13, color:'var(--text3)' }}>Appuie pour révéler</div>}
+          </div>
+        ))}
+      </Wrap>}
+
+      {/* STEP 27 — Attention */}
+      {s === 27 && <Wrap onNext={next}>
+        <h3 style={{ fontSize:17, fontWeight:700, marginBottom:8 }}>👁️ L'Attention</h3>
+        <p style={{ fontSize:13, color:'var(--text2)', lineHeight:1.6, marginBottom:14 }}>Comment le modèle sait-il quelles parties du contexte sont importantes ?</p>
+        <div style={{ padding:14, background:'var(--bg2)', borderRadius:12, marginBottom:14, fontStyle:'italic', fontSize:14, lineHeight:1.8 }}>
+          « <span style={{ background:'#FAEEDA', padding:'0 3px', borderRadius:3 }}>L'enfant</span> prend <span style={{ background:'#E6F1FB', padding:'0 3px', borderRadius:3 }}>son lapin</span> avant d'aller dormir avec <strong style={{ background:'#EEEDFE', padding:'0 3px', borderRadius:3 }}>lui</strong>. »
+        </div>
+        <div style={{ padding:12, background:'var(--accent-bg)', borderRadius:12, fontSize:13, lineHeight:1.6, color:'var(--accent-text)', marginBottom:10 }}>L'<strong>attention</strong> permet au modèle d'évaluer quelles parties du contexte sont les plus pertinentes entre elles pour comprendre «lui».</div>
+        <div style={{ padding:10, background:'var(--bg2)', borderRadius:10, fontSize:12, textAlign:'center' }}>TOKENS → VECTEURS → <strong>ATTENTION</strong> → RÉSEAU → PROBABILITÉS → <strong>LLM</strong></div>
+      </Wrap>}
+
+      {/* STEP 28 — Agents */}
+      {s === 28 && <Wrap onNext={next}>
+        <Tag color="#EAF3DE"><span style={{ color:'#27500A' }}>🤖 ET MAINTENANT ?</span></Tag>
+        <h3 style={{ fontSize:17, fontWeight:700, marginBottom:14 }}>Chatbot vs Agent IA</h3>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+          <div style={{ padding:12, background:'var(--bg2)', borderRadius:12 }}>
+            <div style={{ fontSize:20, marginBottom:4 }}>💬</div><div style={{ fontWeight:700, fontSize:12, marginBottom:6 }}>CHATBOT</div>
+            <div style={{ fontSize:12, color:'var(--text2)', lineHeight:1.6 }}>Question → Réponse<br/>Question → Réponse<br/><em>L'utilisateur dirige tout.</em></div>
+          </div>
+          <div style={{ padding:12, background:'#EAF3DE', borderRadius:12, border:'1.5px solid #97C459' }}>
+            <div style={{ fontSize:20, marginBottom:4 }}>🤖</div><div style={{ fontWeight:700, fontSize:12, color:'#27500A', marginBottom:6 }}>AGENT IA</div>
+            <div style={{ fontSize:12, color:'#27500A', lineHeight:1.6 }}>Objectif → Plan → Outil → Action → Résultat → Suite…</div>
+          </div>
+        </div>
+        <div style={{ marginTop:10, padding:10, background:'var(--bg2)', borderRadius:10, fontSize:11, color:'var(--text2)', lineHeight:1.5 }}>Son niveau d'autonomie dépend de sa conception et des contrôles mis en place.</div>
+      </Wrap>}
+
+      {/* STEP 29 — World models */}
+      {s === 29 && <Wrap onNext={next}>
+        <h3 style={{ fontSize:17, fontWeight:700, marginBottom:8 }}>🌍 World Models</h3>
+        <div style={{ padding:14, background:'var(--bg2)', borderRadius:12, marginBottom:14, fontSize:14, fontWeight:700, textAlign:'center' }}>Comprendre énormément de textes suffit-il pour comprendre le monde ?</div>
+        <p style={{ fontSize:13, color:'var(--text2)', lineHeight:1.6, marginBottom:12 }}>Yann LeCun et d'autres défendent l'idée qu'un humain apprend aussi grâce à :</p>
+        <div style={{ display:'flex', flexWrap:'wrap', gap:8, marginBottom:14 }}>
+          {[['👁️','Vision'],['🌍','Espace'],['⏱️','Temps'],['🧱','Physique'],['🤲','Interactions'],['➡️','Conséquences']].map(([icon,label])=>(
+            <div key={label} style={{ padding:'5px 12px', background:'var(--bg2)', borderRadius:20, fontSize:12, display:'flex', gap:5, alignItems:'center' }}><span>{icon}</span><span>{label}</span></div>
+          ))}
+        </div>
+        <div style={{ padding:12, background:'var(--accent-bg)', borderRadius:12, fontSize:13, lineHeight:1.6, color:'var(--accent-text)' }}>L'ambition : permettre à une machine d'anticiper <strong>l'évolution d'un environnement et les conséquences possibles d'une action</strong> — pas seulement prédire le prochain token.</div>
+      </Wrap>}
+
+      {/* STEP 30 — Summary */}
+      {s === 30 && <Wrap onNext={next} nextLabel="Passer au quiz final →">
+        <h3 style={{ fontSize:17, fontWeight:700, marginBottom:14, textAlign:'center' }}>Synthèse des 4 âges</h3>
+        {[{icon:'💻',n:'1',t:'Informatique traditionnelle',b:"L'humain écrit les instructions. La machine les exécute.",bg:'#EEEDFE',c:'#3C3489'},
+          {icon:'🧪',n:'2',t:'Systèmes experts',b:"L'humain formalise l'expertise en règles. Un moteur les applique.",bg:'#FAEEDA',c:'#633806'},
+          {icon:'🔗',n:'3',t:'Réseaux de neurones',b:"La machine apprend ses paramètres à partir de données et d'un objectif.",bg:'#E6F1FB',c:'#0C447C'},
+          {icon:'✨',n:'4',t:'IA générative',b:"De très grands réseaux génèrent de nouveaux contenus. Tokens + vecteurs + attention.",bg:'#FBEAF0',c:'#72243E'},
+          {icon:'🤖',n:'→',t:"Aujourd'hui et demain",b:'Agents IA + world models + nouvelles architectures.',bg:'#EAF3DE',c:'#27500A'},
+        ].map(({icon,n,t,b,bg,c})=>(
+          <div key={n} style={{ display:'flex', gap:10, padding:'10px 12px', background:bg, borderRadius:12, marginBottom:8, alignItems:'flex-start' }}>
+            <div style={{ minWidth:26, height:26, borderRadius:'50%', background:c, color:'white', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:700, flexShrink:0 }}>{n}</div>
+            <div><div style={{ fontWeight:700, fontSize:12, color:c }}>{icon} {t}</div><div style={{ fontSize:11, color:c, marginTop:3, lineHeight:1.5 }}>{b}</div></div>
+          </div>
+        ))}
+      </Wrap>}
     </div>
   )
 }
