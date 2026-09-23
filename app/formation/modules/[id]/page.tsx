@@ -241,7 +241,7 @@ function FeedbackBar({ correct, expl, onNext, last }: { correct: boolean, expl: 
             <div style={{ fontSize: 13, lineHeight: 1.6, color: correct ? '#1A5200' : '#990000' }}>{expl}</div>
           </div>
         </div>
-        <Btn onClick={onNext}>{last ? 'Voir mes résultats →' : 'Continuer →'}</Btn>
+        <button onClick={onNext} style={{width:'100%',padding:'15px',borderRadius:16,border:'none',background:'#58CC02',color:'white',fontWeight:800,fontSize:15,cursor:'pointer',boxShadow:'0 4px 0 #3D8A00'}}>{last ? 'Voir mes résultats →' : 'Continuer →'}</button>
       </div>
     </div>
   )
