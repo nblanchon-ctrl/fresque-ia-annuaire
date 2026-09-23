@@ -405,14 +405,17 @@ function FeedbackBar({ correct, expl, onNext, last }: { correct: boolean, expl: 
   )
 }
 
-function Wrap({ children, onNext, canNext = true, nextLabel = 'Continuer →' }: { children: React.ReactNode, onNext?: () => void, canNext?: boolean, nextLabel?: string }) {
+function Wrap({ children, onNext, onPrev, canNext = true, nextLabel = 'Continuer →' }: {
+  children: React.ReactNode, onNext?: () => void, onPrev?: () => void, canNext?: boolean, nextLabel?: string
+}) {
   return (
-    <div style={{ padding: '20px 16px 100px', maxWidth: 700, margin: '0 auto' }}>
-      {children}
-      {onNext && (
-        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '10px 16px 18px', background: 'var(--bg)', borderTop: '0.5px solid var(--border)' }}>
-          <div style={{ maxWidth: 700, margin: '0 auto' }}>
-            <Btn onClick={onNext} disabled={!canNext}>{nextLabel}</Btn>
+    <div style={{ padding: '20px 16px 110px', maxWidth: 700, margin: '0 auto' }}>
+      <div style={{ animation: 'fadeIn 0.25s ease' }}>{children}</div>
+      {(onNext || onPrev) && (
+        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '12px 16px 22px', background: 'white', borderTop: '1px solid #E5E5E5', zIndex: 10 }}>
+          <div style={{ maxWidth: 700, margin: '0 auto', display: 'flex', gap: 10 }}>
+            {onPrev && <button onClick={onPrev} style={{ padding:'15px 18px', borderRadius:16, border:'2px solid #E5E5E5', background:'white', color:'#888', fontWeight:700, fontSize:18, cursor:'pointer', flexShrink:0 }}>←</button>}
+            {onNext && <button onClick={onNext} disabled={!canNext} style={{ flex:1, padding:'15px', borderRadius:16, border:'none', background:canNext?'#58CC02':'#E5E5E5', color:canNext?'white':'#AFAFAF', fontWeight:800, fontSize:15, cursor:canNext?'pointer':'default', boxShadow:canNext?'0 4px 0 #3D8A00':'none' }}>{nextLabel}</button>}
           </div>
         </div>
       )}
