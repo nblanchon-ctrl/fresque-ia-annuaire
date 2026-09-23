@@ -86,7 +86,7 @@ function AIChipBadge({ size = 100 }: { size?: number }) {
 const PHASE_CELEBRATIONS = [
   { atStep: 6,  icon: '💻', title: 'Âge 1 maîtrisé !', sub: 'Tu comprends maintenant comment les humains ont appris à faire calculer les machines.', color: '#534AB7', bg: '#EEEDFE' },
   { atStep: 11, icon: '🧪', title: 'Systèmes experts explorés !', sub: "Tu sais ce qu'est un moteur d'inférence et pourquoi Deep Blue est fascinant.", color: '#633806', bg: '#FAEEDA' },
-  { atStep: 20, icon: '🔗', title: 'Réseaux de neurones maîtrisés !', sub: "Tu comprends comment une machine apprend — et ce qu'est la boîte noire.", color: '#0C447C', bg: '#E6F1FB' },
+  { atStep: 20, icon: '🔗', title: 'Réseaux de neurones maîtrisés !', sub: "Tu comprends comment une machine apprend : et ce qu'est la boîte noire.", color: '#0C447C', bg: '#E6F1FB' },
   { atStep: 29, icon: '✨', title: 'IA générative découverte !', sub: 'Tokens, vecteurs, attention, Transformer… tu as tout compris.', color: '#72243E', bg: '#FBEAF0' },
   { atStep: 31, icon: '🚀', title: 'Contenu terminé ! Place au quiz.', sub: '20 questions pour valider ta maîtrise. Un score parfait débloque le badge IA MASTER.', color: '#27500A', bg: '#EAF3DE' },
 ]
@@ -369,7 +369,7 @@ export default function ModulePage() {
               <div style={{ marginBottom: 12 }}><AIChipBadge size={96} /></div>
               <div style={{ display: 'inline-block', background: '#534AB7', color: 'white', fontSize: 11, fontWeight: 700, padding: '4px 14px', borderRadius: 20, marginBottom: 8, letterSpacing: 1 }}>BADGE DÉBLOQUÉ ✦</div>
               <h2 style={{ fontSize: 26, fontWeight: 900, marginBottom: 4 }}>MAÎTRISE IA 🧠</h2>
-              <div style={{ fontSize: 32, fontWeight: 900, color: '#534AB7', marginBottom: 8 }}>20 / 20 — 100 %</div>
+              <div style={{ fontSize: 32, fontWeight: 900, color: '#534AB7', marginBottom: 8 }}>20 / 20 : 100 %</div>
               <p style={{ fontSize: 14, color: '#555', lineHeight: 1.6 }}>Parfait ! Tu maîtrises les fondamentaux des 4 âges de l'IA.</p>
             </div>
           ) : (
@@ -408,7 +408,7 @@ export default function ModulePage() {
       {celebration && <CelebrationModal data={celebration} onContinue={closeCelebration}/>}
       {header}
 
-      {/* STEP 0 — Cover */}
+      {/* STEP 0 : Cover */}
       {s === 0 && <Wrap onNext={next} onPrev={step>0?prev:undefined} nextLabel="Commencer →">
         <div style={{ textAlign: 'center', padding: '12px 0', animation: 'fadeIn .4s ease' }}>
           <div style={{ fontSize: 52, marginBottom: 14 }}>💡</div>
@@ -425,23 +425,23 @@ export default function ModulePage() {
         </div>
       </Wrap>}
 
-      {/* STEP 1 — Traditional computing intro */}
+      {/* STEP 1 : Traditional computing intro */}
       {s === 1 && <Wrap onNext={next} onPrev={step>0?prev:undefined}>
-        <Tag color="var(--accent-bg)"><span style={{ color: '#3C3489' }}>💻 ÂGE 1 — Informatique traditionnelle</span></Tag>
+        <Tag color="var(--accent-bg)"><span style={{ color: '#3C3489' }}>💻 ÂGE 1 : Informatique traditionnelle</span></Tag>
         <h2 style={{ fontSize: 24, fontWeight: 800, marginBottom: 10 }}>« Dis-moi exactement quoi faire. »</h2>
         <p style={{ fontSize: 14, color: '#555', lineHeight: 1.7, marginBottom: 16 }}>Dans l'informatique traditionnelle, <strong>l'humain écrit les instructions</strong>. La machine les exécute fidèlement.</p>
         <div style={{ background: '#F0F0F4', borderRadius: 12, padding: 14, marginBottom: 14, fontFamily: 'monospace', fontSize: 15, fontWeight: 600 }}>SI [condition] → ALORS [action]</div>
-        <p style={{ fontSize: 13, color: '#555', lineHeight: 1.6 }}>Dès 1890, IBM se développait grâce aux machines à cartes perforées — trier, classer, gérer de grandes quantités d'information. Une informatique de <strong>traitement déterministe</strong>.</p>
+        <p style={{ fontSize: 13, color: '#555', lineHeight: 1.6 }}>Dès 1890, IBM se développait grâce aux machines à cartes perforées : trier, classer, gérer de grandes quantités d'information. Une informatique de <strong>traitement déterministe</strong>.</p>
       </Wrap>}
 
-      {/* STEP 2 — Cat decision tree */}
+      {/* STEP 2 : Cat decision tree */}
       {s === 2 && <Wrap onNext={catStep >= 3 ? next : undefined} onPrev={prev} canNext={catStep >= 3} nextLabel="Suite →">
         {humorMsg && (
           <div style={{position:'fixed',inset:0,zIndex:200,display:'flex',alignItems:'center',justifyContent:'center',background:'rgba(0,0,0,0.65)',padding:20}}>
             <div style={{background:'white',borderRadius:24,padding:'32px 28px',textAlign:'center',maxWidth:320,boxShadow:'0 20px 50px rgba(0,0,0,0.3)'}}>
               <div style={{fontSize:52,marginBottom:12}}>🤔</div>
               <h3 style={{fontSize:17,fontWeight:900,color:'#1a1a2e',marginBottom:10,lineHeight:1.4}}>{humorMsg}</h3>
-              <p style={{fontSize:13,color:'#888',marginBottom:20}}>Regarde bien l'animal — réessaie !</p>
+              <p style={{fontSize:13,color:'#888',marginBottom:20}}>Regarde bien l'animal : réessaie !</p>
               <button onClick={()=>setHumorMsg(null)} style={{width:'100%',padding:'14px',borderRadius:14,background:'#58CC02',color:'white',border:'none',fontWeight:800,fontSize:15,cursor:'pointer',boxShadow:'0 4px 0 #3D8A00'}}>Ah oui, pardon ! 😅</button>
             </div>
           </div>
@@ -449,11 +449,11 @@ export default function ModulePage() {
         <div style={{textAlign:'center',marginBottom:16}}>
           <div style={{fontSize:48,marginBottom:6}}>🐱</div>
           <h3 style={{fontSize:17,fontWeight:700}}>Comment classer cet animal ?</h3>
-          <p style={{fontSize:13,color:'var(--text2)',marginTop:4}}>Réponds aux questions pour construire l'arbre de décision !</p>
+          <p style={{fontSize:13,color:'#555',marginTop:4}}>Réponds aux questions pour construire l'arbre de décision !</p>
         </div>
         {catStep < 3 && (
           <div style={{padding:'18px 16px',background:'#EEEDFE',borderRadius:14,marginBottom:14,textAlign:'center',border:'2px solid var(--accent)'}}>
-            <div style={{fontSize:12,color:'var(--text2)',marginBottom:6}}>Question {catStep+1} / 3</div>
+            <div style={{fontSize:12,color:'#555',marginBottom:6}}>Question {catStep+1} / 3</div>
             <div style={{fontWeight:800,fontSize:18,color:'#3C3489'}}>
               {['A-t-il des poils ?','A-t-il des oreilles dressées ?','A-t-il une queue ?'][catStep]}
             </div>
@@ -477,7 +477,7 @@ export default function ModulePage() {
       </Wrap>}
 
       {s === 3 && <Wrap onNext={next} onPrev={step>0?prev:undefined}>
-        <h3 style={{fontSize:18,fontWeight:800,marginBottom:6,color:'#1a1a2e'}}>Le 0 et le 1 — fondement du calcul</h3>
+        <h3 style={{fontSize:18,fontWeight:800,marginBottom:6,color:'#1a1a2e'}}>Le 0 et le 1 : fondement du calcul</h3>
         <p style={{fontSize:13,color:'#666',lineHeight:1.65,marginBottom:14}}>Tous les ordinateurs fonctionnent en binaire. À l'échelle des circuits électroniques, tout est soit <strong>1</strong> (le courant passe) soit <strong>0</strong> (le courant ne passe pas).</p>
         <div style={{display:'flex',gap:12,justifyContent:'center',marginBottom:16}}>
           {[
@@ -509,16 +509,16 @@ export default function ModulePage() {
         </div>
         <div style={{background:'#FFF9E6',borderRadius:14,padding:'14px 16px',border:'1.5px solid #FFC800'}}>
           <div style={{fontWeight:800,fontSize:13,color:'#8B5E00',marginBottom:8}}>{"⚡ La nuance importante"}</div>
-          <p style={{fontSize:13,color:'#8B5E00',lineHeight:1.7,margin:0}}>Le binaire (0/1) est le <strong>niveau matériel</strong> — la langue des circuits. L'arbre de décision (OUI/NON) est le <strong>niveau logique</strong> — la structure du programme. Les deux sont liés mais distincts : un programme peut avoir des dizaines de choix possibles (pas seulement oui/non), tous représentés en 0 et 1 dans les circuits. Le 0 et le 1 sont le <em>substrat</em>, pas la structure du raisonnement.</p>
+          <p style={{fontSize:13,color:'#8B5E00',lineHeight:1.7,margin:0}}>Le binaire (0/1) est le <strong>niveau matériel</strong> : la langue des circuits. L'arbre de décision (OUI/NON) est le <strong>niveau logique</strong> : la structure du programme. Les deux sont liés mais distincts : un programme peut avoir des dizaines de choix possibles (pas seulement oui/non), tous représentés en 0 et 1 dans les circuits. Le 0 et le 1 sont le <em>substrat</em>, pas la structure du raisonnement.</p>
         </div>
       </Wrap>}
 
-      {/* STEP 4 — Dog challenge */}
+      {/* STEP 4 : Dog challenge */}
       {s === 4 && <Wrap onNext={dogAnswer!==null?next:undefined} onPrev={prev} canNext={dogAnswer!==null}>
         <div style={{ textAlign: 'center', marginBottom: 16 }}>
           <div style={{ fontSize: 48, marginBottom: 8 }}>🐶</div>
           <h3 style={{ fontSize: 17, fontWeight: 700 }}>Mini-défi</h3>
-          <p style={{ fontSize: 14, color: '#555', marginTop: 8, lineHeight: 1.6 }}>On vient de construire un système pour reconnaître un chat. Si on lui présente un chien — <strong>fonctionne-t-il automatiquement ?</strong></p>
+          <p style={{ fontSize: 14, color: '#555', marginTop: 8, lineHeight: 1.6 }}>On vient de construire un système pour reconnaître un chat. Si on lui présente un chien : <strong>fonctionne-t-il automatiquement ?</strong></p>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
           {['Oui, forcément 😎','Pas forcément 🤔'].map((opt,i)=>(
@@ -534,14 +534,14 @@ export default function ModulePage() {
         {dogAnswer===false && (
           <div style={{marginTop:12,padding:16,background:'#FFDFE0',borderRadius:14,border:'1.5px solid #FF4B4B'}}>
             <div style={{fontWeight:800,fontSize:14,color:'#CC0000',marginBottom:8}}>✗ Pas tout à fait…</div>
-            <div style={{fontSize:13,color:'#990000',lineHeight:1.7}}>La vitesse et la lecture des données ne sont pas en cause. Le vrai problème : les <strong>règles ne sont pas assez précises</strong> pour distinguer un chat d'un chien — qui a aussi des poils, des oreilles et une queue !</div>
+            <div style={{fontSize:13,color:'#990000',lineHeight:1.7}}>La vitesse et la lecture des données ne sont pas en cause. Le vrai problème : les <strong>règles ne sont pas assez précises</strong> pour distinguer un chat d'un chien : qui a aussi des poils, des oreilles et une queue !</div>
           </div>
         )}
       </Wrap>}
 
-      {/* STEP 5 — Advantages/limits */}
+      {/* STEP 5 : Advantages/limits */}
       {s === 5 && <Wrap onNext={next} onPrev={prev} nextLabel="Phase suivante →">
-        <h3 style={{fontSize:18,fontWeight:800,marginBottom:6,color:'#1a1a2e'}}>À retenir — L'informatique traditionnelle</h3>
+        <h3 style={{fontSize:18,fontWeight:800,marginBottom:6,color:'#1a1a2e'}}>À retenir : L'informatique traditionnelle</h3>
         <p style={{fontSize:13,color:'#666',lineHeight:1.65,marginBottom:14}}>Avant de passer aux systèmes experts, voici les deux points essentiels à bien comprendre.</p>
         <div style={{background:'white',borderRadius:16,border:'1.5px solid #E5E5E5',overflow:'hidden',marginBottom:14}}>
           <div style={{padding:'14px 16px',background:'#D7FFB8',borderBottom:'2px solid #58CC02'}}>
@@ -559,9 +559,9 @@ export default function ModulePage() {
             <div style={{fontWeight:800,fontSize:15,color:'#CC0000'}}>{"⚠️ Limite fondamentale : la complexité"}</div>
           </div>
           <div style={{padding:'14px 16px'}}>
-            <p style={{fontSize:13,color:'#444',lineHeight:1.7,marginBottom:10}}>Pour des tâches dites <em>perceptuelles</em> — reconnaître un visage, comprendre une phrase, conduire une voiture — il faudrait formaliser des millions de règles implicites que <strong>{"l'humain lui-même ne sait pas énoncer"}</strong>. Comment décrire en règles ce qui fait qu'un visage ressemble à quelqu'un ?</p>
+            <p style={{fontSize:13,color:'#444',lineHeight:1.7,marginBottom:10}}>Pour des tâches dites <em>perceptuelles</em> : reconnaître un visage, comprendre une phrase, conduire une voiture : il faudrait formaliser des millions de règles implicites que <strong>{"l'humain lui-même ne sait pas énoncer"}</strong>. Comment décrire en règles ce qui fait qu'un visage ressemble à quelqu'un ?</p>
             <div style={{background:'#FFF0F0',borderRadius:10,padding:'10px 12px',fontSize:12,color:'#CC0000',lineHeight:1.6}}>
-              <strong>{"Ce qu'on vient de voir avec le chien :"}</strong>{" 3 règles ne suffisent pas à distinguer un chat d'un chien. Pour être fiable, il faudrait des milliers de règles très précises — impossible à maintenir manuellement à grande échelle."}
+              <strong>{"Ce qu'on vient de voir avec le chien :"}</strong>{" 3 règles ne suffisent pas à distinguer un chat d'un chien. Pour être fiable, il faudrait des milliers de règles très précises : impossible à maintenir manuellement à grande échelle."}
             </div>
           </div>
         </div>
@@ -571,23 +571,23 @@ export default function ModulePage() {
         </div>
       </Wrap>}
 
-      {/* STEP 6 — Transition to expert systems */}
+      {/* STEP 6 : Transition to expert systems */}
       {s === 6 && <Wrap onNext={next} onPrev={step>0?prev:undefined} nextLabel="Découvrir le 2e âge →">
         <div style={{ textAlign:'center', padding:'20px 0', animation:'fadeIn .4s ease' }}>
           <div style={{ fontSize:36, marginBottom:14 }}>💭</div>
           <h3 style={{ fontSize:20, fontWeight:800, marginBottom:10 }}>Et si on mettait directement l'expertise humaine dans la machine ?</h3>
-          <p style={{ fontSize:14, color:'var(--text2)', lineHeight:1.7 }}>Plutôt que de programmer toutes les situations possibles, que se passerait-il si on formalisait le raisonnement d'un expert ?</p>
+          <p style={{ fontSize:14, color:'#555', lineHeight:1.7 }}>Plutôt que de programmer toutes les situations possibles, que se passerait-il si on formalisait le raisonnement d'un expert ?</p>
         </div>
       </Wrap>}
 
-      {/* STEP 7 — Expert systems intro */}
+      {/* STEP 7 : Expert systems intro */}
       {s === 7 && <Wrap onNext={next} onPrev={step>0?prev:undefined}>
         <div style={{display:'inline-block',background:'#FAEEDA',color:'#633806',fontSize:12,fontWeight:800,padding:'4px 14px',borderRadius:20,marginBottom:12,textTransform:'uppercase',letterSpacing:1}}>
-          🧪 Âge 2 — Systèmes experts (années 1960-1980)
+          🧪 Âge 2 : Systèmes experts (années 1960-1980)
         </div>
         <h2 style={{fontSize:22,fontWeight:900,marginBottom:12,color:'#1a1a2e'}}>{"« Mettons l'expert dans la machine. »"}</h2>
         <p style={{fontSize:13,color:'#444',lineHeight:1.75,marginBottom:14}}>
-          {"Après les succès de l'informatique traditionnelle, les chercheurs se posent une question ambitieuse : et si, au lieu de programmer toutes les règles une par une, on capturait directement l'expertise d'un spécialiste humain — médecin, ingénieur, juriste — et on la rendait exploitable par un ordinateur ?"}
+          {"Après les succès de l'informatique traditionnelle, les chercheurs se posent une question ambitieuse : et si, au lieu de programmer toutes les règles une par une, on capturait directement l'expertise d'un spécialiste humain : médecin, ingénieur, juriste : et on la rendait exploitable par un ordinateur ?"}
         </p>
         <div style={{background:'white',borderRadius:14,border:'1.5px solid #EF9F27',padding:'14px 16px',marginBottom:14}}>
           <div style={{fontWeight:800,fontSize:13,color:'#633806',marginBottom:8}}>🎓 Le métier d'ingénieur de la connaissance</div>
@@ -611,7 +611,7 @@ export default function ModulePage() {
             </div>
             <div style={{background:'#EF9F27',borderRadius:10,padding:'10px 12px'}}>
               <div style={{fontWeight:700,fontSize:12,color:'white',marginBottom:4}}>{"③ Le liant : le moteur d'inférence"}</div>
-              <div style={{fontSize:12,color:'white',lineHeight:1.6}}>{"Il faut maintenant un algorithme qui lie les deux bases — un peu comme une recette de cuisine qui relie ingrédients et instructions. Cet algorithme s'appelle le MOTEUR D'INFÉRENCE."}</div>
+              <div style={{fontSize:12,color:'white',lineHeight:1.6}}>{"Il faut maintenant un algorithme qui lie les deux bases : un peu comme une recette de cuisine qui relie ingrédients et instructions. Cet algorithme s'appelle le MOTEUR D'INFÉRENCE."}</div>
             </div>
           </div>
         </div>
@@ -622,7 +622,7 @@ export default function ModulePage() {
 
       {s === 8 && <Wrap onNext={expertStep>=3?next:undefined} onPrev={prev} canNext={expertStep>=3}>
         <h3 style={{ fontSize:16, fontWeight:700, marginBottom:4 }}>🎮 Construis le système expert</h3>
-        <p style={{ fontSize:12, color:'var(--text2)', marginBottom:14 }}>Clique pour découvrir chaque composant</p>
+        <p style={{ fontSize:12, color:'#555', marginBottom:14 }}>Clique pour découvrir chaque composant</p>
         {[{title:'BASE DE RÈGLES',icon:'📋',body:'SI A + B → ALORS C · Les connaissances de l\'expert sous forme de règles.',bg:'#E6F1FB',tc:'#0C447C',bc:'#85B7EB'},
           {title:'BASE DE FAITS',icon:'📊',body:'Les informations sur la situation actuelle : résultats d\'analyses, observations, données.',bg:'#FAEEDA',tc:'#633806',bc:'#EF9F27'},
           {title:'MOTEUR D\'INFÉRENCE',icon:'⚙️',body:'Applique les règles aux faits disponibles pour déduire une conclusion.',bg:'#E1F5EE',tc:'#085041',bc:'#5DCAA5'}
@@ -634,7 +634,7 @@ export default function ModulePage() {
                 <div style={{ fontSize:13, color:c.tc, lineHeight:1.5 }}>{c.body}</div>
               </div>
             ) : (
-              <button onClick={()=>setExpertStep(s=>s+1)} style={{ width:'100%', padding:'14px', borderRadius:12, background:'#F0F0F4', border:'2px dashed var(--border)', cursor:'pointer', color:'var(--text2)', fontSize:13, fontWeight:500 }}>
+              <button onClick={()=>setExpertStep(s=>s+1)} style={{ width:'100%', padding:'14px', borderRadius:12, background:'#F0F0F4', border:'2px dashed var(--border)', cursor:'pointer', color:'#555', fontSize:13, fontWeight:500 }}>
                 {['① Révéler la base de règles','② Révéler la base de faits','③ Révéler le moteur d\'inférence'][i]}
               </button>
             )}
@@ -643,7 +643,7 @@ export default function ModulePage() {
         {expertStep>=3 && <div style={{ textAlign:'center', padding:10, background:'#F0F0F4', borderRadius:10, fontSize:12, fontWeight:600 }}>FAITS + RÈGLES ⚙️ MOTEUR → CONCLUSION</div>}
       </Wrap>}
 
-      {/* STEP 9 — Algorithm recipe */}
+      {/* STEP 9 : Algorithm recipe */}
       {s === 9 && <Wrap onNext={next} onPrev={step>0?prev:undefined}>
         <div style={{ textAlign:'center', marginBottom:16 }}><div style={{ fontSize:44 }}>🍳</div></div>
         <h3 style={{ fontSize:17, fontWeight:700, marginBottom:10 }}>L'algorithme, c'est comme une recette</h3>
@@ -651,7 +651,7 @@ export default function ModulePage() {
           <div style={{ padding:12, background:'#F0F0F4', borderRadius:12, textAlign:'center' }}>
             <div style={{ fontSize:22 }}>📖</div>
             <div style={{ fontWeight:600, fontSize:12, marginTop:4 }}>RECETTE</div>
-            <div style={{ fontSize:11, color:'var(--text2)', marginTop:4 }}>Ingrédients + instructions → plat</div>
+            <div style={{ fontSize:11, color:'#555', marginTop:4 }}>Ingrédients + instructions → plat</div>
           </div>
           <div style={{ padding:12, background:'#EEEDFE', borderRadius:12, textAlign:'center' }}>
             <div style={{ fontSize:22 }}>💻</div>
@@ -659,23 +659,23 @@ export default function ModulePage() {
             <div style={{ fontSize:11, color:'#3C3489', marginTop:4 }}>Données + instructions → résultat</div>
           </div>
         </div>
-        <div style={{ padding:12, background:'#F0F0F4', borderRadius:10, fontSize:12, color:'var(--text2)' }}>⚠️ C'est une analogie. Un algorithme est une <strong>procédure structurée pour résoudre un problème</strong>, pas littéralement une recette.</div>
+        <div style={{ padding:12, background:'#F0F0F4', borderRadius:10, fontSize:12, color:'#555' }}>⚠️ C'est une analogie. Un algorithme est une <strong>procédure structurée pour résoudre un problème</strong>, pas littéralement une recette.</div>
       </Wrap>}
 
-      {/* STEP 10 — Deep Blue */}
+      {/* STEP 10 : Deep Blue */}
       {s === 10 && <Wrap onNext={next} onPrev={prev} nextLabel="Phase suivante →">
-        <h3 style={{fontSize:18,fontWeight:800,marginBottom:14,color:'#1a1a2e'}}>{"♟️ Deep Blue — un exemple de système expert"}</h3>
+        <h3 style={{fontSize:18,fontWeight:800,marginBottom:14,color:'#1a1a2e'}}>{"♟️ Deep Blue : un exemple de système expert"}</h3>
         <div style={{background:'white',borderRadius:16,border:'1.5px solid #E5E5E5',overflow:'hidden',marginBottom:14}}>
           <div style={{padding:'14px 16px',background:'#1a1a2e',display:'flex',gap:12,alignItems:'center'}}>
             <div style={{fontSize:36}}>♟️</div>
             <div>
               <div style={{fontWeight:800,fontSize:16,color:'white'}}>Deep Blue vs Kasparov</div>
-              <div style={{fontSize:12,color:'rgba(255,255,255,0.6)'}}>IBM, 1997 — 6 parties jouées</div>
+              <div style={{fontSize:12,color:'rgba(255,255,255,0.6)'}}>IBM, 1997 : 6 parties jouées</div>
             </div>
           </div>
           <div style={{padding:'14px 16px'}}>
             <p style={{fontSize:13,color:'#444',lineHeight:1.7,marginBottom:10}}>
-              {"Deep Blue est un excellent exemple de système expert poussé à l'extrême. Il bat le champion du monde d'échecs Garry Kasparov — l'un des meilleurs joueurs de l'histoire — lors d'un match historique en 1997. Techniquement, il combine une recherche exhaustive dans l'arbre des coups possibles, des fonctions d'évaluation conçues avec des grands maîtres, et du matériel informatique très spécialisé."}
+              {"Deep Blue est un excellent exemple de système expert poussé à l'extrême. Il bat le champion du monde d'échecs Garry Kasparov : l'un des meilleurs joueurs de l'histoire : lors d'un match historique en 1997. Techniquement, il combine une recherche exhaustive dans l'arbre des coups possibles, des fonctions d'évaluation conçues avec des grands maîtres, et du matériel informatique très spécialisé."}
             </p>
           </div>
         </div>
@@ -712,10 +712,10 @@ export default function ModulePage() {
         </div>
       </Wrap>}
 
-      {/* STEP 12 — Neural networks intro + timeline */}
+      {/* STEP 12 : Neural networks intro + timeline */}
       {s === 12 && <Wrap onNext={next} onPrev={prev}>
         <div style={{display:'inline-block',background:'#E6F1FB',color:'#0C447C',fontSize:12,fontWeight:800,padding:'4px 14px',borderRadius:20,marginBottom:12,textTransform:'uppercase',letterSpacing:1}}>
-          🔗 Âge 3 — Réseaux de neurones
+          🔗 Âge 3 : Réseaux de neurones
         </div>
         <h2 style={{fontSize:22,fontWeight:900,marginBottom:12,color:'#1a1a2e'}}>{"« Et si on dupliquait le cerveau humain ? »"}</h2>
         <p style={{fontSize:13,color:'#444',lineHeight:1.75,marginBottom:14}}>
@@ -724,13 +724,13 @@ export default function ModulePage() {
         <div style={{background:'white',borderRadius:14,border:'1.5px solid #E5E5E5',padding:'14px 16px',marginBottom:14}}>
           <div style={{fontWeight:800,fontSize:13,color:'#1a1a2e',marginBottom:8}}>Le problème des systèmes experts</div>
           <p style={{fontSize:13,color:'#444',lineHeight:1.7,margin:0}}>
-            {"L'informatique traditionnelle et les systèmes experts fonctionnent bien. Mais notre cerveau, lui, ne se limite pas à un seul domaine. Un médecin peut aussi jouer de la guitare, conduire une voiture, apprendre une nouvelle langue. Si l'objectif est de dupliquer le cerveau humain, les systèmes experts sont trop limités — ils n'excellent que dans UN domaine précis."}
+            {"L'informatique traditionnelle et les systèmes experts fonctionnent bien. Mais notre cerveau, lui, ne se limite pas à un seul domaine. Un médecin peut aussi jouer de la guitare, conduire une voiture, apprendre une nouvelle langue. Si l'objectif est de dupliquer le cerveau humain, les systèmes experts sont trop limités : ils n'excellent que dans UN domaine précis."}
           </p>
         </div>
         <div style={{background:'#E6F1FB',borderRadius:14,border:'1.5px solid #1CB0F6',padding:'14px 16px',marginBottom:14}}>
           <div style={{fontWeight:800,fontSize:13,color:'#0C447C',marginBottom:8}}>{"💡 L'idée clé : imiter la structure du cerveau"}</div>
           <p style={{fontSize:13,color:'#0C447C',lineHeight:1.7,margin:0}}>
-            {"Notre cerveau contient environ 86 milliards de neurones connectés entre eux par des synapses. Ces connexions se renforcent ou s'affaiblissent selon l'expérience. Pourquoi ne pas recréer cette architecture artificielle ? Des unités interconnectées qui apprennent par l'expérience — c'est l'idée fondatrice des réseaux de neurones artificiels."}
+            {"Notre cerveau contient environ 86 milliards de neurones connectés entre eux par des synapses. Ces connexions se renforcent ou s'affaiblissent selon l'expérience. Pourquoi ne pas recréer cette architecture artificielle ? Des unités interconnectées qui apprennent par l'expérience : c'est l'idée fondatrice des réseaux de neurones artificiels."}
           </p>
         </div>
         <div style={{background:'#FFF9E6',borderRadius:14,border:'1.5px solid #FFC800',padding:'14px 16px'}}>
@@ -739,7 +739,7 @@ export default function ModulePage() {
             {"Imagine : nous sommes dans les années 1970. Rien n'est virtualisé. Pas de GPU, pas de cloud, pas de Python. Tu es chercheur et tu veux construire un réseau de neurones artificiel."}
           </p>
           <p style={{fontSize:13,color:'#8B5E00',lineHeight:1.7,marginBottom:8}}>
-            {"Tu t'assieds à une table avec des potentiomètres (des boutons de réglage électroniques), des fils électriques pour représenter les connexions synaptiques, et des ampoules pour visualiser les signaux. Tu dois câbler à la main chaque connexion entre tes neurones artificiels. Tu tournes les potentiomètres pour ajuster les poids — littéralement à la main."}
+            {"Tu t'assieds à une table avec des potentiomètres (des boutons de réglage électroniques), des fils électriques pour représenter les connexions synaptiques, et des ampoules pour visualiser les signaux. Tu dois câbler à la main chaque connexion entre tes neurones artificiels. Tu tournes les potentiomètres pour ajuster les poids : littéralement à la main."}
           </p>
           <p style={{fontSize:12,color:'#8B5E00',lineHeight:1.6,margin:0,fontStyle:'italic'}}>
             {"🎯 Posture animateur : quand tu raconteras cela, tu peux faire un geste de tourner un bouton imaginaire. Les participants réalisent alors que l'apprentissage automatique n'a pas toujours été automatique..."}
@@ -747,20 +747,41 @@ export default function ModulePage() {
         </div>
       </Wrap>}
 
-      {s === 13 && <Wrap onNext={next} onPrev={step>0?prev:undefined}>
-        <h3 style={{ fontSize:16, fontWeight:700, marginBottom:14, textAlign:'center' }}>Cerveau vs Réseau artificiel</h3>
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:14 }}>
-          <div style={{ padding:14, background:'#F0F0F4', borderRadius:12, textAlign:'center' }}><div style={{ fontSize:34, marginBottom:6 }}>🧠</div><div style={{ fontWeight:600, fontSize:12 }}>CERVEAU</div><div style={{ fontSize:11, color:'var(--text2)', marginTop:4, lineHeight:1.5 }}>Neurones biologiques + synapses</div></div>
-          <div style={{ padding:14, background:'#EEEDFE', borderRadius:12, textAlign:'center' }}><div style={{ fontSize:34, marginBottom:6 }}>🔗</div><div style={{ fontWeight:600, fontSize:12, color:'#3C3489' }}>RÉSEAU ARTIFICIEL</div><div style={{ fontSize:11, color:'#3C3489', marginTop:4, lineHeight:1.5 }}>Unités mathématiques + connexions pondérées</div></div>
+      {s === 13 && <Wrap onNext={next} onPrev={prev}>
+        <h3 style={{fontSize:18,fontWeight:800,marginBottom:8,color:'#1a1a2e'}}>Cerveau biologique vs Réseau artificiel</h3>
+        <p style={{fontSize:13,color:'#444',lineHeight:1.65,marginBottom:14}}>
+          Attention : s'inspirer du cerveau ne veut pas dire le copier. Les pionniers des réseaux de neurones ont pris des inspirations biologiques tres libres. Voici pourquoi c'est important a comprendre.
+        </p>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
+          {[
+            {icon:'🧠',t:'CERVEAU BIOLOGIQUE',items:['86 milliards de neurones','Connexions synaptiques biologiques','Apprentissage par l'experience','Consomme environ 20W','Tres difficile a observer'],bg:'#F8F8F8',bc:'#999',tc:'#1a1a2e'},
+            {icon:'🔗',t:'RESEAU ARTIFICIEL',items:['Unites mathematiques (fonctions)','Connexions numeriques ponderees','Apprentissage par gradient','Necessite des GPU puissants','Entierement observable et modifiable'],bg:'#E6F1FB',bc:'#1CB0F6',tc:'#0C447C'}
+          ].map(({icon,t,items,bg,bc,tc})=>(
+            <div key={t} style={{padding:14,background:bg,borderRadius:14,border:`2px solid ${bc}`}}>
+              <div style={{fontSize:28,marginBottom:6}}>{icon}</div>
+              <div style={{fontWeight:800,fontSize:11,color:tc,marginBottom:8,textTransform:'uppercase' as const,letterSpacing:0.5}}>{t}</div>
+              {items.map(item=><div key={item} style={{fontSize:11,color:tc,marginBottom:3,lineHeight:1.4}}>• {item}</div>)}
+            </div>
+          ))}
         </div>
-        <div style={{ padding:14, background:'#FAECE7', borderRadius:12, border:'1.5px solid #F0997B', fontSize:13, lineHeight:1.6 }}>⚠️ <strong>Un réseau de neurones artificiels n'est PAS un cerveau miniature.</strong> C'est une architecture mathématique librement inspirée de certaines idées biologiques.</div>
+        <div style={{background:'#FFDFE0',borderRadius:14,border:'1.5px solid #FF4B4B',padding:'14px 16px',marginBottom:12}}>
+          <div style={{fontWeight:800,fontSize:13,color:'#CC0000',marginBottom:6}}>Ce que ce n'est PAS</div>
+          <p style={{fontSize:13,color:'#990000',lineHeight:1.65,margin:0}}>
+            Un reseau de neurones artificiel n'est PAS un cerveau miniature, n'a PAS de conscience, ne "pense" PAS. C'est une architecture mathematique qui s'inspire tres librement de certaines intuitions biologiques. Un neurone artificiel, c'est fondamentalement une fonction : elle recoit des entrees, les pondere, et produit une sortie.
+          </p>
+        </div>
+        <div style={{background:'#E6F1FB',borderRadius:14,padding:'14px 16px',border:'1.5px solid #1CB0F6'}}>
+          <div style={{fontWeight:800,fontSize:13,color:'#0C447C',marginBottom:6}}>Posture animateur</div>
+          <p style={{fontSize:12,color:'#0C447C',lineHeight:1.6,margin:0}}>
+            Quand tu animes la Fresque de l'IA, tu rencontreras souvent cette confusion : "Les IA ont-elles une conscience ?" C'est le bon moment pour recentrer : non, un reseau de neurones artificiel ne ressemble que tres vaguement a un cerveau, et uniquement dans sa structure, pas dans son fonctionnement biologique.
+          </p>
+        </div>
       </Wrap>}
 
-      {/* STEP 14 — Layers and weights */}
       {s === 14 && <Wrap onNext={next} onPrev={prev}>
         <h3 style={{fontSize:18,fontWeight:800,marginBottom:10,color:'#1a1a2e'}}>Couches, poids, et apprentissage profond</h3>
         <p style={{fontSize:13,color:'#444',lineHeight:1.65,marginBottom:14}}>
-          {"Le néocortex humain — la partie du cerveau associée au raisonnement complexe — est organisé en 6 à 7 couches de neurones. Alors que les premiers réseaux artificiels n'avaient qu'une couche, les chercheurs se sont dit : pourquoi ne pas empiler plusieurs couches interconnectées ?"}
+          {"Le néocortex humain : la partie du cerveau associée au raisonnement complexe : est organisé en 6 à 7 couches de neurones. Alors que les premiers réseaux artificiels n'avaient qu'une couche, les chercheurs se sont dit : pourquoi ne pas empiler plusieurs couches interconnectées ?"}
         </p>
         <div style={{background:'#F0F0F4',borderRadius:12,padding:'12px',marginBottom:14}}>
           <div style={{fontSize:11,fontWeight:700,color:'#555',marginBottom:8,textTransform:'uppercase',letterSpacing:1}}>Architecture multicouche</div>
@@ -781,7 +802,7 @@ export default function ModulePage() {
           <div style={{fontSize:28,flexShrink:0}}>🎚️</div>
           <div>
             <div style={{fontWeight:700,fontSize:14,marginBottom:4,color:'#1a1a2e'}}>Les poids = boutons de réglage</div>
-            <div style={{fontSize:13,color:'#444',lineHeight:1.65}}>{"Chaque connexion entre neurones a un poids numérique. Au départ aléatoires, ces poids sont ajustés progressivement pendant l'entraînement — exactement comme on tournait les potentiomètres à la main dans les années 70, mais ici de façon automatique, des millions de fois."}</div>
+            <div style={{fontSize:13,color:'#444',lineHeight:1.65}}>{"Chaque connexion entre neurones a un poids numérique. Au départ aléatoires, ces poids sont ajustés progressivement pendant l'entraînement : exactement comme on tournait les potentiomètres à la main dans les années 70, mais ici de façon automatique, des millions de fois."}</div>
           </div>
         </div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
@@ -798,14 +819,14 @@ export default function ModulePage() {
 
       {s === 15 && <Wrap onNext={next} onPrev={step>0?prev:undefined}>
         <h3 style={{ fontSize:16, fontWeight:700, marginBottom:4 }}>🎮 Apprenons à reconnaître un chat</h3>
-        <p style={{ fontSize:12, color:'var(--text2)', marginBottom:14 }}>Le réseau fait des erreurs au début… puis il apprend !</p>
+        <p style={{ fontSize:12, color:'#555', marginBottom:14 }}>Le réseau fait des erreurs au début… puis il apprend !</p>
         {[{p:'CAMION',pct:8,ok:false},{p:'CHIEN',pct:31,ok:false},{p:'FÉLIN 🟠',pct:74,ok:false},{p:'CHAT ✅',pct:96,ok:true}].map((a,i)=>(
           <div key={i} style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 12px', background:a.ok?'#E1F5EE':'var(--bg2)', border:`1.5px solid ${a.ok?'#5DCAA5':'#E5E5E5'}`, borderRadius:10, marginBottom:8, animation:'fadeIn .3s ease' }}>
             <span style={{ fontSize:18 }}>🐱</span>
             <div style={{ flex:1 }}>
               <div style={{ display:'flex', justifyContent:'space-between', marginBottom:4 }}>
                 <span style={{ fontSize:13, fontWeight:600 }}>→ {a.p}</span>
-                <span style={{ fontSize:11, color:'var(--text2)' }}>{a.pct}%</span>
+                <span style={{ fontSize:11, color:'#555' }}>{a.pct}%</span>
               </div>
               <div style={{ height:4, background:'#F7F7F7', borderRadius:2, overflow:'hidden' }}>
                 <div style={{ width:`${a.pct}%`, height:'100%', background:a.ok?'#5DCAA5':'var(--accent)', borderRadius:2 }}/>
@@ -817,16 +838,16 @@ export default function ModulePage() {
         <div style={{ padding:10, background:'#EEEDFE', borderRadius:10, fontSize:12, color:'#3C3489', marginTop:4 }}>IMAGE → PRÉDICTION → ERREUR → AJUSTEMENT → RECOMMENCER. Des millions de fois.</div>
       </Wrap>}
 
-      {/* STEP 16 — Generalization */}
+      {/* STEP 16 : Generalization */}
       {s === 16 && <Wrap onNext={next} onPrev={prev}>
-        <h3 style={{fontSize:18,fontWeight:800,marginBottom:8,color:'#1a1a2e'}}>🎯 La généralisation — pourquoi c'est fondamental</h3>
+        <h3 style={{fontSize:18,fontWeight:800,marginBottom:8,color:'#1a1a2e'}}>🎯 La généralisation : pourquoi c'est fondamental</h3>
         <p style={{fontSize:13,color:'#444',lineHeight:1.65,marginBottom:14}}>
           {"Imaginons que notre réseau soit maintenant capable de reconnaître parfaitement les chats qu'il a déjà vus pendant l'entraînement. Très bien. Mais à quoi cela sert-il si, face à un chat qu'il n'a jamais vu, il échoue ?"}
         </p>
         <div style={{background:'white',borderRadius:14,border:'1.5px solid #E5E5E5',padding:'14px 16px',marginBottom:14}}>
           <div style={{fontWeight:800,fontSize:13,color:'#1a1a2e',marginBottom:8}}>{"L'enjeu : passer de l'exemple à la règle générale"}</div>
           <p style={{fontSize:13,color:'#444',lineHeight:1.7,marginBottom:8}}>
-            {"Un réseau qui mémorise ses exemples d'entraînement est comme un élève qui apprend les réponses par cœur sans comprendre. Il échoue dès qu'on lui pose une question légèrement différente. La généralisation, c'est la capacité à appliquer ce qu'on a appris à des situations nouvelles — c'est l'intelligence."}
+            {"Un réseau qui mémorise ses exemples d'entraînement est comme un élève qui apprend les réponses par cœur sans comprendre. Il échoue dès qu'on lui pose une question légèrement différente. La généralisation, c'est la capacité à appliquer ce qu'on a appris à des situations nouvelles : c'est l'intelligence."}
           </p>
           <p style={{fontSize:13,color:'#444',lineHeight:1.7,margin:0}}>
             {"Pour y parvenir, on expose le réseau à des milliers, voire des millions d'images de chats différents : chats noirs, blancs, tigrés, photographiés de côté, dans la pénombre, stylisés… C'est l'industrialisation de l'apprentissage."}
@@ -845,91 +866,187 @@ export default function ModulePage() {
         <div style={{background:'#E6F1FB',borderRadius:14,padding:'14px 16px',border:'1.5px solid #1CB0F6'}}>
           <div style={{fontWeight:800,fontSize:13,color:'#0C447C',marginBottom:8}}>🎯 Posture animateur</div>
           <p style={{fontSize:12,color:'#0C447C',lineHeight:1.6,margin:0}}>
-            {"Quand tu expliques la généralisation à des apprenants, une bonne question à poser est : 'Est-ce que vous pensez que ce réseau reconnaîtrait un chat photographié sous la neige ?' Cela crée un moment de réflexion sur la différence entre mémorisation et compréhension — un enjeu clé pour comprendre les limites et les forces de l'IA."}
+            {"Quand tu expliques la généralisation à des apprenants, une bonne question à poser est : 'Est-ce que vous pensez que ce réseau reconnaîtrait un chat photographié sous la neige ?' Cela crée un moment de réflexion sur la différence entre mémorisation et compréhension : un enjeu clé pour comprendre les limites et les forces de l'IA."}
           </p>
         </div>
       </Wrap>}
 
-      {s === 17 && <Wrap onNext={next} onPrev={step>0?prev:undefined}>
-        <h3 style={{ fontSize:16, fontWeight:700, marginBottom:14, textAlign:'center' }}>Le grand changement</h3>
-        <div style={{ padding:14, background:'#F0F0F4', borderRadius:12, marginBottom:10 }}>
-          <div style={{ fontWeight:700, fontSize:12, color:'var(--text2)', marginBottom:8 }}>💻 INFORMATIQUE TRADITIONNELLE</div>
-          <div style={{ fontSize:13 }}>👨‍💻 L'humain écrit les règles → 💻 La machine les applique</div>
-        </div>
-        <div style={{ textAlign:'center', fontSize:20, margin:'4px 0' }}>⚡</div>
-        <div style={{ padding:14, background:'#EEEDFE', borderRadius:12, border:'1.5px solid var(--accent)' }}>
-          <div style={{ fontWeight:700, fontSize:12, color:'#3C3489', marginBottom:8 }}>🔗 MACHINE LEARNING</div>
-          <div style={{ fontSize:13, color:'#3C3489' }}>👨‍💻 Données + objectif → 🧠 Le réseau <strong>apprend ses propres paramètres</strong></div>
-        </div>
-      </Wrap>}
-
-      {/* STEP 18 — Black box */}
-      {s === 18 && <Wrap onNext={next} onPrev={step>0?prev:undefined}>
-        <div style={{ textAlign:'center', marginBottom:16 }}>
-          <div style={{ display:'inline-block', background:'#E1F5EE', padding:'10px 20px', borderRadius:12, marginBottom:12 }}><span style={{ fontSize:14, fontWeight:700, color:'#085041' }}>✨ LA CAPACITÉ D'APPRENDRE</span></div>
-          <div style={{ fontSize:20, color:'#993C1D', fontWeight:700, marginBottom:8 }}>…mais une difficulté apparaît.</div>
-          <div style={{ display:'inline-block', background:'#FAECE7', padding:'10px 20px', borderRadius:12, marginBottom:14 }}><span style={{ fontSize:14, fontWeight:700, color:'#993C1D' }}>🔲 L'EXPLICABILITÉ</span></div>
-        </div>
-        <div style={{ padding:12, background:'#F0F0F4', borderRadius:12, fontSize:13, lineHeight:1.6 }}>
-          <div style={{ padding:10, background:'white', borderRadius:8, marginBottom:10 }}>
-            <div style={{ fontStyle:'italic' }}>« Pourquoi ma candidature a-t-elle été rejetée ? »</div>
-            <div style={{ color:'var(--text3)', fontSize:11, marginTop:4 }}>Réponse : « Parce que le paramètre X28 vaut 0,728. »</div>
-            <div style={{ color:'#993C1D', fontWeight:600, fontSize:11, marginTop:3 }}>❌ Pas une explication satisfaisante.</div>
+      {s === 17 && <Wrap onNext={next} onPrev={prev}>
+        <h3 style={{fontSize:18,fontWeight:800,marginBottom:8,color:'#1a1a2e'}}>Comment les poids sont-ils ajustes ?</h3>
+        <p style={{fontSize:13,color:'#444',lineHeight:1.65,marginBottom:14}}>
+          Quand le reseau fait une erreur, il faut savoir QUELS poids ont contribue a cette erreur, et COMMENT les corriger. Deux mecanismes rendent cela possible.
+        </p>
+        <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:14}}>
+          <div style={{padding:16,background:'#E6F1FB',borderRadius:14,border:'2px solid #1CB0F6'}}>
+            <div style={{fontWeight:800,fontSize:14,color:'#0C447C',marginBottom:8}}>Propagation avant (Forward pass)</div>
+            <p style={{fontSize:13,color:'#0C447C',lineHeight:1.65,marginBottom:8}}>L'image traverse le reseau couche par couche, de gauche a droite. A la fin, le reseau produit une prediction : "CAMION a 8%". On sait que c'est faux, puisque c'est un chat.</p>
+            <div style={{background:'white',borderRadius:8,padding:'8px 10px',fontSize:12,color:'#0C447C'}}>
+              Entree (image) → Couche 1 → Couche 2 → ... → Sortie (prediction)
+            </div>
           </div>
-          Un grand réseau peut avoir des milliards de paramètres interconnectés. Traduire une décision en règles compréhensibles est très difficile. C'est pourquoi il existe un domaine entier consacré à l'<strong>explicabilité de l'IA</strong>.
+          <div style={{padding:16,background:'#FFDFE0',borderRadius:14,border:'2px solid #FF4B4B'}}>
+            <div style={{fontWeight:800,fontSize:14,color:'#CC0000',marginBottom:8}}>Retropropagation (Backpropagation)</div>
+            <p style={{fontSize:13,color:'#990000',lineHeight:1.65,marginBottom:8}}>L'erreur est calculee. Puis l'algorithme remonte en sens inverse dans le reseau pour calculer, pour chaque poids, sa contribution a l'erreur. Un peu comme remonter une chaine d'erreurs : "C'est ce poids-la qui a surtout tout fausse."</p>
+            <div style={{background:'white',borderRadius:8,padding:'8px 10px',fontSize:12,color:'#CC0000'}}>
+              Erreur → Couche finale → ... → Couche 1 (chaque poids est corrige)
+            </div>
+          </div>
+        </div>
+        <div style={{padding:14,background:'#F0F0F4',borderRadius:12,marginBottom:12}}>
+          <div style={{fontWeight:700,fontSize:13,marginBottom:6,color:'#1a1a2e'}}>La descente de gradient</div>
+          <p style={{fontSize:13,color:'#555',lineHeight:1.65,margin:0}}>
+            Une fois qu'on sait comment chaque poids a contribue a l'erreur, on l'ajuste dans la bonne direction pour la reduire. Ce processus s'appelle la descente de gradient. Repete des millions de fois, le reseau converge vers une bonne solution.
+          </p>
+        </div>
+        <div style={{background:'#D7FFB8',borderRadius:12,padding:'12px 14px',border:'1.5px solid #58CC02'}}>
+          <p style={{fontSize:13,color:'#2B7400',margin:0,lineHeight:1.6}}>
+            Un grand modele comme GPT necessite des semaines d'entrainement sur des milliers de GPU. La retropropagation tourne en boucle, des milliards de fois, sur des teraoctets de texte.
+          </p>
         </div>
       </Wrap>}
 
-      {/* STEP 19 — Generative AI acceleration */}
-      {s === 19 && <Wrap onNext={next} onPrev={step>0?prev:undefined} nextLabel="Découvrir l'IA générative →">
-        <div style={{ textAlign:'center', padding:'10px 0', animation:'fadeIn .4s ease' }}>
-          {[['🌐','Internet'],['📚','Données massives'],['⚡','Puissance de calcul / GPU'],['🔀','Transformer (2017)'],['✨','IA GÉNÉRATIVE']].map(([icon,label],i)=>(
-            <div key={i}>
-              <div style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'8px 16px', background:i===4?'var(--accent)':'var(--bg2)', borderRadius:10, color:i===4?'white':'var(--text)', marginBottom:4 }}>
-                <span style={{ fontSize:16 }}>{icon}</span><span style={{ fontSize:13, fontWeight:i===4?700:400 }}>{label}</span>
+      {s === 18 && <Wrap onNext={next} onPrev={prev}>
+        <h3 style={{fontSize:18,fontWeight:800,marginBottom:8,color:'#1a1a2e'}}>Le probleme de la boite noire</h3>
+        <p style={{fontSize:13,color:'#444',lineHeight:1.65,marginBottom:14}}>
+          On a gagne quelque chose d'immense : la capacite d'apprendre. Mais on a perdu quelque chose qu'on avait avec l'informatique traditionnelle et les systemes experts : l'explicabilite.
+        </p>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:14}}>
+          <div style={{padding:14,background:'#D7FFB8',borderRadius:14,border:'2px solid #58CC02',textAlign:'center'}}>
+            <div style={{fontSize:28,marginBottom:6}}>On gagne</div>
+            <div style={{fontWeight:800,fontSize:14,color:'#2B7400',marginBottom:4}}>La capacite d'apprendre</div>
+            <div style={{fontSize:12,color:'#1A5200'}}>Le modele generalise, reconnait des situations inedites, s'ameliore avec les donnees</div>
+          </div>
+          <div style={{padding:14,background:'#FFDFE0',borderRadius:14,border:'2px solid #FF4B4B',textAlign:'center'}}>
+            <div style={{fontSize:28,marginBottom:6}}>On perd</div>
+            <div style={{fontWeight:800,fontSize:14,color:'#CC0000',marginBottom:4}}>L'explicabilite</div>
+            <div style={{fontSize:12,color:'#990000'}}>Impossible d'expliquer "pourquoi" le modele a pris cette decision precise</div>
+          </div>
+        </div>
+        <div style={{background:'white',borderRadius:14,border:'1.5px solid #E5E5E5',marginBottom:14,overflow:'hidden'}}>
+          <div style={{padding:'12px 16px',background:'#1a1a2e'}}>
+            <div style={{fontWeight:700,fontSize:13,color:'white'}}>Scenario reel : recrutement par IA</div>
+          </div>
+          <div style={{padding:'14px 16px'}}>
+            <p style={{fontSize:13,color:'#444',lineHeight:1.65,marginBottom:10}}>
+              Une entreprise utilise un reseau de neurones pour trier les candidatures. Un candidat est refuse. Il demande : "Pourquoi ?"
+            </p>
+            <div style={{background:'#F0F0F4',borderRadius:8,padding:'10px 12px',fontFamily:'monospace',fontSize:12,color:'#555',marginBottom:10}}>
+              w237 x 0.728 + w415 x -1.234 + w881 x 0.091... = -0.43 → REFUSE
+            </div>
+            <p style={{fontSize:13,color:'#CC0000',fontWeight:600}}>Ce n'est pas une explication acceptable pour un etre humain.</p>
+          </div>
+        </div>
+        <div style={{background:'#EEEDFE',borderRadius:14,padding:'14px 16px',border:'1.5px solid #C5C0EF'}}>
+          <div style={{fontWeight:800,fontSize:13,color:'#3C3489',marginBottom:6}}>Un domaine de recherche entier : l'IA explicable (XAI)</div>
+          <p style={{fontSize:13,color:'#3C3489',lineHeight:1.65,margin:0}}>
+            Des methodes comme LIME, SHAP ou les cartes d'activation permettent d'approximer des explications pour certains modeles. Ce n'est pas parfait, mais c'est un enjeu majeur dans tous les secteurs ou l'IA prend des decisions qui affectent des personnes : credit, sante, justice, recrutement.
+          </p>
+        </div>
+      </Wrap>}
+
+      {s === 19 && <Wrap onNext={next} onPrev={prev} nextLabel="Decouvrir l'IA generative →">
+        <h3 style={{fontSize:18,fontWeight:800,marginBottom:12,color:'#1a1a2e'}}>Le grand changement de paradigme</h3>
+        <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:16}}>
+          <div style={{padding:'14px 16px',background:'#F0F0F4',borderRadius:12}}>
+            <div style={{fontWeight:800,fontSize:12,color:'#888',marginBottom:8,textTransform:'uppercase' as const,letterSpacing:1}}>Avant</div>
+            <div style={{display:'flex',flexWrap:'wrap' as const,gap:8,alignItems:'center',fontSize:13}}>
+              <div style={{padding:'6px 12px',background:'white',borderRadius:20,border:'1.5px solid #E5E5E5',fontWeight:600}}>Donnees + Regles humaines</div>
+              <span style={{color:'#888'}}>→</span>
+              <div style={{padding:'6px 12px',background:'#D7FFB8',borderRadius:20,fontWeight:600,color:'#2B7400'}}>Resultat</div>
+            </div>
+            <div style={{fontSize:12,color:'#888',marginTop:8}}>L'humain ecrit toutes les regles. La machine les applique.</div>
+          </div>
+          <div style={{textAlign:'center' as const,fontSize:28}}>⚡</div>
+          <div style={{padding:'14px 16px',background:'#E8F8FF',borderRadius:12,border:'2.5px solid #1CB0F6'}}>
+            <div style={{fontWeight:800,fontSize:12,color:'#0C447C',marginBottom:8,textTransform:'uppercase' as const,letterSpacing:1}}>Apres (Machine Learning)</div>
+            <div style={{display:'flex',flexWrap:'wrap' as const,gap:8,alignItems:'center',fontSize:13}}>
+              <div style={{padding:'6px 12px',background:'white',borderRadius:20,border:'1.5px solid #1CB0F6',fontWeight:600}}>Donnees + Objectif + Architecture</div>
+              <span style={{color:'#1CB0F6'}}>→</span>
+              <div style={{padding:'6px 12px',background:'#1CB0F6',color:'white',borderRadius:20,fontWeight:700}}>Modele appris</div>
+            </div>
+            <div style={{fontSize:12,color:'#0C447C',marginTop:8}}>Le reseau apprend ses propres regles a partir des exemples.</div>
+          </div>
+        </div>
+        <div style={{background:'#FFF9E6',borderRadius:14,padding:'14px 16px',border:'1.5px solid #FFC800'}}>
+          <div style={{fontWeight:800,fontSize:13,color:'#8B5E00',marginBottom:6}}>Posture animateur</div>
+          <p style={{fontSize:12,color:'#8B5E00',lineHeight:1.6,margin:0}}>
+            Quand tu expliques cette bascule a des apprenants, insiste sur le fait que ce n'est pas "l'IA qui prend le pouvoir" : c'est toujours un humain qui choisit les donnees, l'architecture et l'objectif. La machine optimise, elle ne decide pas.
+          </p>
+        </div>
+      </Wrap>}
+
+      {s === 20 && <Wrap onNext={next} onPrev={prev}>
+        <div style={{display:'inline-block',background:'#FBEAF0',color:'#72243E',fontSize:12,fontWeight:800,padding:'4px 14px',borderRadius:20,marginBottom:12,textTransform:'uppercase' as const,letterSpacing:1}}>
+          Age 4 : IA Generative
+        </div>
+        <h2 style={{fontSize:22,fontWeight:900,marginBottom:12,color:'#1a1a2e'}}>La machine ne reconnait plus seulement. Elle cree.</h2>
+        <p style={{fontSize:13,color:'#444',lineHeight:1.75,marginBottom:14}}>
+          Trois ingredients se combinent a partir des annees 2010 pour produire quelque chose de radicalement nouveau. L'IA generative existait avant ChatGPT : mais c'est la combinaison de ces trois facteurs qui a tout change.
+        </p>
+        <div style={{display:'flex',flexDirection:'column',gap:6,marginBottom:16}}>
+          {[
+            ['🌐','Internet et Big Data','Des milliards de textes, images, codes disponibles pour l'entrainement'],
+            ['⚡','GPU et cloud computing','La puissance de calcul necessaire devient accessible'],
+            ['🔀','L'architecture Transformer (2017)','Une innovation cle qui a revolutionne la facon dont les reseaux traitent le langage'],
+          ].map(([icon,title,desc],i)=>(
+            <div key={i} style={{display:'flex',gap:12,padding:'12px 14px',background:'white',borderRadius:12,border:'1.5px solid #E5E5E5',alignItems:'flex-start'}}>
+              <div style={{fontSize:24,flexShrink:0}}>{icon}</div>
+              <div>
+                <div style={{fontWeight:700,fontSize:13,color:'#1a1a2e',marginBottom:3}}>{title}</div>
+                <div style={{fontSize:12,color:'#555',lineHeight:1.5}}>{desc}</div>
               </div>
-              {i<4&&<div style={{ color:'var(--text3)', fontSize:16, margin:'0 0 4px' }}>↓</div>}
             </div>
           ))}
         </div>
-      </Wrap>}
-
-      {/* STEP 20 — Gen AI intro */}
-      {s === 20 && <Wrap onNext={next} onPrev={step>0?prev:undefined}>
-        <Tag color="#FBEAF0"><span style={{ color:'#72243E' }}>✨ ÂGE 4 — IA Générative</span></Tag>
-        <h2 style={{ fontSize:21, fontWeight:800, marginBottom:10 }}>La machine ne fait plus seulement reconnaître. Elle peut aussi <em>générer</em>.</h2>
-        <p style={{ fontSize:13, color:'var(--text2)', lineHeight:1.7, marginBottom:14 }}>L'IA générative existait avant ChatGPT. On se concentre ici sur les <strong>LLM — Large Language Models</strong> : de très grands réseaux entraînés sur d'immenses volumes de texte.</p>
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
-          {[['🔤','TOKENS'],['📍','VECTEURS'],['👁️','ATTENTION'],['🎲','PROBABILITÉS']].map(([icon,label],i)=>(
-            <div key={i} style={{ padding:'12px', background:'#F0F0F4', border:'1.5px dashed var(--border)', borderRadius:10, textAlign:'center' }}>
-              <div style={{ fontSize:22, marginBottom:3 }}>{icon}</div><div style={{ fontSize:11, fontWeight:600, color:'var(--text2)' }}>{label}</div>
-            </div>
-          ))}
-        </div>
-      </Wrap>}
-
-      {/* STEP 21 — Tokens */}
-      {s === 21 && <Wrap onNext={next} onPrev={step>0?prev:undefined}>
-        <h3 style={{ fontSize:17, fontWeight:700, marginBottom:4 }}>🔤 Les tokens</h3>
-        <p style={{ fontSize:13, color:'var(--text2)', marginBottom:14 }}>Un token est l'unité élémentaire que le modèle manipule.</p>
-        <div style={{ marginBottom:14 }}>
-          <div style={{ fontSize:12, color:'var(--text2)', marginBottom:8 }}>La phrase « Bonjour le monde ! » devient :</div>
-          <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
-            {['Bonjour',' le',' monde',' !'].map((t,i)=>(
-              <div key={i} style={{ padding:'6px 12px', background:['var(--accent-bg)','#E1F5EE','#FAEEDA','#FAECE7'][i], color:['var(--accent-text)','#085041','#633806','#993C1D'][i], borderRadius:8, fontWeight:600, fontSize:14, fontFamily:'monospace' }}>{t}</div>
+        <div style={{background:'#FBEAF0',borderRadius:14,padding:'14px 16px',border:'1.5px solid #F0997B',marginBottom:12}}>
+          <div style={{fontWeight:800,fontSize:13,color:'#72243E',marginBottom:6}}>Ce que l'IA generative sait faire</div>
+          <div style={{display:'flex',flexWrap:'wrap' as const,gap:6}}>
+            {['Ecrire du texte','Generer des images','Composer de la musique','Coder','Traduire','Resumer','Dialoguer'].map(cap=>(
+              <div key={cap} style={{padding:'5px 12px',background:'white',borderRadius:20,fontSize:12,fontWeight:600,color:'#72243E',border:'1px solid #F0997B'}}>{cap}</div>
             ))}
           </div>
         </div>
-        <div style={{ padding:12, background:'#F0F0F4', borderRadius:10, fontSize:13, lineHeight:1.6 }}>Un token peut être un mot, une partie de mot, un signe de ponctuation… Le modèle génère du texte <strong>token après token</strong>.</div>
+        <p style={{fontSize:13,color:'#555',lineHeight:1.65}}>
+          On se concentre ici sur les LLM (Large Language Models). Pour comprendre comment ils fonctionnent, 4 notions cles : tokens, probabilites, vecteurs, attention.
+        </p>
       </Wrap>}
 
-      {/* STEP 22 — Marble bag */}
+      {s === 21 && <Wrap onNext={next} onPrev={prev}>
+        <h3 style={{fontSize:18,fontWeight:800,marginBottom:8,color:'#1a1a2e'}}>1. Les tokens : l'unite elementaire</h3>
+        <p style={{fontSize:13,color:'#444',lineHeight:1.65,marginBottom:14}}>
+          Quand tu envoies un message a ChatGPT, il ne le lit pas comme toi. La premiere chose qu'il fait, c'est decouper ton texte en petites unites appelees tokens. Comprendre les tokens, c'est comprendre pourquoi l'IA "pense" differemment de nous.
+        </p>
+        <div style={{background:'#F8F5FF',borderRadius:14,border:'1.5px solid #C5C0EF',padding:'14px 16px',marginBottom:14}}>
+          <div style={{fontSize:11,fontWeight:700,color:'#3C3489',marginBottom:8,textTransform:'uppercase' as const,letterSpacing:1}}>Tokenisation de "Bonjour le monde !"</div>
+          <div style={{display:'flex',gap:6,flexWrap:'wrap' as const,marginBottom:10}}>
+            {[['Bon','#EEEDFE','#3C3489'],['jour','#E6F1FB','#0C447C'],[',','#FAEEDA','#633806'],['le','#E1F5EE','#085041'],['monde','#FBEAF0','#72243E'],['!','#EAF3DE','#27500A']].map(([t,bg,tc],i)=>(
+              <div key={i} style={{padding:'8px 14px',background:bg,borderRadius:10,fontWeight:700,fontSize:15,color:tc,fontFamily:'monospace'}}>{t}</div>
+            ))}
+          </div>
+          <div style={{fontSize:12,color:'#555'}}>6 tokens pour 4 mots : le decoupage depend du systeme de tokenisation utilise.</div>
+        </div>
+        <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:14}}>
+          <div style={{padding:'12px 14px',background:'white',borderRadius:12,border:'1.5px solid #E5E5E5'}}>
+            <div style={{fontWeight:700,fontSize:13,color:'#1a1a2e',marginBottom:4}}>Pourquoi pas des mots entiers ?</div>
+            <div style={{fontSize:12,color:'#555',lineHeight:1.6}}>Certains mots rares seraient absents du vocabulaire. En decoupant en sous-unites, on peut traiter n'importe quel texte avec un vocabulaire fini (environ 50 000 tokens pour les grands modeles).</div>
+          </div>
+          <div style={{padding:'12px 14px',background:'white',borderRadius:12,border:'1.5px solid #E5E5E5'}}>
+            <div style={{fontWeight:700,fontSize:13,color:'#1a1a2e',marginBottom:4}}>Generation token par token</div>
+            <div style={{fontSize:12,color:'#555',lineHeight:1.6}}>Le modele genere le texte UN token a la fois. Il calcule les probabilites du token suivant, le choisit, l'ajoute au contexte, recommence. C'est pourquoi le texte "apparait" progressivement quand tu utilises ChatGPT.</div>
+          </div>
+        </div>
+        <div style={{background:'#E6F1FB',borderRadius:12,padding:'12px 14px',border:'1.5px solid #1CB0F6'}}>
+          <div style={{fontWeight:700,fontSize:12,color:'#0C447C',marginBottom:4}}>Posture animateur</div>
+          <div style={{fontSize:12,color:'#0C447C',lineHeight:1.6}}>Quand tu demandes a ChatGPT combien fait "9.11 vs 9.9", il peut se tromper car il "voit" des tokens, pas des nombres au sens mathematique. C'est un tres bon exemple pour montrer que l'IA ne "comprend" pas, elle predit.</div>
+        </div>
+      </Wrap>}
+
       {s === 22 && <Wrap onNext={marbles.length>=6?next:undefined} onPrev={prev} canNext={marbles.length>=6}>
         <h3 style={{ fontSize:17, fontWeight:700, marginBottom:4 }}>🎲 Le sac de billes</h3>
-        <p style={{ fontSize:12, color:'var(--text2)', marginBottom:14 }}>Pioche des billes pour comprendre les probabilités</p>
+        <p style={{ fontSize:12, color:'#555', marginBottom:14 }}>Pioche des billes pour comprendre les probabilités</p>
         <div style={{ textAlign:'center', padding:'18px', background:'#F0F0F4', borderRadius:14, marginBottom:14 }}>
           <div style={{ fontSize:44, marginBottom:6 }}>🎒</div>
-          <div style={{ fontSize:12, color:'var(--text2)', marginBottom:10 }}>Billes rouges 🔴 et vertes 🟢 à l'intérieur</div>
+          <div style={{ fontSize:12, color:'#555', marginBottom:10 }}>Billes rouges 🔴 et vertes 🟢 à l'intérieur</div>
           {marbles.length<6 ? (
             <Btn onClick={()=>setMarbles(m=>[...m,'🔴'])} full={false}>Piocher ({6-marbles.length} restantes)</Btn>
           ) : <div style={{ fontSize:13, fontWeight:600, color:'#534AB7' }}>6 tirages effectués !</div>}
@@ -942,14 +1059,14 @@ export default function ModulePage() {
             </div>
           </div>
         )}
-        {marbles.length>=6 && <div style={{ padding:10, background:'#F0F0F4', borderRadius:10, fontSize:11, color:'var(--text3)' }}>💡 Analogie pédagogique — un LLM ne met évidemment pas ses tokens dans un sac !</div>}
+        {marbles.length>=6 && <div style={{ padding:10, background:'#F0F0F4', borderRadius:10, fontSize:11, color:'var(--text3)' }}>💡 Analogie pédagogique : un LLM ne met évidemment pas ses tokens dans un sac !</div>}
       </Wrap>}
 
-      {/* STEP 23 — Word prediction */}
+      {/* STEP 23 : Word prediction */}
       {s === 23 && <Wrap onNext={wordChoice!==null?next:undefined} onPrev={prev} canNext={wordChoice!==null}>
         <div style={{ textAlign:'center', marginBottom:18 }}>
           <h3 style={{ fontSize:22, fontWeight:800, marginBottom:6 }}>Bonjour, comment ça…</h3>
-          <p style={{ fontSize:13, color:'var(--text2)' }}>Quel token suit naturellement ?</p>
+          <p style={{ fontSize:13, color:'#555' }}>Quel token suit naturellement ?</p>
         </div>
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
           {[{t:'🐘 éléphant',ok:false},{t:'👍 va',ok:true},{t:'💻 ordinateur',ok:false},{t:'🥫 mayonnaise',ok:false}].map((w,i)=>(
@@ -964,11 +1081,11 @@ export default function ModulePage() {
         {wordChoice!==null && <div style={{ marginTop:14, padding:12, background:'#E1F5EE', borderRadius:10, fontSize:13, lineHeight:1.6, color:'#085041' }}><strong>À partir du contexte, le modèle calcule une distribution de probabilités sur les tokens susceptibles de suivre.</strong> Token après token, une phrase entière se construit.</div>}
       </Wrap>}
 
-      {/* STEP 24 — Rabbit */}
+      {/* STEP 24 : Rabbit */}
       {s === 24 && <Wrap onNext={rabbitCtx!==null?next:undefined} onPrev={prev} canNext={rabbitCtx!==null}>
         <h3 style={{ fontSize:16, fontWeight:700, marginBottom:14 }}>🐰 Le défi du lapin</h3>
         <p style={{ fontSize:15, fontWeight:700, marginBottom:10, textAlign:'center' }}>« Qu'est-ce que je fais de mon lapin ? »</p>
-        <p style={{ fontSize:13, color:'var(--text2)', marginBottom:12 }}>La réponse devrait être différente selon le contexte. Lequel ?</p>
+        <p style={{ fontSize:13, color:'#555', marginBottom:12 }}>La réponse devrait être différente selon le contexte. Lequel ?</p>
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
           {[{icon:'👦🎄🧸',label:'Enfant + Noël + peluche',ctx:0},{icon:'🏹🐇🍳',label:'Chasseur + gibier + cuisine',ctx:1}].map(({icon,label,ctx})=>(
             <button key={ctx} onClick={()=>setRabbitCtx(ctx)} style={{ padding:'16px', borderRadius:12, border:`2px solid ${rabbitCtx===ctx?'var(--accent)':'#E5E5E5'}`, background:rabbitCtx===ctx?'var(--accent-bg)':'var(--bg2)', cursor:'pointer', textAlign:'center' }}>
@@ -980,91 +1097,188 @@ export default function ModulePage() {
         {rabbitCtx!==null && <div style={{ marginTop:14, padding:12, background:'#E1F5EE', borderRadius:10, fontSize:13, lineHeight:1.6, color:'#085041' }}><strong>Exact !</strong> Le même mot « lapin » n'est pas interprété de la même façon selon le contexte. C'est là qu'interviennent les vecteurs.</div>}
       </Wrap>}
 
-      {/* STEP 25 — Vectors */}
-      {s === 25 && <Wrap onNext={next} onPrev={step>0?prev:undefined}>
-        <h3 style={{ fontSize:17, fontWeight:700, marginBottom:8 }}>📍 Les vecteurs</h3>
-        <p style={{ fontSize:13, color:'var(--text2)', lineHeight:1.6, marginBottom:14 }}>Les tokens sont transformés en <strong>représentations numériques</strong> dans un espace à des centaines de dimensions.</p>
-        <div style={{ padding:14, background:'#F0F0F4', borderRadius:12, marginBottom:10, textAlign:'center' }}>
-          <div style={{ fontWeight:700, fontSize:15, marginBottom:10 }}>« Une immense carte mathématique du sens »</div>
-          <div style={{ display:'flex', gap:8, justifyContent:'center', flexWrap:'wrap' }}>
-            {[['👦🎄🧸 lapin','#E6F1FB','#0C447C'],['🏹🐇🍳 lapin','#FAEEDA','#633806']].map(([l,bg,c],i)=>(
-              <div key={i} style={{ padding:'6px 12px', background:bg, color:c, borderRadius:20, fontSize:13, fontWeight:600 }}>{l}</div>
-            ))}
+      {/* STEP 25 : Vectors */}
+      {s === 25 && <Wrap onNext={next} onPrev={prev}>
+        <h3 style={{fontSize:18,fontWeight:800,marginBottom:8,color:'#1a1a2e'}}>3. Les vecteurs : la carte mathematique du sens</h3>
+        <p style={{fontSize:13,color:'#444',lineHeight:1.65,marginBottom:14}}>
+          Les tokens sont des mots. Mais un ordinateur ne manipule que des nombres. Comment transformer "lapin" en quelque chose qu'un reseau peut traiter ? C'est le role des vecteurs.
+        </p>
+        <div style={{background:'white',borderRadius:14,border:'1.5px solid #E5E5E5',padding:'14px 16px',marginBottom:14}}>
+          <div style={{fontWeight:800,fontSize:13,color:'#1a1a2e',marginBottom:8}}>Un vecteur, c'est une adresse dans un espace a des centaines de dimensions</div>
+          <p style={{fontSize:13,color:'#444',lineHeight:1.7,marginBottom:10}}>
+            Imagine un espace mathematique avec 768 dimensions (ou 1024, ou 4096 selon les modeles). Chaque token est place a une "adresse" precise dans cet espace. Et les adresses proches ont des sens proches.
+          </p>
+          <div style={{display:'flex',flexDirection:'column',gap:8}}>
+            <div style={{padding:'10px 12px',background:'#E6F1FB',borderRadius:10,fontSize:13,color:'#0C447C'}}>
+              "chat" et "chaton" : vecteurs proches (meme famille semantique)
+            </div>
+            <div style={{padding:'10px 12px',background:'#FFDFE0',borderRadius:10,fontSize:13,color:'#CC0000'}}>
+              "chat" et "marteau" : vecteurs tres eloignes
+            </div>
+            <div style={{padding:'10px 12px',background:'#FFF9E6',borderRadius:10,fontSize:13,color:'#8B5E00'}}>
+              "roi" - "homme" + "femme" ≈ "reine" (dans certains espaces vectoriels)
+            </div>
           </div>
         </div>
-        <div style={{ padding:10, background:'#F0F0F4', borderRadius:10, fontSize:11, color:'var(--text3)' }}>⚠️ Il n'existe pas un «vecteur doudou» préprogrammé. Ce sont des représentations mathématiques <em>apprises</em> par le modèle.</div>
+        <div style={{background:'white',borderRadius:14,border:'1.5px solid #E5E5E5',padding:'14px 16px',marginBottom:14}}>
+          <div style={{fontWeight:800,fontSize:13,color:'#1a1a2e',marginBottom:8}}>Vecteurs contextuels : "lapin" n'a pas toujours la meme adresse</div>
+          <div style={{display:'flex',flexDirection:'column',gap:8}}>
+            <div style={{padding:'10px 12px',background:'#E6F1FB',borderRadius:10,fontSize:13,color:'#0C447C'}}>
+              "enfant + Noel + peluche + lapin" → vecteur oriente vers jouet, affection
+            </div>
+            <div style={{padding:'10px 12px',background:'#FAEEDA',borderRadius:10,fontSize:13,color:'#633806'}}>
+              "chasseur + gibier + cuisine + lapin" → vecteur oriente vers gastronomie, nature
+            </div>
+          </div>
+        </div>
+        <div style={{background:'#F0F0F4',borderRadius:10,padding:'10px 12px',fontSize:12,color:'#555',lineHeight:1.6}}>
+          Il n'existe pas un "vecteur jouet" et un "vecteur cuisine" preprogrammes. Ce sont des representations mathematiques que le modele a apprises en lisant des milliards de textes. Personne ne les a ecrites a la main.
+        </div>
       </Wrap>}
 
-      {/* STEP 26 — GPT reveal */}
       {s === 26 && <Wrap onNext={gptReveal>=3?next:undefined} onPrev={prev} canNext={gptReveal>=3}>
         <div style={{ textAlign:'center', marginBottom:18 }}>
           <h3 style={{ fontSize:34, fontWeight:900, letterSpacing:5 }}>GPT</h3>
-          <p style={{ fontSize:12, color:'var(--text2)' }}>Clique pour révéler chaque lettre</p>
+          <p style={{ fontSize:12, color:'#555' }}>Clique pour révéler chaque lettre</p>
         </div>
         {[{l:'G',w:'Generative',d:'Le modèle génère du contenu'},{l:'P',w:'Pre-trained',d:'Pré-entraîné sur de très grandes quantités de données'},{l:'T',w:'Transformer',d:"L'architecture du modèle (2017)"}].map((item,i)=>(
           <div key={i} onClick={()=>gptReveal===i&&setGptReveal(i+1)} style={{ display:'flex', alignItems:'center', gap:12, padding:'12px 14px', background:gptReveal>i?'var(--accent-bg)':'var(--bg2)', border:`1.5px solid ${gptReveal>i?'var(--accent)':'#E5E5E5'}`, borderRadius:12, marginBottom:10, cursor:gptReveal===i?'pointer':'default' }}>
             <div style={{ width:38, height:38, borderRadius:10, background:gptReveal>i?'var(--accent)':'#F7F7F7', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:900, fontSize:18, color:gptReveal>i?'white':'var(--text3)', flexShrink:0 }}>{item.l}</div>
-            {gptReveal>i ? <div><div style={{ fontWeight:700, fontSize:14, color:'#3C3489' }}>{item.w}</div><div style={{ fontSize:12, color:'var(--text2)', marginTop:2 }}>{item.d}</div></div> : <div style={{ fontSize:13, color:'var(--text3)' }}>Appuie pour révéler</div>}
+            {gptReveal>i ? <div><div style={{ fontWeight:700, fontSize:14, color:'#3C3489' }}>{item.w}</div><div style={{ fontSize:12, color:'#555', marginTop:2 }}>{item.d}</div></div> : <div style={{ fontSize:13, color:'var(--text3)' }}>Appuie pour révéler</div>}
           </div>
         ))}
       </Wrap>}
 
-      {/* STEP 27 — Attention */}
-      {s === 27 && <Wrap onNext={next} onPrev={step>0?prev:undefined}>
-        <h3 style={{ fontSize:17, fontWeight:700, marginBottom:8 }}>👁️ L'Attention</h3>
-        <p style={{ fontSize:13, color:'var(--text2)', lineHeight:1.6, marginBottom:14 }}>Comment le modèle sait-il quelles parties du contexte sont importantes ?</p>
-        <div style={{ padding:14, background:'#F0F0F4', borderRadius:12, marginBottom:14, fontStyle:'italic', fontSize:14, lineHeight:1.8 }}>
-          « <span style={{ background:'#FAEEDA', padding:'0 3px', borderRadius:3 }}>L'enfant</span> prend <span style={{ background:'#E6F1FB', padding:'0 3px', borderRadius:3 }}>son lapin</span> avant d'aller dormir avec <strong style={{ background:'#EEEDFE', padding:'0 3px', borderRadius:3 }}>lui</strong>. »
+      {/* STEP 27 : Attention */}
+      {s === 27 && <Wrap onNext={next} onPrev={prev}>
+        <h3 style={{fontSize:18,fontWeight:800,marginBottom:8,color:'#1a1a2e'}}>4. L'Attention : le coeur du Transformer</h3>
+        <p style={{fontSize:13,color:'#444',lineHeight:1.65,marginBottom:14}}>
+          En 2017, une equipe de Google publie un article intitule "Attention is all you need". C'est une revolution. L'innovation cle : le mecanisme d'attention, qui permet au modele de savoir quelles parties du contexte sont les plus pertinentes pour comprendre chaque element.
+        </p>
+        <div style={{background:'#F0F0F4',borderRadius:14,padding:'14px 16px',marginBottom:14}}>
+          <div style={{fontSize:11,fontWeight:700,color:'#555',marginBottom:10,textTransform:'uppercase' as const,letterSpacing:1}}>Exemple : comprendre "lui"</div>
+          <div style={{fontSize:15,lineHeight:2.2,fontStyle:'italic',marginBottom:12}}>
+            " <span style={{background:'#FFE8A3',padding:'2px 6px',borderRadius:6}}>L'enfant</span> prend <span style={{background:'#B8EAFF',padding:'2px 6px',borderRadius:6}}>son lapin</span> avant d'aller dormir avec <span style={{background:'#EEEDFE',padding:'4px 8px',borderRadius:6,fontWeight:800,border:'2px solid #534AB7'}}>lui</span>. "
+          </div>
+          <div style={{display:'flex',gap:6,flexWrap:'wrap' as const,marginBottom:8}}>
+            {[['L'enfant','45%','#FFE8A3','#8B5E00'],['son lapin','28%','#B8EAFF','#0C447C'],['prend','5%','#F0F0F4','#888'],['dormir','4%','#F0F0F4','#888']].map(([t,p,bg,tc])=>(
+              <div key={t} style={{padding:'5px 10px',background:bg,borderRadius:20,fontSize:12,fontWeight:600,color:tc}}>{t} {p}</div>
+            ))}
+          </div>
+          <div style={{fontSize:12,color:'#555'}}>Pour comprendre "lui", le modele regarde surtout "enfant" (45%) et "lapin" (28%). C'est l'attention.</div>
         </div>
-        <div style={{ padding:12, background:'#EEEDFE', borderRadius:12, fontSize:13, lineHeight:1.6, color:'#3C3489', marginBottom:10 }}>L'<strong>attention</strong> permet au modèle d'évaluer quelles parties du contexte sont les plus pertinentes entre elles pour comprendre «lui».</div>
-        <div style={{ padding:10, background:'#F0F0F4', borderRadius:10, fontSize:12, textAlign:'center' }}>TOKENS → VECTEURS → <strong>ATTENTION</strong> → RÉSEAU → PROBABILITÉS → <strong>LLM</strong></div>
+        <div style={{padding:'12px 14px',background:'white',borderRadius:12,border:'1.5px solid #E5E5E5',marginBottom:12}}>
+          <div style={{fontWeight:700,fontSize:13,color:'#1a1a2e',marginBottom:6}}>Le Transformer en resume</div>
+          <div style={{fontSize:12,color:'#555',textAlign:'center' as const,fontWeight:600}}>
+            TOKENS → VECTEURS → <span style={{color:'#534AB7'}}>ATTENTION</span> → RESEAU → PROBABILITES → LLM
+          </div>
+        </div>
+        <div style={{background:'#EEEDFE',borderRadius:14,padding:'14px 16px',border:'1.5px solid #C5C0EF'}}>
+          <div style={{fontWeight:800,fontSize:13,color:'#3C3489',marginBottom:6}}>Posture animateur</div>
+          <p style={{fontSize:12,color:'#3C3489',lineHeight:1.6,margin:0}}>
+            Pour expliquer l'attention simplement : "Le modele lit toute la phrase en meme temps, mais il 'fait attention' a certains mots plus qu'a d'autres selon ce qu'il cherche a comprendre." C'est une bonne formulation accessible.
+          </p>
+        </div>
       </Wrap>}
 
-      {/* STEP 28 — Agents */}
-      {s === 28 && <Wrap onNext={next} onPrev={step>0?prev:undefined}>
-        <Tag color="#EAF3DE"><span style={{ color:'#27500A' }}>🤖 ET MAINTENANT ?</span></Tag>
-        <h3 style={{ fontSize:17, fontWeight:700, marginBottom:14 }}>Chatbot vs Agent IA</h3>
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
-          <div style={{ padding:12, background:'#F0F0F4', borderRadius:12 }}>
-            <div style={{ fontSize:20, marginBottom:4 }}>💬</div><div style={{ fontWeight:700, fontSize:12, marginBottom:6 }}>CHATBOT</div>
-            <div style={{ fontSize:12, color:'var(--text2)', lineHeight:1.6 }}>Question → Réponse<br/>Question → Réponse<br/><em>L'utilisateur dirige tout.</em></div>
+      {s === 28 && <Wrap onNext={next} onPrev={prev}>
+        <div style={{display:'inline-block',background:'#EAF3DE',color:'#27500A',fontSize:12,fontWeight:800,padding:'4px 14px',borderRadius:20,marginBottom:12,textTransform:'uppercase' as const,letterSpacing:1}}>
+          Et maintenant ?
+        </div>
+        <h3 style={{fontSize:20,fontWeight:900,marginBottom:14,color:'#1a1a2e'}}>Des chatbots aux agents IA</h3>
+        <p style={{fontSize:13,color:'#444',lineHeight:1.65,marginBottom:14}}>
+          Tu utilises un chatbot depuis des mois ? Tres bien. Mais tu n'as encore rien vu. Les agents IA representent une evolution fondamentale : ils ne se contentent plus de repondre, ils agissent.
+        </p>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
+          <div style={{padding:16,background:'#F0F0F4',borderRadius:16}}>
+            <div style={{fontSize:28,marginBottom:6}}>💬</div>
+            <div style={{fontWeight:800,fontSize:13,marginBottom:8,color:'#1a1a2e'}}>CHATBOT</div>
+            {['Tu poses une question','L'IA genere une reponse','Tu poses une autre question','L'IA genere une reponse'].map((t,i)=><div key={i} style={{fontSize:12,color:'#555',marginBottom:2}}>{t}</div>)}
+            <div style={{fontSize:11,color:'#888',marginTop:6,fontStyle:'italic'}}>L'utilisateur orchestre chaque etape.</div>
           </div>
-          <div style={{ padding:12, background:'#EAF3DE', borderRadius:12, border:'1.5px solid #97C459' }}>
-            <div style={{ fontSize:20, marginBottom:4 }}>🤖</div><div style={{ fontWeight:700, fontSize:12, color:'#27500A', marginBottom:6 }}>AGENT IA</div>
-            <div style={{ fontSize:12, color:'#27500A', lineHeight:1.6 }}>Objectif → Plan → Outil → Action → Résultat → Suite…</div>
+          <div style={{padding:16,background:'#EAF3DE',borderRadius:16,border:'2px solid #97C459'}}>
+            <div style={{fontSize:28,marginBottom:6}}>🤖</div>
+            <div style={{fontWeight:800,fontSize:13,marginBottom:8,color:'#27500A'}}>AGENT IA</div>
+            {['Objectif defini','Planification autonome','Utilise des outils','Agit, evalue, corrige','Continue jusqu'au but'].map((t,i)=><div key={i} style={{fontSize:12,color:'#27500A',marginBottom:2}}>→ {t}</div>)}
           </div>
         </div>
-        <div style={{ marginTop:10, padding:10, background:'#F0F0F4', borderRadius:10, fontSize:11, color:'var(--text2)', lineHeight:1.5 }}>Son niveau d'autonomie dépend de sa conception et des contrôles mis en place.</div>
+        <div style={{background:'white',borderRadius:14,border:'1.5px solid #E5E5E5',padding:'14px 16px',marginBottom:14}}>
+          <div style={{fontWeight:800,fontSize:13,color:'#1a1a2e',marginBottom:8}}>Exemple concret</div>
+          <p style={{fontSize:13,color:'#444',lineHeight:1.7,marginBottom:8}}>
+            Au lieu de demander "quels sont mes rendez-vous ?" et copier-coller la reponse dans un email, un agent peut : consulter ton agenda, identifier les participants, chercher leurs coordonnees, rediger l'email de convocation et l'envoyer. Sans que tu interviennes a chaque etape.
+          </p>
+          <div style={{fontSize:12,color:'#CC0000',fontWeight:600}}>
+            Attention : son niveau d'autonomie depend des autorisations accordees et des controles mis en place. Un agent ne "prend pas toutes les decisions a notre place".
+          </div>
+        </div>
+        <div style={{background:'#E6F1FB',borderRadius:14,padding:'14px 16px',border:'1.5px solid #1CB0F6'}}>
+          <div style={{fontWeight:800,fontSize:13,color:'#0C447C',marginBottom:6}}>Posture animateur</div>
+          <p style={{fontSize:12,color:'#0C447C',lineHeight:1.6,margin:0}}>
+            En 2025, presque toutes les grandes entreprises experimentent les agents IA. Quand tu animes la Fresque, une bonne question a poser est : "Quelle difference faites-vous entre un chatbot et un agent ?" La confusion est frequente, et la corriger cree un vrai moment de comprehension.
+          </p>
+        </div>
       </Wrap>}
 
-      {/* STEP 29 — World models */}
-      {s === 29 && <Wrap onNext={next} onPrev={step>0?prev:undefined}>
-        <h3 style={{ fontSize:17, fontWeight:700, marginBottom:8 }}>🌍 World Models</h3>
-        <div style={{ padding:14, background:'#F0F0F4', borderRadius:12, marginBottom:14, fontSize:14, fontWeight:700, textAlign:'center' }}>Comprendre énormément de textes suffit-il pour comprendre le monde ?</div>
-        <p style={{ fontSize:13, color:'var(--text2)', lineHeight:1.6, marginBottom:12 }}>Yann LeCun et d'autres défendent l'idée qu'un humain apprend aussi grâce à :</p>
-        <div style={{ display:'flex', flexWrap:'wrap', gap:8, marginBottom:14 }}>
-          {[['👁️','Vision'],['🌍','Espace'],['⏱️','Temps'],['🧱','Physique'],['🤲','Interactions'],['➡️','Conséquences']].map(([icon,label])=>(
-            <div key={label} style={{ padding:'5px 12px', background:'#F0F0F4', borderRadius:20, fontSize:12, display:'flex', gap:5, alignItems:'center' }}><span>{icon}</span><span>{label}</span></div>
+      {s === 29 && <Wrap onNext={next} onPrev={prev}>
+        <h3 style={{fontSize:18,fontWeight:800,marginBottom:10,color:'#1a1a2e'}}>Les World Models : comprendre le monde avant d'agir</h3>
+        <div style={{padding:'14px 16px',background:'#1a1a2e',borderRadius:14,textAlign:'center' as const,marginBottom:14}}>
+          <div style={{fontSize:15,fontWeight:700,color:'white',lineHeight:1.5}}>
+            Comprendre des milliards de textes suffit-il vraiment pour comprendre le monde ?
+          </div>
+        </div>
+        <p style={{fontSize:13,color:'#444',lineHeight:1.7,marginBottom:14}}>
+          Yann LeCun, directeur de la recherche en IA chez Meta, defend une these provocante : les LLM ont une limite fondamentale. Ils apprennent a partir de texte, alors qu'un humain apprend du monde de facon sensorielle, physique et causale. Un enfant de 2 ans comprend la gravite, la permanence des objets, la causalite : sans avoir lu un seul livre.
+        </p>
+        <div style={{display:'flex',flexWrap:'wrap' as const,gap:8,marginBottom:14}}>
+          {[['👁️','Vision'],['✋','Toucher'],['🌍','Espace 3D'],['⏱️','Temps'],['🧱','Physique'],['➡️','Causalite']].map(([icon,label])=>(
+            <div key={label} style={{padding:'8px 14px',background:'white',borderRadius:20,fontSize:13,display:'flex',gap:6,alignItems:'center' as const,border:'1.5px solid #E5E5E5'}}>
+              <span>{icon}</span><span style={{fontWeight:500}}>{label}</span>
+            </div>
           ))}
         </div>
-        <div style={{ padding:12, background:'#EEEDFE', borderRadius:12, fontSize:13, lineHeight:1.6, color:'#3C3489' }}>L'ambition : permettre à une machine d'anticiper <strong>l'évolution d'un environnement et les conséquences possibles d'une action</strong> — pas seulement prédire le prochain token.</div>
+        <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:14}}>
+          <div style={{padding:'12px 14px',background:'#F0F0F4',borderRadius:12}}>
+            <div style={{fontSize:12,fontWeight:700,color:'#555',marginBottom:4}}>LLM actuel : prediction du token suivant</div>
+            <div style={{fontFamily:'monospace',fontSize:13,color:'#555'}}>P(token suivant | contexte textuel)</div>
+          </div>
+          <div style={{textAlign:'center' as const,fontSize:20}}>↓ ambition des world models</div>
+          <div style={{padding:'12px 14px',background:'#EAF3DE',borderRadius:12}}>
+            <div style={{fontSize:12,fontWeight:700,color:'#27500A',marginBottom:4}}>World Model : anticiper l'etat suivant du monde</div>
+            <div style={{fontFamily:'monospace',fontSize:13,color:'#27500A'}}>P(etat suivant | etat actuel + action)</div>
+          </div>
+        </div>
+        <div style={{background:'#EEEDFE',borderRadius:12,padding:'12px 14px',border:'1.5px solid #C5C0EF'}}>
+          <p style={{fontSize:12,color:'#3C3489',lineHeight:1.6,margin:0}}>
+            Les IA modernes sont deja multimodales (texte + image + son). Mais l'ambition des world models va plus loin : des representations internes permettant a une machine d'anticiper les consequences d'une action avant de l'executer. C'est une voie cle vers des robots et agents plus autonomes et plus surs.
+          </p>
+        </div>
       </Wrap>}
 
-      {/* STEP 30 — Summary */}
-      {s === 30 && <Wrap onNext={next} onPrev={step>0?prev:undefined} nextLabel="Passer au quiz final →">
-        <h3 style={{ fontSize:17, fontWeight:700, marginBottom:14, textAlign:'center' }}>Synthèse des 4 âges</h3>
-        {[{icon:'💻',n:'1',t:'Informatique traditionnelle',b:"L'humain écrit les instructions. La machine les exécute.",bg:'#EEEDFE',c:'#3C3489'},
-          {icon:'🧪',n:'2',t:'Systèmes experts',b:"L'humain formalise l'expertise en règles. Un moteur les applique.",bg:'#FAEEDA',c:'#633806'},
-          {icon:'🔗',n:'3',t:'Réseaux de neurones',b:"La machine apprend ses paramètres à partir de données et d'un objectif.",bg:'#E6F1FB',c:'#0C447C'},
-          {icon:'✨',n:'4',t:'IA générative',b:"De très grands réseaux génèrent de nouveaux contenus. Tokens + vecteurs + attention.",bg:'#FBEAF0',c:'#72243E'},
-          {icon:'🤖',n:'→',t:"Aujourd'hui et demain",b:'Agents IA + world models + nouvelles architectures.',bg:'#EAF3DE',c:'#27500A'},
+      {s === 30 && <Wrap onNext={()=>setStep(TOTAL_LEARNING)} onPrev={prev} nextLabel="Passer au quiz final →">
+        <h3 style={{fontSize:20,fontWeight:900,marginBottom:8,textAlign:'center' as const,color:'#1a1a2e'}}>Synthese : les 4 ages de l'informatique</h3>
+        <p style={{fontSize:13,color:'#555',lineHeight:1.65,marginBottom:16,textAlign:'center' as const}}>
+          Ce que tu viens d'apprendre, en une image. Ces technologies se completent, elles ne se remplacent pas.
+        </p>
+        {[
+          {icon:'💻',n:'1',t:'Informatique traditionnelle',b:"L'humain ecrit toutes les instructions. La machine les execute. Tracable, deterministe, limite aux situations anticipees.",bg:'#EEEDFE',c:'#3C3489'},
+          {icon:'🧪',n:'2',t:'Systemes experts',b:"L'ingenieur de la connaissance formalise l'expertise en base de regles + base de faits + moteur d'inference. Raisonnement explicable, mais domaine unique.",bg:'#FAEEDA',c:'#633806'},
+          {icon:'🔗',n:'3',t:'Reseaux de neurones',b:"La machine apprend ses parametres a partir de donnees et d'un objectif. Puissant mais boite noire.",bg:'#E6F1FB',c:'#0C447C'},
+          {icon:'✨',n:'4',t:'IA generative',b:"De tres grands reseaux generent du contenu nouveau. Tokens + vecteurs + attention + Transformer.",bg:'#FBEAF0',c:'#72243E'},
+          {icon:'🤖',n:'→',t:"Agents et world models",b:"Les modeles agissent avec des outils pour atteindre des objectifs. Les world models cherchent a anticiper les consequences d'une action avant de l'executer.",bg:'#EAF3DE',c:'#27500A'},
         ].map(({icon,n,t,b,bg,c})=>(
-          <div key={n} style={{ display:'flex', gap:10, padding:'10px 12px', background:bg, borderRadius:12, marginBottom:8, alignItems:'flex-start' }}>
-            <div style={{ minWidth:26, height:26, borderRadius:'50%', background:c, color:'white', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:700, flexShrink:0 }}>{n}</div>
-            <div><div style={{ fontWeight:700, fontSize:12, color:c }}>{icon} {t}</div><div style={{ fontSize:11, color:c, marginTop:3, lineHeight:1.5 }}>{b}</div></div>
+          <div key={n} style={{display:'flex',gap:12,padding:'12px 14px',background:bg,borderRadius:14,marginBottom:10,alignItems:'flex-start'}}>
+            <div style={{minWidth:30,height:30,borderRadius:'50%',background:c,color:'white',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:800,flexShrink:0}}>{n}</div>
+            <div>
+              <div style={{fontWeight:800,fontSize:13,color:c,marginBottom:3}}>{icon} {t}</div>
+              <div style={{fontSize:12,color:c,lineHeight:1.6}}>{b}</div>
+            </div>
           </div>
         ))}
-      </Wrap>}
-    </div>
+        <div style={{background:'#1a1a2e',borderRadius:14,padding:'16px',marginTop:4,textAlign:'center' as const}}>
+          <p style={{fontSize:14,fontWeight:700,color:'white',margin:0,lineHeight:1.6}}>
+            Nous n'avons pas rendu les ordinateurs "plus intelligents". Nous avons change la maniere dont nous leur demandons de resoudre un probleme.
+          </p>
+        </div>
+      </Wrap>}    </div>
   )
 }
