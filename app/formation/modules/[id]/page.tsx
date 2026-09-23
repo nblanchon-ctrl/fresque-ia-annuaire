@@ -227,6 +227,9 @@ const QUIZ = [
     expl: "L'evolution centrale : de regles ecrites explicitement par des humains, nous sommes passes a des systemes qui apprennent leurs propres parametres a partir de donnees. Les technologies precedentes coexistent toujours."
   },
 ]
+
+function FeedbackBar({ correct, expl, onNext, last }: { correct: boolean, expl: string, onNext: () => void, last: boolean }) {
+  const msgs = ['Exact ! 🎉', 'Bien vu ! ⚡', 'Parfait ! 🔥', 'Tu as compris ! 💡', 'Bravo ! 🌟']
   const msg = msgs[Math.floor(Math.random() * msgs.length)]
   return (
     <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: correct ? '#D7FFB8' : '#FFDFE0', borderTop: `4px solid ${correct ? '#58CC02' : '#FF4B4B'}`, padding: '16px 20px 28px', zIndex: 100 }}>
