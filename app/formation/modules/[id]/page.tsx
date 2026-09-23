@@ -405,6 +405,7 @@ export default function ModulePage() {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg3)' }}>
       <style>{`@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}`}</style>
+      {celebration && <CelebrationModal data={celebration} onContinue={closeCelebration}/>}
       {header}
 
       {/* STEP 0 — Cover */}
@@ -476,17 +477,39 @@ export default function ModulePage() {
       </Wrap>}
 
       {s === 3 && <Wrap onNext={next} onPrev={step>0?prev:undefined}>
-        <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 14 }}>Le 0 et le 1</h3>
-        <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginBottom: 16 }}>
-          {[['0','courant ne passe pas','#1a1a18','white','#6B7280'],['1','courant passe','var(--accent)','white','#CECBF6']].map(([n,d,bg,c,dc],i)=>(
-            <div key={i} style={{ textAlign: 'center', padding: '18px 28px', background: bg, color: c, borderRadius: 12 }}>
-              <div style={{ fontSize: 36, fontWeight: 900 }}>{n}</div>
-              <div style={{ fontSize: 11, marginTop: 4, color: dc }}>{d}</div>
+        <h3 style={{fontSize:18,fontWeight:800,marginBottom:6,color:'#1a1a2e'}}>Le 0 et le 1 — fondement du calcul</h3>
+        <p style={{fontSize:13,color:'#666',lineHeight:1.65,marginBottom:14}}>Tous les ordinateurs fonctionnent en binaire. À l'échelle des circuits électroniques, tout est soit <strong>1</strong> (le courant passe) soit <strong>0</strong> (le courant ne passe pas).</p>
+        <div style={{display:'flex',gap:12,justifyContent:'center',marginBottom:16}}>
+          {[
+            ['0','Le courant ne passe pas','Circuit ouvert','#1a1a18','white','#9CA3AF'],
+            ['1','Le courant passe','Circuit fermé','var(--accent)','white','#CECBF6']
+          ].map(([n,d,e,bg,c,dc],i)=>(
+            <div key={i} style={{flex:1,textAlign:'center',padding:'18px 14px',background:bg,color:c,borderRadius:14,boxShadow:'0 4px 12px rgba(0,0,0,0.15)'}}>
+              <div style={{fontSize:44,fontWeight:900}}>{n}</div>
+              <div style={{fontSize:14,margin:'6px 0'}}>🔴</div>
+              <div style={{fontSize:12,color:dc,lineHeight:1.4}}>{d}</div>
             </div>
           ))}
         </div>
-        <div style={{ padding: 14, background: '#FAECE7', borderRadius: 12, border: '1px solid #F0997B', fontSize: 14, lineHeight: 1.6 }}>
-          ⚠️ <strong>Important :</strong> le fonctionnement binaire (0/1) et un arbre de décision (oui/non) sont deux choses différentes. Un programme n'est pas obligatoirement un arbre binaire.
+        <div style={{background:'#E6F1FB',borderRadius:14,padding:'14px 16px',marginBottom:12,border:'1.5px solid #85B7EB'}}>
+          <div style={{fontWeight:800,fontSize:13,color:'#0C447C',marginBottom:8}}>🔗 Le lien avec l'arbre de décision</div>
+          <p style={{fontSize:13,color:'#0C447C',lineHeight:1.7,marginBottom:10}}>Dans un arbre de décision, chaque condition donne une réponse <strong>OUI ou NON</strong>. Au niveau des circuits électroniques, ce OUI/NON se traduit directement en binaire :</p>
+          <div style={{display:'flex',gap:10}}>
+            <div style={{flex:1,padding:'10px 12px',background:'white',borderRadius:10,textAlign:'center'}}>
+              <div style={{fontWeight:800,fontSize:14,color:'#2B7400',marginBottom:4}}>OUI ✓</div>
+              <div style={{fontSize:22,fontWeight:900,color:'var(--accent)'}}>= 1</div>
+              <div style={{fontSize:11,color:'#0C447C',marginTop:4}}>courant passe<br/>circuit fermé</div>
+            </div>
+            <div style={{flex:1,padding:'10px 12px',background:'white',borderRadius:10,textAlign:'center'}}>
+              <div style={{fontWeight:800,fontSize:14,color:'#CC0000',marginBottom:4}}>NON ✗</div>
+              <div style={{fontSize:22,fontWeight:900,color:'#1a1a2e'}}>= 0</div>
+              <div style={{fontSize:11,color:'#0C447C',marginTop:4}}>courant ne passe pas<br/>circuit ouvert</div>
+            </div>
+          </div>
+        </div>
+        <div style={{background:'#FFF9E6',borderRadius:14,padding:'14px 16px',border:'1.5px solid #FFC800'}}>
+          <div style={{fontWeight:800,fontSize:13,color:'#8B5E00',marginBottom:8}}>{"⚡ La nuance importante"}</div>
+          <p style={{fontSize:13,color:'#8B5E00',lineHeight:1.7,margin:0}}>Le binaire (0/1) est le <strong>niveau matériel</strong> — la langue des circuits. L'arbre de décision (OUI/NON) est le <strong>niveau logique</strong> — la structure du programme. Les deux sont liés mais distincts : un programme peut avoir des dizaines de choix possibles (pas seulement oui/non), tous représentés en 0 et 1 dans les circuits. Le 0 et le 1 sont le <em>substrat</em>, pas la structure du raisonnement.</p>
         </div>
       </Wrap>}
 
@@ -517,21 +540,34 @@ export default function ModulePage() {
       </Wrap>}
 
       {/* STEP 5 — Advantages/limits */}
-      {s === 5 && <Wrap onNext={next} onPrev={step>0?prev:undefined}>
-        <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 14, textAlign: 'center' }}>À retenir</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-          <div style={{ padding:14, background:'#E1F5EE', borderRadius:12, border:'1.5px solid #5DCAA5' }}>
-            <div style={{ fontSize:24, marginBottom:6 }}>👍</div>
-            <div style={{ fontWeight:700, fontSize:13, color:'#085041', marginBottom:4 }}>AVANTAGE</div>
-            <div style={{ fontWeight:600, fontSize:15, color:'#085041', marginBottom:6 }}>Traçabilité</div>
-            <div style={{ fontSize:12, color:'#0a6050', lineHeight:1.5 }}>Les règles sont explicites. On peut retracer le chemin ayant conduit au résultat.</div>
+      {s === 5 && <Wrap onNext={next} onPrev={prev} nextLabel="Phase suivante →">
+        <h3 style={{fontSize:18,fontWeight:800,marginBottom:6,color:'#1a1a2e'}}>À retenir — L'informatique traditionnelle</h3>
+        <p style={{fontSize:13,color:'#666',lineHeight:1.65,marginBottom:14}}>Avant de passer aux systèmes experts, voici les deux points essentiels à bien comprendre.</p>
+        <div style={{background:'white',borderRadius:16,border:'1.5px solid #E5E5E5',overflow:'hidden',marginBottom:14}}>
+          <div style={{padding:'14px 16px',background:'#D7FFB8',borderBottom:'2px solid #58CC02'}}>
+            <div style={{fontWeight:800,fontSize:15,color:'#2B7400'}}>{"👍 Avantage majeur : la traçabilité"}</div>
           </div>
-          <div style={{ padding:14, background:'#FAECE7', borderRadius:12, border:'1.5px solid #F0997B' }}>
-            <div style={{ fontSize:24, marginBottom:6 }}>⚠️</div>
-            <div style={{ fontWeight:700, fontSize:13, color:'#993C1D', marginBottom:4 }}>LIMITE</div>
-            <div style={{ fontWeight:600, fontSize:15, color:'#993C1D', marginBottom:6 }}>Complexité</div>
-            <div style={{ fontSize:12, color:'#7a2e10', lineHeight:1.5 }}>Plus les situations se multiplient, plus écrire et maintenir toutes les règles devient difficile.</div>
+          <div style={{padding:'14px 16px'}}>
+            <p style={{fontSize:13,color:'#444',lineHeight:1.7,marginBottom:10}}>Puisque chaque règle est écrite explicitement par un humain, il est possible de <strong>retracer précisément le chemin</strong> qui a conduit à un résultat. Si le programme prend une mauvaise décision, on peut revenir en arrière, étape par étape, et identifier quelle règle est défaillante.</p>
+            <div style={{background:'#F0FFF0',borderRadius:10,padding:'10px 12px',fontSize:12,color:'#2B7400',lineHeight:1.6}}>
+              <strong>{"Exemple :"}</strong>{" un logiciel de paye calcule un mauvais salaire. Le comptable peut ouvrir le code, lire les règles et trouver exactement où l'erreur s'est produite. C'est ce qui permet l'audit, la conformité réglementaire et la certification de systèmes critiques (avionique, médical, nucléaire)."}
+            </div>
           </div>
+        </div>
+        <div style={{background:'white',borderRadius:16,border:'1.5px solid #E5E5E5',overflow:'hidden',marginBottom:14}}>
+          <div style={{padding:'14px 16px',background:'#FFDFE0',borderBottom:'2px solid #FF4B4B'}}>
+            <div style={{fontWeight:800,fontSize:15,color:'#CC0000'}}>{"⚠️ Limite fondamentale : la complexité"}</div>
+          </div>
+          <div style={{padding:'14px 16px'}}>
+            <p style={{fontSize:13,color:'#444',lineHeight:1.7,marginBottom:10}}>Pour des tâches dites <em>perceptuelles</em> — reconnaître un visage, comprendre une phrase, conduire une voiture — il faudrait formaliser des millions de règles implicites que <strong>{"l'humain lui-même ne sait pas énoncer"}</strong>. Comment décrire en règles ce qui fait qu'un visage ressemble à quelqu'un ?</p>
+            <div style={{background:'#FFF0F0',borderRadius:10,padding:'10px 12px',fontSize:12,color:'#CC0000',lineHeight:1.6}}>
+              <strong>{"Ce qu'on vient de voir avec le chien :"}</strong>{" 3 règles ne suffisent pas à distinguer un chat d'un chien. Pour être fiable, il faudrait des milliers de règles très précises — impossible à maintenir manuellement à grande échelle."}
+            </div>
+          </div>
+        </div>
+        <div style={{background:'#EEEDFE',borderRadius:14,padding:'14px 16px',border:'1.5px solid #C5C0EF'}}>
+          <div style={{fontWeight:800,fontSize:13,color:'#3C3489',marginBottom:6}}>{"💡 Cette informatique est toujours partout"}</div>
+          <div style={{fontSize:13,color:'#3C3489',lineHeight:1.65}}>{"Logiciels de comptabilité, GPS, systèmes de réservation, feux de circulation, bancomats… L'informatique traditionnelle reste le fondement de la majorité des systèmes en production. Les âges suivants s'y ajoutent, ils ne la remplacent pas."}</div>
         </div>
       </Wrap>}
 
