@@ -78,15 +78,24 @@ export default function ProfilePage() {
             </div>
             {completedModules > 0 && (
               <div style={{
-                position: 'absolute', bottom: 0, right: -4,
-                width: 28, height: 28, borderRadius: '50%',
-                background: 'linear-gradient(135deg, #085041, #5DCAA5)',
+                position: 'absolute', bottom: -2, right: -6,
+                width: 32, height: 32, borderRadius: '50%',
+                background: '#040F1D',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 14,
-                boxShadow: '0 2px 6px rgba(8,80,65,0.4)',
-                border: '2px solid white',
-              }} title={`${completedModules} module(s) de formation validé(s)`}>
-                🏅
+                boxShadow: '0 2px 10px rgba(0,184,107,0.7)',
+                border: '2px solid #00B86B',
+              }} title={`${completedModules} module(s) validé(s) — MAÎTRISE IA`}>
+                <svg width="20" height="20" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="200" height="200" rx="20" fill="#040F1D"/>
+                  <path d="M20 100 L58 100 L58 58 L100 58" stroke="#00B86B" strokeWidth="14" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M180 100 L142 100 L142 58 L100 58" stroke="#00B86B" strokeWidth="14" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M100 180 L100 142 L142 142 L142 100" stroke="#00B86B" strokeWidth="14" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M100 20 L100 58 L58 58 L58 100" stroke="#00B86B" strokeWidth="14" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                  <rect x="60" y="60" width="80" height="80" rx="8" fill="#0D1F3C" stroke="#2D5AA8" strokeWidth="6"/>
+                  <rect x="74" y="74" width="52" height="52" rx="4" fill="#060E1A"/>
+                  {([[85,85],[100,85],[115,85],[85,100],[115,100],[85,115],[100,115],[115,115]] as [number,number][]).map(([cx,cy],i)=>(<circle key={i} cx={cx} cy={cy} r="5.5" fill="#1A6AC8"/>))}
+                  <rect x="90" y="90" width="20" height="20" rx="3" fill="#0A2050" stroke="#2D6AC8" strokeWidth="4"/>
+                </svg>
               </div>
             )}
           </div>
