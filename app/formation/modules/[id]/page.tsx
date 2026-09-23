@@ -232,6 +232,8 @@ export default function ModulePage() {
   const [loading, setLoading] = useState(true)
 
   // Learning state
+  const [introSeen, setIntroSeen] = useState(false)
+  const [moduleData, setModuleData] = useState<{titre:string,description:string,description_en:string,video_url:string|null}|null>(null)
   const [step, setStep] = useState(0)
   const [celebration, setCelebration] = useState<typeof PHASE_CELEBRATIONS[0] | null>(null)
   const [catStep, setCatStep] = useState(0)
@@ -255,8 +257,8 @@ export default function ModulePage() {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) { window.location.href = '/'; return }
       setUserId(user.id)
-      supabase.from('modules').select('titre').eq('id', id as string).single().then(({ data }) => {
-        if (data) setModuleTitle(data.titre)
+      supabase.from('modules').select('titre,description,description_en,video_url').eq('id', id as string).single().then(({ data }) => {
+        if (data) { setModuleTitle(data.titre); setModuleData(data) }
         setLoading(false)
       })
     })
@@ -309,6 +311,71 @@ export default function ModulePage() {
       {!isResult && <ProgressBar step={step} phase={phase} />}
     </div>
   )
+
+    // ── INTRO PAGE ───────────────────────────────────────────────────────────────
+  if (!introSeen) {
+    const videoUrl = moduleData?.video_url || null
+    const desc = lang === 'en' ? (moduleData?.description_en || moduleData?.description || '') : (moduleData?.description || '')
+    return (
+      <div style={{ minHeight: '100vh', background: 'var(--bg3)' }}>
+        <style>{`@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}`}</style>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: 'white', borderBottom: '1px solid #E5E5E5', position: 'sticky', top: 0, zIndex: 20 }}>
+          <a href="/formation/modules" style={{ fontSize: 16, color: '#AFAFAF', fontWeight: 700, textDecoration: 'none' }}>{"✕"}</a>
+          <span style={{ fontSize: 12, fontWeight: 700, color: '#555', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{moduleTitle}</span>
+          <LanguageSwitch />
+        </div>
+        <div style={{ padding: '24px 16px 110px', maxWidth: 700, margin: '0 auto', animation: 'fadeIn 0.3s ease' }}>
+          {videoUrl && (
+            <div style={{ borderRadius: 16, overflow: 'hidden', marginBottom: 20, background: '#000', boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }}>
+              <video controls style={{ width: '100%', display: 'block', maxHeight: 320 }} preload="metadata">
+                <source src={videoUrl} type="video/mp4"/>
+              </video>
+            </div>
+          )}
+          <div style={{ background: 'white', borderRadius: 16, padding: '20px', border: '1.5px solid #E5E5E5', marginBottom: 14 }}>
+            <div style={{ display: 'inline-block', background: '#EEEDFE', color: '#3C3489', fontSize: 11, fontWeight: 800, padding: '4px 12px', borderRadius: 20, marginBottom: 12, textTransform: 'uppercase' as const, letterSpacing: 1 }}>
+              Module de formation
+            </div>
+            <h1 style={{ fontSize: 22, fontWeight: 900, color: '#1a1a2e', marginBottom: 10, lineHeight: 1.3 }}>{moduleTitle}</h1>
+            {desc && <p style={{ fontSize: 14, color: '#555', lineHeight: 1.75, margin: 0 }}>{desc}</p>}
+          </div>
+          <div style={{ background: 'white', borderRadius: 16, padding: '18px', border: '1.5px solid #E5E5E5', marginBottom: 14 }}>
+            <div style={{ fontWeight: 800, fontSize: 14, color: '#1a1a2e', marginBottom: 12 }}>{"🎯 Objectifs du module"}</div>
+            {[
+              ['💻', "Comprendre l'informatique traditionnelle et son principe déterministe"],
+              ['🧪', 'Découvrir les systèmes experts et leurs 3 composants clés'],
+              ['🔗', 'Comprendre comment les réseaux de neurones apprennent à partir de données'],
+              ['✨', 'Maîtriser les LLM : tokens, vecteurs, attention et probabilités'],
+              ['🤖', 'Explorer les agents IA et les world models'],
+            ].map(([icon, text], i) => (
+              <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 10 }}>
+                <span style={{ fontSize: 18, flexShrink: 0 }}>{icon}</span>
+                <span style={{ fontSize: 13, color: '#444', lineHeight: 1.55 }}>{text}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 14 }}>
+            {[['📖', '31', 'étapes'], ['❓', '20', 'questions'], ['⏱️', '~20', 'min']].map(([icon, val, label]) => (
+              <div key={label} style={{ background: 'white', borderRadius: 12, padding: '14px', textAlign: 'center', border: '1.5px solid #E5E5E5' }}>
+                <div style={{ fontSize: 22 }}>{icon}</div>
+                <div style={{ fontWeight: 900, fontSize: 20, color: '#1a1a2e', marginTop: 4 }}>{val}</div>
+                <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{label}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ background: '#D7FFB8', borderRadius: 14, padding: '14px 16px', border: '2px solid #58CC02' }}>
+            <div style={{ fontWeight: 800, fontSize: 13, color: '#2B7400', marginBottom: 4 }}>{"🏆 Badge MAÎTRISE IA"}</div>
+            <div style={{ fontSize: 12, color: '#1A5200', lineHeight: 1.55 }}>{"Obtiens 20/20 au quiz pour débloquer le badge — visible sur ton profil dans l'annuaire."}</div>
+          </div>
+        </div>
+        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '12px 16px 24px', background: 'white', borderTop: '1px solid #E5E5E5' }}>
+          <div style={{ maxWidth: 700, margin: '0 auto' }}>
+            <Btn onClick={() => setIntroSeen(true)}>{"Commencer le module →"}</Btn>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   // ── QUIZ ────────────────────────────────────────────────────────────────────
   if (isQuiz) {
@@ -430,25 +497,36 @@ export default function ModulePage() {
 
       {/* STEP 2 — Cat decision tree */}
       {s === 2 && <Wrap onNext={catStep >= 3 ? next : undefined} canNext={catStep >= 3} nextLabel="Suite →">
-        <div style={{ textAlign: 'center', marginBottom: 14 }}>
+        <div style={{ textAlign: 'center', marginBottom: 16 }}>
           <div style={{ fontSize: 48, marginBottom: 6 }}>🐱</div>
           <h3 style={{ fontSize: 17, fontWeight: 700 }}>Comment classer cet animal ?</h3>
           <p style={{ fontSize: 13, color: 'var(--text2)', marginTop: 4 }}>Un système traditionnel construit un arbre de décision</p>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {[['A-t-il des poils ?','🔸'],['A-t-il des oreilles ?','🔸'],['A-t-il une queue ?','🔸'],['🐱 CHAT !','✅']].map(([q,icon],i)=> catStep > i ? (
-            <div key={i} style={{ padding: '12px 14px', borderRadius: 10, background: i===3?'#E1F5EE':'var(--bg2)', border: `1.5px solid ${i===3?'#5DCAA5':'var(--border)'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', animation: 'fadeIn .3s ease' }}>
-              <span style={{ fontSize: i===3?15:14, fontWeight: i===3?700:500 }}>{q}</span><span style={{ fontSize: 16 }}>{icon}</span>
+        {/* Question courante */}
+        {catStep < 3 && (
+          <div style={{ padding: '18px 16px', background: 'var(--accent-bg)', borderRadius: 14, marginBottom: 14, textAlign: 'center', border: '2px solid var(--accent)' }}>
+            <div style={{ fontSize: 13, color: 'var(--text2)', marginBottom: 6 }}>Question {catStep + 1} / 3</div>
+            <div style={{ fontWeight: 800, fontSize: 18, color: 'var(--accent-text)' }}>
+              {['A-t-il des poils ?', 'A-t-il des oreilles ?', 'A-t-il une queue ?'][catStep]}
+            </div>
+          </div>
+        )}
+        {/* Réponses déjà données */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
+          {[['A-t-il des poils ?','🔸'],['A-t-il des oreilles ?','🔸'],['A-t-il une queue ?','🔸'],['🐱 CHAT !','✅']].map(([q,icon],i)=> i < catStep || (catStep >= 3 && i === 3) ? (
+            <div key={i} style={{ padding: '10px 14px', borderRadius: 10, background: i===3?'#E1F5EE':'var(--bg2)', border: `1.5px solid ${i===3?'#5DCAA5':'var(--border)'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', animation: 'fadeIn .3s ease' }}>
+              <span style={{ fontSize: i===3?15:13, fontWeight: i===3?700:500 }}>{q}</span>
+              <span style={{ fontSize: 14 }}>{i < 3 ? '✓ OUI' : icon}</span>
             </div>
           ) : null)}
         </div>
         {catStep < 3 && (
-          <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+          <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
             <Btn onClick={()=>setCatStep(s=>s+1)}>OUI 👍</Btn>
             <Btn variant="secondary" onClick={()=>setCatStep(s=>s+1)}>NON 👎</Btn>
           </div>
         )}
-        {catStep >= 3 && <div style={{ marginTop: 14, padding: 12, background: 'var(--accent-bg)', borderRadius: 10, fontSize: 13, color: 'var(--accent-text)' }}>💡 L'idée fondamentale : <strong>les règles ont été définies à l'avance par des humains.</strong></div>}
+        {catStep >= 3 && <div style={{ marginTop: 10, padding: 12, background: 'var(--accent-bg)', borderRadius: 10, fontSize: 13, color: 'var(--accent-text)' }}>💡 L'idée fondamentale : <strong>les règles ont été définies à l'avance par des humains.</strong></div>}
       </Wrap>}
 
       {/* STEP 3 — Binary */}
