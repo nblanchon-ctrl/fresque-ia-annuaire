@@ -6,188 +6,227 @@ import { useLanguage, LanguageSwitch } from '@/lib/i18n'
 
 const TOTAL_LEARNING = 31
 const QUIZ = [
-  { q: "Dans l'informatique traditionnelle, qui définit principalement les règles ?", opts: ["Le développeur", "Le réseau de neurones", "La machine elle-même", "Les utilisateurs finaux"], correct: 0, expl: "Dans l'informatique traditionnelle, ce sont les développeurs (humains) qui écrivent explicitement chaque règle." },
-  { q: "Quel est l'avantage d'un système déterministe à règles explicites ?", opts: ["Il apprend seul", "Il ne commet jamais d'erreur", "Son chemin de décision peut généralement être retracé", "Il comprend le langage naturel"], correct: 2, expl: "La traçabilité est un avantage clé : on peut revenir sur chaque condition et expliquer le résultat." },
-  { q: "Dans un système expert, à quoi sert le moteur d'inférence ?", opts: ["À créer des images", "À appliquer des règles aux faits disponibles", "À remplacer la base de connaissances", "À entraîner un réseau neuronal"], correct: 1, expl: "Le moteur d'inférence confronte les faits aux règles pour déduire une conclusion." },
-  { q: "Pourquoi Deep Blue est-il intéressant dans cette histoire ?", opts: ["Il a inventé les LLM", "Il était capable de tout faire", "Il utilisait ChatGPT", "Il illustre la très forte performance possible sur une tâche spécialisée"], correct: 3, expl: "Deep Blue illustre qu'une machine peut être extraordinairement performante dans un domaine précis sans savoir faire autre chose." },
-  { q: "Quel changement caractérise le mieux le machine learning ?", opts: ["La machine n'utilise plus de calculs", "Le modèle apprend des paramètres à partir de données plutôt que toutes les règles étant écrites explicitement", "Les ordinateurs abandonnent le binaire", "Internet devient inutile"], correct: 1, expl: "La rupture : au lieu d'écrire les règles, on fournit des données et un objectif, et le modèle apprend ses paramètres." },
-  { q: "Qu'est-ce qu'un neurone artificiel ?", opts: ["Une copie exacte d'un neurone biologique", "Une cellule créée artificiellement", "Un composant possédant une conscience", "Une unité de calcul mathématique"], correct: 3, expl: "Un neurone artificiel est essentiellement une fonction mathématique. Ce n'est pas une reproduction fidèle du cerveau." },
-  { q: "Dans un réseau neuronal, que représente un poids ?", opts: ["La taille du serveur", "Le volume de données", "Une valeur influençant l'importance d'un signal dans le calcul", "Le nombre d'utilisateurs"], correct: 2, expl: "Les poids sont comme des boutons de réglage. L'apprentissage les ajuste pour réduire les erreurs." },
-  { q: "Pendant l'entraînement, que cherche-t-on à réduire ?", opts: ["L'erreur entre prédiction et résultat attendu", "Le nombre de touches du clavier", "La taille de l'écran", "Le nombre d'utilisateurs"], correct: 0, expl: "L'apprentissage consiste à ajuster les poids pour réduire l'erreur entre prédiction et résultat attendu." },
-  { q: "À quoi sert la rétropropagation ?", opts: ["À transformer le réseau en système expert", "À déterminer comment les paramètres ont contribué à l'erreur afin de les ajuster", "À supprimer les données", "À traduire le texte"], correct: 1, expl: "La rétropropagation calcule la contribution de chaque paramètre à l'erreur, combinée à la descente de gradient." },
-  { q: "Que désigne la 'boîte noire' ?", opts: ["Un ordinateur éteint", "Un serveur sécurisé", "Un modèle secret", "La difficulté à traduire le fonctionnement interne en explication humaine simple"], correct: 3, expl: "Un grand réseau peut avoir des milliards de paramètres. Expliquer une décision en règles compréhensibles est très difficile." },
-  { q: "Qu'est-ce qu'un token ?", opts: ["Une unité dans laquelle le texte peut être découpé pour être traité", "Une réponse complète", "Un neurone biologique", "Un moteur de recherche"], correct: 0, expl: "Le texte est découpé en tokens : un mot entier, une partie de mot, un signe de ponctuation..." },
-  { q: "Pourquoi 'va' est-il une suite plausible de 'Bonjour, comment ça...' ?", opts: ["Le système d'exploitation l'impose", "Tous les prompts se terminent ainsi", "Le modèle estime les suites possibles en fonction du contexte et de son apprentissage", "'Va' est toujours le mot le plus fréquent"], correct: 2, expl: "Le modèle calcule une distribution de probabilités sur les tokens susceptibles de suivre le contexte." },
-  { q: "À quoi sert l'exemple du sac de billes ?", opts: ["À expliquer les processeurs", "À montrer que l'IA fonctionne au hasard", "À représenter physiquement les tokens", "À introduire intuitivement la notion de probabilité conditionnelle"], correct: 3, expl: "Le sac de billes est une analogie pour comprendre qu'une probabilité peut être estimée à partir des observations." },
-  { q: "Pourquoi utilise-t-on des vecteurs ?", opts: ["Pour représenter numériquement les tokens et des relations apprises entre eux", "Pour dessiner uniquement des images", "Pour remplacer les réseaux neuronaux", "Pour créer des fichiers Word"], correct: 0, expl: "Les tokens sont transformés en vecteurs : des coordonnées dans un espace à des centaines de dimensions qui capturent le sens." },
-  { q: "Que montre principalement l'exemple du lapin ?", opts: ["Que l'IA sait cuisiner", "Que le contexte peut modifier le sens pertinent d'une même formulation", "Que les chasseurs utilisent l'IA", "Que chaque mot a toujours une seule signification"], correct: 1, expl: "Le mot 'lapin' n'est pas interprété de la même façon selon que le contexte évoque un enfant avec une peluche ou un chasseur." },
-  { q: "Que signifie le T de GPT ?", opts: ["Token", "Training", "Transformer", "Technology"], correct: 2, expl: "GPT = Generative Pre-trained Transformer. Le Transformer est l'architecture introduite en 2017, avec son mécanisme d'attention." },
-  { q: "Quel mécanisme est particulièrement associé au Transformer ?", opts: ["L'attention", "La carte perforée", "Le moteur d'inférence", "L'arbre binaire"], correct: 0, expl: "Le mécanisme d'attention permet d'évaluer quelles parties du contexte sont les plus pertinentes entre elles." },
-  { q: "Quelle description correspond le mieux à un agent IA ?", opts: ["Un chatbot donnant toujours une phrase", "Un système pouvant associer modèle, instructions et outils pour enchaîner des actions vers un objectif", "Une base de données", "Une IA obligatoirement totalement autonome"], correct: 1, expl: "Un agent IA combine un modèle avec des instructions et des outils pour enchaîner des actions et atteindre un objectif." },
-  { q: "Pourquoi parle-t-on de world models ?", opts: ["Pour créer des cartes", "Pour remplacer les IA par des robots", "Pour explorer des systèmes capables d'apprendre des représentations permettant d'anticiper l'évolution d'un environnement", "Pour augmenter la quantité de texte"], correct: 2, expl: "Les world models visent à permettre aux machines d'anticiper les conséquences de leurs actions dans le monde physique." },
-  { q: "Quelle phrase résume le mieux l'évolution présentée ?", opts: ["Les ordinateurs modernes n'utilisent plus d'algorithmes", "Chaque technologie a complètement remplacé la précédente", "L'IA fonctionne désormais sans intervention humaine", "Nous sommes progressivement passés de règles explicitement programmées à des systèmes capables d'apprendre des paramètres à partir de données"], correct: 3, expl: "L'évolution clé : de règles écrites par des humains, nous sommes passés à des systèmes qui apprennent leurs paramètres à partir de données." },
+  {
+    q: "Dans l'informatique traditionnelle, qui ecrit les regles que la machine applique ?",
+    opts: [
+      "Le developpeur humain qui programme explicitement chaque instruction",
+      "Le reseau de neurones qui deduit les regles a partir des donnees",
+      "L'algorithme d'inference qui genere ses propres regles automatiquement",
+      "L'utilisateur dont le comportement est enregistre par le systeme"
+    ],
+    correct: 0,
+    expl: "Dans l'informatique traditionnelle, ce sont les developpeurs humains qui ecrivent explicitement chaque regle. La machine se contente de les executer, sans aucune capacite d'apprentissage ou d'adaptation."
+  },
+  {
+    q: "Quel est le principal avantage d'un systeme a regles explicites ?",
+    opts: [
+      "Il apprend continuellement a partir de nouvelles donnees sans intervention",
+      "Il ne commet jamais d'erreur quel que soit le probleme traite",
+      "Le chemin ayant conduit a une decision peut etre retrace et explique",
+      "Il comprend le langage naturel sans aucune configuration prealable"
+    ],
+    correct: 2,
+    expl: "La tracabilite est l'avantage cle : puisque chaque regle est ecrite explicitement, on peut retracer exactement quelles conditions ont conduit a quel resultat. C'est fondamental pour l'audit et la conformite."
+  },
+  {
+    q: "Dans un systeme expert, quel est le role du moteur d'inference ?",
+    opts: [
+      "Il enrichit automatiquement la base de faits avec de nouvelles donnees",
+      "Il confronte les faits disponibles aux regles pour deduire une conclusion",
+      "Il remplace la base de connaissances quand elle devient trop ancienne",
+      "Il entraine un reseau neuronal sur les cas traites precedemment"
+    ],
+    correct: 1,
+    expl: "Le moteur d'inference confronte les faits disponibles aux regles de la base de connaissances pour produire de nouvelles conclusions. C'est le composant algorithmique central du systeme expert."
+  },
+  {
+    q: "Quel enseignement principal tire-t-on du cas Deep Blue aux echecs en 1997 ?",
+    opts: [
+      "Les systemes experts peuvent apprendre et progresser de facon autonome",
+      "Une IA peut devenir experte dans tous les domaines en meme temps",
+      "Les machines ont definitivement depasse les humains dans la cognition",
+      "Une machine peut exceller dans un domaine precis sans rien savoir d'autre"
+    ],
+    correct: 3,
+    expl: "Deep Blue illustre parfaitement la specialisation extreme : extraordinairement performant aux echecs, totalement incapable de faire autre chose. C'est la limite fondamentale des IA specialisees de cette epoque."
+  },
+  {
+    q: "Qu'est-ce qui change fondamentalement avec le machine learning ?",
+    opts: [
+      "La machine n'a plus besoin de donnees pour produire des resultats fiables",
+      "Le modele apprend lui-meme ses parametres a partir de donnees et d'un objectif",
+      "Les developpeurs n'interviennent plus du tout dans la conception du systeme",
+      "Le materiel informatique remplace totalement le logiciel dans le traitement"
+    ],
+    correct: 1,
+    expl: "La rupture fondamentale : au lieu d'ecrire toutes les regles explicitement, on fournit des donnees et un objectif, et le modele apprend ses propres parametres. L'humain definit l'architecture, pas les regles."
+  },
+  {
+    q: "Qu'est-ce qu'un neurone artificiel, fondamentalement ?",
+    opts: [
+      "Une cellule biologique cultivee en laboratoire pour le calcul numerique",
+      "Une copie fidele d'un neurone du cerveau humain implementee sur puce",
+      "Un composant dote d'une forme minimale de conscience et d'intention",
+      "Une fonction mathematique qui pondere des entrees et produit une sortie"
+    ],
+    correct: 3,
+    expl: "Un neurone artificiel est essentiellement une fonction mathematique. Il recoit des entrees, les multiplie par des poids, applique une fonction d'activation et produit une sortie. Ce n'est pas une reproduction du cerveau."
+  },
+  {
+    q: "Dans un reseau neuronal, que represente un poids (weight) ?",
+    opts: [
+      "La quantite de memoire allouee a ce neurone dans le serveur de calcul",
+      "Le nombre total d'exemples utilises pour entrainer ce neurone specifique",
+      "Une valeur numerique qui regle l'influence d'un signal sur le calcul",
+      "L'identifiant unique attribue a chaque connexion dans le reseau neuronal"
+    ],
+    correct: 2,
+    expl: "Les poids sont comme des curseurs de volume : ils determinent l'influence de chaque signal entrant. Au depart aleatoires, ils sont ajustes progressivement pendant l'entrainement pour reduire les erreurs."
+  },
+  {
+    q: "Pendant l'entrainement d'un reseau, qu'optimise-t-on principalement ?",
+    opts: [
+      "L'ecart entre la prediction du modele et la reponse attendue sur les exemples",
+      "La vitesse d'execution de chaque couche pour economiser de l'energie",
+      "La quantite de donnees stockees dans la memoire du processeur graphique",
+      "Le nombre total de connexions actives dans l'architecture du reseau"
+    ],
+    correct: 0,
+    expl: "L'entrainement consiste a ajuster progressivement les poids pour minimiser l'erreur entre ce que le modele predit et ce qu'on attendait. Ce processus, repete des millions de fois, constitue l'apprentissage."
+  },
+  {
+    q: "A quoi sert la retropropagation (backpropagation) dans l'entrainement ?",
+    opts: [
+      "Elle convertit le reseau en systeme expert des que l'erreur depasse un seuil",
+      "Elle calcule la contribution de chaque poids a l'erreur pour les corriger",
+      "Elle efface les exemples mal classes une fois le modele suffisamment entraine",
+      "Elle traduit automatiquement les sorties du modele en langage naturel lisible"
+    ],
+    correct: 1,
+    expl: "La retropropagation propage le signal d'erreur en sens inverse dans le reseau pour calculer la contribution de chaque poids a l'erreur totale. Combinee a la descente de gradient, elle permet d'ajuster les poids."
+  },
+  {
+    q: "Que designe le probleme de la 'boite noire' en deep learning ?",
+    opts: [
+      "Un serveur dont le code source est protege par une licence proprietaire",
+      "Un modele qui refuse de traiter certaines categories de donnees sensibles",
+      "Une architecture dont les poids sont cryptes pour des raisons de securite",
+      "La difficulte a expliquer en termes humains pourquoi un modele a decide ainsi"
+    ],
+    correct: 3,
+    expl: "Un reseau avec des milliards de parametres prend des decisions impossibles a resumer en regles simples. On sait comment il est construit, mais expliquer pourquoi il produit un resultat particulier est tres difficile."
+  },
+  {
+    q: "Qu'est-ce qu'un token dans le contexte des LLM ?",
+    opts: [
+      "L'unite elementaire en laquelle le texte est decoupe avant d'etre traite",
+      "La reponse complete generee par le modele a chaque interaction utilisateur",
+      "Un neurone particulier active lors de la reconnaissance d'un mot precis",
+      "Un compteur interne qui limite la longueur des reponses du modele"
+    ],
+    correct: 0,
+    expl: "Le texte est decoupe en tokens : un mot entier, une partie de mot, un signe de ponctuation. C'est l'unite elementaire que le modele manipule. Il genere le texte un token a la fois, en calculant le suivant."
+  },
+  {
+    q: "Pourquoi 'va' suit naturellement 'Bonjour, comment ca...' pour un LLM ?",
+    opts: [
+      "Le systeme d'exploitation impose cette continuation par defaut au modele",
+      "Tous les messages de salutation se terminent toujours de la meme facon",
+      "Le modele calcule que 'va' a la probabilite la plus elevee dans ce contexte",
+      "Le mot 'va' est statistiquement le terme le plus courant en langue francaise"
+    ],
+    correct: 2,
+    expl: "Le modele calcule a chaque etape une distribution de probabilites sur tous les tokens possibles en fonction du contexte. 'Bonjour, comment ca va ?' etant tres frequent dans les donnees, P('va') est elevee."
+  },
+  {
+    q: "A quoi sert l'analogie du sac de billes dans ce module ?",
+    opts: [
+      "A montrer que les GPU fonctionnent comme des tirages aleatoires paralleles",
+      "A illustrer comment les tokens sont physiquement stockes dans la memoire",
+      "A prouver que l'IA genere du texte entierement au hasard sans logique",
+      "A introduire l'idee que les observations passees modifient nos estimations"
+    ],
+    correct: 3,
+    expl: "Le sac de billes illustre la probabilite conditionnelle : nos observations modifient notre estimation du prochain tirage. C'est exactement ce que fait un LLM : il revise ses probabilites selon le contexte deja genere."
+  },
+  {
+    q: "Pourquoi les tokens sont-ils transformes en vecteurs dans les LLM ?",
+    opts: [
+      "Pour encoder numeriquement les tokens en capturant leurs relations de sens",
+      "Pour generer des images correspondant a chaque mot du texte analyse",
+      "Pour reduire la taille du vocabulaire et simplifier les calculs du modele",
+      "Pour stocker les donnees du texte dans un format compresse et indexable"
+    ],
+    correct: 0,
+    expl: "Les vecteurs permettent de representer les tokens comme des coordonnees dans un espace a des centaines de dimensions. Dans cet espace, les relations de sens sont encodees : des mots proches semantiquement ont des vecteurs proches."
+  },
+  {
+    q: "Que montre principalement l'exemple du lapin avec l'enfant et le chasseur ?",
+    opts: [
+      "Que l'IA peut adapter ses recommandations selon le profil de l'utilisateur",
+      "Que le meme mot peut prendre un sens tres different selon son contexte",
+      "Que les modeles de langage distinguent mieux les animaux que les humains",
+      "Que chaque token du vocabulaire possede une signification fixe et universelle"
+    ],
+    correct: 1,
+    expl: "Le mot 'lapin' prend un sens completement different selon que le contexte evoque un enfant avec une peluche ou un chasseur revenant de la foret. C'est exactement ce que les vecteurs contextuels permettent de capturer."
+  },
+  {
+    q: "Que signifie le T de l'acronyme GPT ?",
+    opts: [
+      "Token : l'unite de base que le modele manipule lors de la generation",
+      "Training : la phase d'apprentissage sur de grandes quantites de donnees",
+      "Transformer : l'architecture du reseau introduite en 2017 par Google",
+      "Technology : le type de technologie utilise dans les grands modeles actuels"
+    ],
+    correct: 2,
+    expl: "GPT signifie Generative Pre-trained Transformer. Le Transformer est l'architecture introduite en 2017 dans le papier 'Attention is all you need', revolutionnaire grace a son mecanisme d'attention."
+  },
+  {
+    q: "Quel mecanisme est au coeur de l'architecture Transformer ?",
+    opts: [
+      "L'attention : calculer quelles parties du contexte sont les plus pertinentes",
+      "La retropropagation : corriger les erreurs en remontant dans le reseau",
+      "L'inference : appliquer des regles symboliques a une base de faits connue",
+      "La tokenisation : decouper le texte en unites elementaires traitables"
+    ],
+    correct: 0,
+    expl: "Le mecanisme d'attention permet au modele de calculer, pour chaque element d'une sequence, sa pertinence par rapport a tous les autres elements. Cela permet de capturer des dependances a longue distance dans le texte."
+  },
+  {
+    q: "Quelle definition correspond le mieux a un agent IA ?",
+    opts: [
+      "Un chatbot avance qui produit des reponses plus longues que la moyenne",
+      "Un systeme combinant modele, outils et memoire pour agir vers un objectif",
+      "Une base de donnees enrichie en continu par apprentissage automatique",
+      "Un modele uniquement capable de generer du texte en reponse a des questions"
+    ],
+    correct: 1,
+    expl: "Un agent IA combine un modele generatif avec des instructions, des outils (calendrier, email, recherche...) et une memoire. Il peut enchainer des actions de facon autonome pour atteindre un objectif defini."
+  },
+  {
+    q: "Pourquoi des chercheurs travaillent-ils sur les world models ?",
+    opts: [
+      "Pour cartographier numeriquement l'ensemble des connaissances humaines",
+      "Pour creer des robots capables de remplacer tous les emplois physiques",
+      "Pour developper des systemes capables d'anticiper les consequences d'une action",
+      "Pour augmenter le volume de texte disponible pour entrainer les LLM existants"
+    ],
+    correct: 2,
+    expl: "Les world models visent a doter les machines de representations plus riches du monde physique (espace, temps, causalite) permettant d'anticiper les consequences d'actions avant de les executer."
+  },
+  {
+    q: "Quelle phrase resume le mieux l'evolution decrite dans ce module ?",
+    opts: [
+      "Les ordinateurs sont devenus autonomes et n'ont plus besoin de programmation",
+      "Chaque nouvelle technologie IA a rendu la precedente completement obsolete",
+      "L'intelligence artificielle fonctionne desormais sans intervention humaine",
+      "Nous sommes passes de regles programmees a des systemes qui apprennent leurs parametres"
+    ],
+    correct: 3,
+    expl: "L'evolution centrale : de regles ecrites explicitement par des humains, nous sommes passes a des systemes qui apprennent leurs propres parametres a partir de donnees. Les technologies precedentes coexistent toujours."
+  },
 ]
-
-// ─── PCB BADGE (puce électronique sur fond bleu) ─────────────────────────────
-function AIChipBadge({ size = 100 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg"
-      style={{ animation: 'pcbGlow 2.5s ease-in-out infinite' }}>
-      <style>{`@keyframes pcbGlow{0%,100%{filter:drop-shadow(0 0 6px #00B86B) drop-shadow(0 0 10px #003A8C)}50%{filter:drop-shadow(0 0 16px #00B86B) drop-shadow(0 0 28px #0066CC)}}`}</style>
-      <rect width="200" height="200" rx="20" fill="#040F1D"/>
-      <rect x="1" y="1" width="198" height="198" rx="19" fill="none" stroke="#0A2540" strokeWidth="2"/>
-      {[25,50,75,100,125,150,175].map(x=><line key={x} x1={x} y1="0" x2={x} y2="200" stroke="#071828" strokeWidth="0.8"/>)}
-      {[25,50,75,100,125,150,175].map(y=><line key={y} x1="0" y1={y} x2="200" y2={y} stroke="#071828" strokeWidth="0.8"/>)}
-      <path d="M20 100 L58 100 L58 58 L100 58" stroke="#00B86B" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M180 100 L142 100 L142 58 L100 58" stroke="#00B86B" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M100 180 L100 142 L142 142 L142 100" stroke="#00B86B" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M100 20 L100 58 L58 58 L58 100" stroke="#00B86B" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M38 38 L58 58" stroke="#0066CC" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
-      <path d="M162 38 L142 58" stroke="#0066CC" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
-      <path d="M38 162 L58 142" stroke="#0066CC" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
-      <path d="M162 162 L142 142" stroke="#0066CC" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
-      {([[20,20],[180,20],[20,180],[180,180]] as [number,number][]).map(([cx,cy],i)=>(
-        <g key={i}>
-          <circle cx={cx} cy={cy} r="8" fill="#B8860B"/>
-          <circle cx={cx} cy={cy} r="5" fill="#DAA520"/>
-          <circle cx={cx} cy={cy} r="2.5" fill="#040F1D"/>
-        </g>
-      ))}
-      {[60,80,100,120,140].map((pos,i)=>[
-        <rect key={`t${i}`} x={pos-5} y="0" width="10" height="14" rx="2" fill="#B8860B"/>,
-        <rect key={`b${i}`} x={pos-5} y="186" width="10" height="14" rx="2" fill="#B8860B"/>,
-        <rect key={`l${i}`} x="0" y={pos-5} width="14" height="10" rx="2" fill="#B8860B"/>,
-        <rect key={`r${i}`} x="186" y={pos-5} width="14" height="10" rx="2" fill="#B8860B"/>,
-      ])}
-      <rect x="60" y="60" width="80" height="80" rx="8" fill="#0D1F3C" stroke="#1A4A8A" strokeWidth="2"/>
-      <rect x="67" y="67" width="66" height="66" rx="5" fill="#060E1A" stroke="#2D5AA8" strokeWidth="1"/>
-      <line x1="100" y1="71" x2="100" y2="90" stroke="#00B86B" strokeWidth="1"/>
-      <line x1="71" y1="100" x2="90" y2="100" stroke="#00B86B" strokeWidth="1"/>
-      <line x1="100" y1="129" x2="100" y2="110" stroke="#00B86B" strokeWidth="1"/>
-      <line x1="129" y1="100" x2="110" y2="100" stroke="#00B86B" strokeWidth="1"/>
-      {([[82,82],[100,82],[118,82],[82,100],[118,100],[82,118],[100,118],[118,118]] as [number,number][]).map(([cx,cy],i)=>(
-        <circle key={i} cx={cx} cy={cy} r="4" fill="#1A6AC8" opacity="0.85"/>
-      ))}
-      {([[82,82,100,82],[100,82,118,82],[82,100,100,100],[100,100,118,100],[82,118,100,118],[100,118,118,118],[82,82,82,100],[100,82,100,100],[118,82,118,100],[82,100,82,118],[100,100,100,118],[118,100,118,118],[82,82,100,100],[100,100,118,118]] as [number,number,number,number][]).map(([x1,y1,x2,y2],i)=>(
-        <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#1A4A8A" strokeWidth="0.8" opacity="0.6"/>
-      ))}
-      <rect x="90" y="90" width="20" height="20" rx="4" fill="#0A2050" stroke="#2D6AC8" strokeWidth="1.5"/>
-      <text x="100" y="103" textAnchor="middle" fontSize="9" fill="white" fontWeight="900" fontFamily="monospace">AI</text>
-      {([[58,58],[142,58],[58,142],[142,142]] as [number,number][]).map(([cx,cy],i)=>(
-        <circle key={i} cx={cx} cy={cy} r="5" fill="#00B86B" opacity="0.9"/>
-      ))}
-      <text x="100" y="174" textAnchor="middle" fontSize="8" fill="#2D6AC8" fontWeight="800" fontFamily="monospace" letterSpacing="2">IA MASTER</text>
-    </svg>
-  )
-}
-
-
-// ─── PHASE CELEBRATIONS DATA ──────────────────────────────────────────────────
-const PHASE_CELEBRATIONS = [
-  { atStep: 6,  icon: '💻', title: 'Âge 1 maîtrisé !', sub: 'Tu comprends maintenant comment les humains ont appris à faire calculer les machines.', color: '#534AB7', bg: '#EEEDFE' },
-  { atStep: 11, icon: '🧪', title: 'Systèmes experts explorés !', sub: "Tu sais ce qu'est un moteur d'inférence et pourquoi Deep Blue est fascinant.", color: '#633806', bg: '#FAEEDA' },
-  { atStep: 20, icon: '🔗', title: 'Réseaux de neurones maîtrisés !', sub: "Tu comprends comment une machine apprend : et ce qu'est la boîte noire.", color: '#0C447C', bg: '#E6F1FB' },
-  { atStep: 29, icon: '✨', title: 'IA générative découverte !', sub: 'Tokens, vecteurs, attention, Transformer… tu as tout compris.', color: '#72243E', bg: '#FBEAF0' },
-  { atStep: 31, icon: '🚀', title: 'Contenu terminé ! Place au quiz.', sub: '20 questions pour valider ta maîtrise. Un score parfait débloque le badge IA MASTER.', color: '#27500A', bg: '#EAF3DE' },
-]
-
-// ─── CONFETTI ─────────────────────────────────────────────────────────────────
-function Confetti() {
-  const pieces = Array.from({ length: 28 }, (_, i) => ({
-    color: ['#58CC02','#FFC800','#FF4B4B','#1CB0F6','#CE82FF','#FF9600'][i % 6],
-    left: `${(i * 3.6) % 100}%`,
-    delay: `${(i * 0.07).toFixed(2)}s`,
-    duration: `${0.75 + (i % 5) * 0.12}s`,
-    size: 7 + (i % 4) * 3,
-  }))
-  return (
-    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '100%', pointerEvents: 'none', overflow: 'hidden' }}>
-      <style>{`@keyframes confettiFall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(320px) rotate(720deg);opacity:0}}`}</style>
-      {pieces.map((p, i) => (
-        <div key={i} style={{ position: 'absolute', top: 0, left: p.left, width: p.size, height: p.size / 2, background: p.color, borderRadius: 2, animation: `confettiFall ${p.duration} ${p.delay} ease-in forwards` }}/>
-      ))}
-    </div>
-  )
-}
-
-// ─── CELEBRATION MODAL ────────────────────────────────────────────────────────
-function CelebrationModal({ data, onContinue }: { data: typeof PHASE_CELEBRATIONS[0], onContinue: () => void }) {
-  return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.72)', padding: '20px' }}>
-      <style>{`
-        @keyframes popIn{0%{transform:scale(0.4);opacity:0}65%{transform:scale(1.06)}100%{transform:scale(1);opacity:1}}
-        @keyframes bounceIcon{0%,100%{transform:translateY(0)}45%{transform:translateY(-14px)}}
-        @keyframes starSpin{0%{transform:rotate(0deg) scale(0);opacity:0}60%{transform:rotate(200deg) scale(1.3);opacity:1}100%{transform:rotate(360deg) scale(1);opacity:1}}
-      `}</style>
-      <div style={{ position: 'relative', overflow: 'hidden' }}>
-        <Confetti />
-        <div style={{ background: 'white', borderRadius: 28, padding: '40px 32px', textAlign: 'center', maxWidth: 360, width: '100%', animation: 'popIn 0.45s cubic-bezier(0.34,1.56,0.64,1) forwards', boxShadow: '0 28px 64px rgba(0,0,0,0.35)', position: 'relative' }}>
-          {[[-30,-30],[30,-30],[-30,30],[30,30]].map(([dx,dy],i)=>(
-            <div key={i} style={{ position:'absolute', top:44+Math.abs(dy), [dx<0?'left':'right']:44-Math.abs(dx), fontSize:20, animation:`starSpin 0.7s ${i*0.12}s ease both`, opacity:0 }}>⭐</div>
-          ))}
-          <div style={{ fontSize: 68, marginBottom: 8, animation: 'bounceIcon 1.2s 0.5s ease-in-out infinite', display: 'block' }}>{data.icon}</div>
-          <div style={{ display: 'inline-block', background: data.bg, color: data.color, fontSize: 11, fontWeight: 800, padding: '4px 16px', borderRadius: 20, marginBottom: 14, letterSpacing: 1, textTransform: 'uppercase' }}>Phase complétée !</div>
-          <h2 style={{ fontSize: 22, fontWeight: 900, color: '#1a1a2e', marginBottom: 10, lineHeight: 1.3, whiteSpace: 'pre-line' }}>{data.title}</h2>
-          <p style={{ fontSize: 14, color: '#666', lineHeight: 1.65, marginBottom: 28 }}>{data.sub}</p>
-          <button onClick={onContinue} style={{ width: '100%', padding: '16px', borderRadius: 16, background: '#58CC02', color: 'white', border: 'none', fontWeight: 800, fontSize: 16, cursor: 'pointer', boxShadow: '0 4px 0 #3D8A00', letterSpacing: 0.5, transition: 'transform 0.1s' }}
-            onMouseDown={e => (e.currentTarget.style.transform = 'translateY(3px)')}
-            onMouseUp={e => (e.currentTarget.style.transform = 'translateY(0)')}>
-            Continuer →
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function ProgressBar({ step, phase }: { step: number, phase: number }) {
-  const pct = Math.round((step / (TOTAL_LEARNING + QUIZ.length)) * 100)
-  const phases = ['💻','🧪','🔗','✨','🤖','❓']
-  return (
-    <div style={{ padding: '10px 16px', background: 'white', borderBottom: '0.5px solid var(--border)' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-        <div style={{ flex: 1, height: 6, background: '#F0F0F4', borderRadius: 3, overflow: 'hidden' }}>
-          <div style={{ width: `${pct}%`, height: '100%', background: 'linear-gradient(90deg, #58CC02, #89E219)', borderRadius: 3, transition: 'width .4s' }}/>
-        </div>
-        <span style={{ fontSize: 11, fontWeight: 700, color: '#534AB7', minWidth: 30 }}>{pct}%</span>
-      </div>
-      <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
-        {phases.map((p, i) => (
-          <div key={i} style={{
-            width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 13,
-            background: i < phase ? '#E1F5EE' : i === phase ? 'var(--accent)' : 'var(--bg2)',
-            border: `2px solid ${i === phase ? 'var(--accent)' : 'transparent'}`,
-          }} title={['Traditionnel','Experts','Neurones','Génératif','Maintenant','Quiz'][i]}>
-            {i < phase ? '✓' : p}
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function Btn({ children, onClick, disabled, variant = 'primary', full = true }: { children: React.ReactNode, onClick?: () => void, disabled?: boolean, variant?: 'primary' | 'secondary', full?: boolean }) {
-  const isPrimary = variant === 'primary' && !disabled
-  return (
-    <button onClick={onClick} disabled={disabled} style={{
-      width: full ? '100%' : 'auto', padding: '15px 20px', borderRadius: 16, border: 'none',
-      background: disabled ? '#E5E5E5' : variant === 'primary' ? '#58CC02' : '#F0F0F0',
-      color: disabled ? '#AFAFAF' : variant === 'primary' ? 'white' : '#555',
-      fontWeight: 800, fontSize: 15, cursor: disabled ? 'default' : 'pointer',
-      boxShadow: isPrimary ? '0 4px 0 #3D8A00' : 'none',
-      letterSpacing: 0.3,
-      transition: 'transform 0.1s, box-shadow 0.1s',
-    }}
-    onMouseDown={e => isPrimary && Object.assign(e.currentTarget.style, {transform:'translateY(3px)',boxShadow:'0 1px 0 #3D8A00'})}
-    onMouseUp={e => isPrimary && Object.assign(e.currentTarget.style, {transform:'translateY(0)',boxShadow:'0 4px 0 #3D8A00'})}>
-      {children}
-    </button>
-  )
-}
-
-function FeedbackBar({ correct, expl, onNext, last }: { correct: boolean, expl: string, onNext: () => void, last: boolean }) {
-  const msgs = ['Exact ! 🎉', 'Bien vu ! ⚡', 'Parfait ! 🔥', 'Tu as compris ! 💡', 'Bravo ! 🌟']
   const msg = msgs[Math.floor(Math.random() * msgs.length)]
   return (
     <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: correct ? '#D7FFB8' : '#FFDFE0', borderTop: `4px solid ${correct ? '#58CC02' : '#FF4B4B'}`, padding: '16px 20px 28px', zIndex: 100 }}>
@@ -376,7 +415,7 @@ export default function ModulePage() {
             <div style={{ textAlign: 'center', marginBottom: 24 }}>
               <div style={{ fontSize: 52, marginBottom: 12 }}>{pct >= 80 ? '🎯' : '💪'}</div>
               <div style={{ fontSize: 32, fontWeight: 900, color: '#534AB7', marginBottom: 8 }}>{total} / {QUIZ.length}</div>
-              <p style={{ fontSize: 14, color: '#555', lineHeight: 1.6 }}>{pct >= 80 ? 'Beau parcours ! Quelques notions méritent encore un peu d\'entraînement.' : pct >= 60 ? 'Bon début ! Revois les questions manquées pour progresser.' : 'Continue à apprendre ! Le module t\'attend pour une révision.'}</p>
+              <p style={{ fontSize: 14, color: '#555', lineHeight: 1.6 }}>{pct >= 80 ? 'Beau parcours ! Quelques notions méritent encore un peu d\'entraînement.' : pct >= 60 ? 'Bon début ! Revois les questions manquées pour progresser.' : "Continue à apprendre ! Le module t\'attend pour une révision."}</p>
             </div>
           )}
           {wrongs.length > 0 && (
@@ -754,7 +793,7 @@ export default function ModulePage() {
         </p>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
           {[
-            {icon:'🧠',t:'CERVEAU BIOLOGIQUE',items:['86 milliards de neurones','Connexions synaptiques biologiques','Apprentissage par l'experience','Consomme environ 20W','Tres difficile a observer'],bg:'#F8F8F8',bc:'#999',tc:'#1a1a2e'},
+            {icon:'🧠',t:'CERVEAU BIOLOGIQUE',items:['86 milliards de neurones','Connexions synaptiques biologiques','Apprentissage par l\'experience','Consomme environ 20W','Tres difficile a observer'],bg:'#F8F8F8',bc:'#999',tc:'#1a1a2e'},
             {icon:'🔗',t:'RESEAU ARTIFICIEL',items:['Unites mathematiques (fonctions)','Connexions numeriques ponderees','Apprentissage par gradient','Necessite des GPU puissants','Entierement observable et modifiable'],bg:'#E6F1FB',bc:'#1CB0F6',tc:'#0C447C'}
           ].map(({icon,t,items,bg,bc,tc})=>(
             <div key={t} style={{padding:14,background:bg,borderRadius:14,border:`2px solid ${bc}`}}>
@@ -985,9 +1024,9 @@ export default function ModulePage() {
         </p>
         <div style={{display:'flex',flexDirection:'column',gap:6,marginBottom:16}}>
           {[
-            ['🌐','Internet et Big Data','Des milliards de textes, images, codes disponibles pour l'entrainement'],
+            ['🌐','Internet et Big Data','Des milliards de textes, images, codes disponibles pour l\'entrainement'],
             ['⚡','GPU et cloud computing','La puissance de calcul necessaire devient accessible'],
-            ['🔀','L'architecture Transformer (2017)','Une innovation cle qui a revolutionne la facon dont les reseaux traitent le langage'],
+            ['🔀','L\'architecture Transformer (2017)','Une innovation cle qui a revolutionne la facon dont les reseaux traitent le langage'],
           ].map(([icon,title,desc],i)=>(
             <div key={i} style={{display:'flex',gap:12,padding:'12px 14px',background:'white',borderRadius:12,border:'1.5px solid #E5E5E5',alignItems:'flex-start'}}>
               <div style={{fontSize:24,flexShrink:0}}>{icon}</div>
@@ -1161,7 +1200,7 @@ export default function ModulePage() {
             " <span style={{background:'#FFE8A3',padding:'2px 6px',borderRadius:6}}>L'enfant</span> prend <span style={{background:'#B8EAFF',padding:'2px 6px',borderRadius:6}}>son lapin</span> avant d'aller dormir avec <span style={{background:'#EEEDFE',padding:'4px 8px',borderRadius:6,fontWeight:800,border:'2px solid #534AB7'}}>lui</span>. "
           </div>
           <div style={{display:'flex',gap:6,flexWrap:'wrap' as const,marginBottom:8}}>
-            {[['L'enfant','45%','#FFE8A3','#8B5E00'],['son lapin','28%','#B8EAFF','#0C447C'],['prend','5%','#F0F0F4','#888'],['dormir','4%','#F0F0F4','#888']].map(([t,p,bg,tc])=>(
+            {[['L\'enfant','45%','#FFE8A3','#8B5E00'],['son lapin','28%','#B8EAFF','#0C447C'],['prend','5%','#F0F0F4','#888'],['dormir','4%','#F0F0F4','#888']].map(([t,p,bg,tc])=>(
               <div key={t} style={{padding:'5px 10px',background:bg,borderRadius:20,fontSize:12,fontWeight:600,color:tc}}>{t} {p}</div>
             ))}
           </div>
@@ -1193,13 +1232,13 @@ export default function ModulePage() {
           <div style={{padding:16,background:'#F0F0F4',borderRadius:16}}>
             <div style={{fontSize:28,marginBottom:6}}>💬</div>
             <div style={{fontWeight:800,fontSize:13,marginBottom:8,color:'#1a1a2e'}}>CHATBOT</div>
-            {['Tu poses une question','L'IA genere une reponse','Tu poses une autre question','L'IA genere une reponse'].map((t,i)=><div key={i} style={{fontSize:12,color:'#555',marginBottom:2}}>{t}</div>)}
+            {['Tu poses une question','L\'IA genere une reponse','Tu poses une autre question','L\'IA genere une reponse'].map((t,i)=><div key={i} style={{fontSize:12,color:'#555',marginBottom:2}}>{t}</div>)}
             <div style={{fontSize:11,color:'#888',marginTop:6,fontStyle:'italic'}}>L'utilisateur orchestre chaque etape.</div>
           </div>
           <div style={{padding:16,background:'#EAF3DE',borderRadius:16,border:'2px solid #97C459'}}>
             <div style={{fontSize:28,marginBottom:6}}>🤖</div>
             <div style={{fontWeight:800,fontSize:13,marginBottom:8,color:'#27500A'}}>AGENT IA</div>
-            {['Objectif defini','Planification autonome','Utilise des outils','Agit, evalue, corrige','Continue jusqu'au but'].map((t,i)=><div key={i} style={{fontSize:12,color:'#27500A',marginBottom:2}}>→ {t}</div>)}
+            {['Objectif defini','Planification autonome','Utilise des outils','Agit, evalue, corrige','Continue jusqu\'au but'].map((t,i)=><div key={i} style={{fontSize:12,color:'#27500A',marginBottom:2}}>→ {t}</div>)}
           </div>
         </div>
         <div style={{background:'white',borderRadius:14,border:'1.5px solid #E5E5E5',padding:'14px 16px',marginBottom:14}}>
