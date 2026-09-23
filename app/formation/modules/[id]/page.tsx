@@ -269,6 +269,9 @@ export default function ModulePage() {
     const cel = PHASE_CELEBRATIONS.find(c => c.atStep === nextStep)
     if (cel) { setCelebration(cel) } else { setStep(nextStep) }
   }
+  const prev = () => {
+    if (step > 0) setStep(s => s - 1)
+  }
   const closeCelebration = () => {
     if (celebration) { setStep(celebration.atStep); setCelebration(null) }
   }
@@ -470,7 +473,7 @@ export default function ModulePage() {
       {header}
 
       {/* STEP 0 — Cover */}
-      {s === 0 && <Wrap onNext={next} nextLabel="Commencer →">
+      {s === 0 && <Wrap onNext={next} onPrev={step > 0 ? prev : undefined} nextLabel="Commencer →">
         <div style={{ textAlign: 'center', padding: '12px 0', animation: 'fadeIn .4s ease' }}>
           <div style={{ fontSize: 52, marginBottom: 14 }}>💡</div>
           <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 10, lineHeight: 1.3 }}>Sans technologie,<br/>pas d'intelligence artificielle.</h1>
@@ -487,7 +490,7 @@ export default function ModulePage() {
       </Wrap>}
 
       {/* STEP 1 — Traditional computing intro */}
-      {s === 1 && <Wrap onNext={next}>
+      {s === 1 && <Wrap onNext={next} onPrev={step > 0 ? prev : undefined}>
         <Tag color="var(--accent-bg)"><span style={{ color: 'var(--accent-text)' }}>💻 ÂGE 1 — Informatique traditionnelle</span></Tag>
         <h2 style={{ fontSize: 24, fontWeight: 800, marginBottom: 10 }}>« Dis-moi exactement quoi faire. »</h2>
         <p style={{ fontSize: 14, color: 'var(--text2)', lineHeight: 1.7, marginBottom: 16 }}>Dans l'informatique traditionnelle, <strong>l'humain écrit les instructions</strong>. La machine les exécute fidèlement.</p>
@@ -496,7 +499,7 @@ export default function ModulePage() {
       </Wrap>}
 
       {/* STEP 2 — Cat decision tree */}
-      {s === 2 && <Wrap onNext={catStep >= 3 ? next : undefined} canNext={catStep >= 3} nextLabel="Suite →">
+      {s === 2 && <Wrap onNext={catStep >= 3 ? next : undefined} onPrev={prev} canNext={catStep >= 3} nextLabel="Suite →">
         <div style={{ textAlign: 'center', marginBottom: 16 }}>
           <div style={{ fontSize: 48, marginBottom: 6 }}>🐱</div>
           <h3 style={{ fontSize: 17, fontWeight: 700 }}>Comment classer cet animal ?</h3>
@@ -530,7 +533,7 @@ export default function ModulePage() {
       </Wrap>}
 
       {/* STEP 3 — Binary */}
-      {s === 3 && <Wrap onNext={next}>
+      {s === 3 && <Wrap onNext={next} onPrev={step > 0 ? prev : undefined}>
         <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 6, color: '#1a1a2e' }}>Le 0 et le 1 — fondement du calcul</h3>
         <p style={{ fontSize: 13, color: '#666', lineHeight: 1.65, marginBottom: 14 }}>Tous les ordinateurs fonctionnent en binaire. À l'échelle des circuits électroniques, tout est soit <strong>1</strong> (le courant passe) soit <strong>0</strong> (le courant ne passe pas).</p>
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginBottom: 16 }}>
@@ -571,41 +574,83 @@ export default function ModulePage() {
       </Wrap>}
 
       {/* STEP 4 — Dog challenge */}
-      {s === 4 && <Wrap onNext={dogAnswer!==null?next:undefined} canNext={dogAnswer!==null}>
-        <div style={{ textAlign: 'center', marginBottom: 16 }}>
-          <div style={{ fontSize: 48, marginBottom: 8 }}>🐶</div>
-          <h3 style={{ fontSize: 17, fontWeight: 700 }}>Mini-défi</h3>
-          <p style={{ fontSize: 14, color: 'var(--text2)', marginTop: 8, lineHeight: 1.6 }}>On vient de construire un système pour reconnaître un chat. Si on lui présente un chien — <strong>fonctionne-t-il automatiquement ?</strong></p>
+      {s === 4 && <Wrap onNext={dogAnswer!==null?next:undefined} onPrev={prev} canNext={dogAnswer!==null}>
+        <h3 style={{fontSize:18,fontWeight:800,marginBottom:8,color:'#1a1a2e'}}>🐶 Que se passe-t-il avec un chien ?</h3>
+        <p style={{fontSize:13,color:'#666',lineHeight:1.65,marginBottom:14}}>Notre système reconnaît les chats grâce à 3 règles. On lui présente maintenant un chien et on lui applique exactement les mêmes conditions.</p>
+        <div style={{background:'white',borderRadius:16,border:'1.5px solid #E5E5E5',overflow:'hidden',marginBottom:14}}>
+          <div style={{padding:'12px 16px',background:'#F8F9FF',borderBottom:'1px solid #E5E5E5',fontWeight:700,fontSize:14,color:'#1a1a2e',display:'flex',gap:10,alignItems:'center'}}>
+            <span style={{fontSize:24}}>🐶</span><span>Application des 3 règles au chien</span>
+          </div>
+          {[['A-t-il des poils ?',true,'Oui — un chien a des poils'],['A-t-il des oreilles ?',true,'Oui — un chien a des oreilles'],['A-t-il une queue ?',true,'Oui — un chien a aussi une queue']].map(([q,yes,note],i)=>(
+            <div key={i} style={{display:'flex',alignItems:'center',gap:12,padding:'11px 16px',borderBottom:i<2?'1px solid #F0F0F0':'none'}}>
+              <div style={{width:28,height:28,borderRadius:'50%',background:'#D7FFB8',border:'2px solid #58CC02',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:800,fontSize:12,color:'#2B7400',flexShrink:0}}>✓</div>
+              <div><div style={{fontSize:13,fontWeight:600}}>{q}</div><div style={{fontSize:11,color:'#2B7400',marginTop:2}}>{note}</div></div>
+            </div>
+          ))}
+          <div style={{padding:'12px 16px',background:'#FFDFE0',borderTop:'2px solid #FF4B4B',display:'flex',gap:10,alignItems:'center'}}>
+            <span style={{fontSize:20}}>❓</span>
+            <div style={{fontSize:13,fontWeight:700,color:'#CC0000'}}>Résultat du système : « C'est un CHAT ? » — Erreur !</div>
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: 10 }}>
-          {['Oui, forcément 😎','Pas forcément 🤔'].map((opt,i)=>(
-            <button key={i} onClick={()=>setDogAnswer(i===1)} style={{ flex:1, padding:'14px 10px', borderRadius:12, border:`2px solid ${dogAnswer===(i===1)?'var(--accent)':'var(--border)'}`, background:dogAnswer===(i===1)?'var(--accent-bg)':'var(--bg)', cursor:'pointer', fontWeight:600, fontSize:13, color:'var(--text)' }}>{opt}</button>
+        <p style={{fontSize:13,color:'#444',lineHeight:1.65,marginBottom:12}}>Toutes les conditions sont remplies, pourtant c'est un chien. <strong>Quelle est la vraie cause de ce problème ?</strong></p>
+        <div style={{display:'flex',flexDirection:'column',gap:10}}>
+          {[
+            ['Le système n'est pas assez rapide',false],
+            ['Les règles ne sont pas assez précises — il faudrait en ajouter (taille, museau, aboiement…)',true],
+            ['Le système a mal lu les données',false],
+          ].map(([opt,correct],i)=>(
+            <button key={i} onClick={()=>setDogAnswer(correct as boolean)} style={{
+              padding:'14px 18px',borderRadius:14,
+              border:`2.5px solid ${dogAnswer!=null?(correct?'#58CC02':(dogAnswer==correct&&i==0||dogAnswer==correct&&i==2)?'#FF4B4B':'#E5E5E5'):'#E5E5E5'}`,
+              background:dogAnswer!=null&&correct?'#D7FFB8':'white',
+              cursor:dogAnswer===null?'pointer':'default',fontWeight:600,fontSize:13,color:'#1a1a2e',textAlign:'left' as const
+            }}>{opt}</button>
           ))}
         </div>
-        {dogAnswer!==null && <div style={{ marginTop:14, padding:14, background:'#E1F5EE', borderRadius:12, fontSize:13, lineHeight:1.6, color:'#085041' }}><strong>✓ Bien vu !</strong> Si une nouvelle situation n'a pas été anticipée par les règles, le système peut échouer. Les règles doivent être adaptées.</div>}
+        {dogAnswer!==null && (
+          <div style={{marginTop:12,padding:16,background:'#E6F1FB',borderRadius:14,border:'1.5px solid #1CB0F6'}}>
+            <div style={{fontWeight:800,fontSize:14,color:'#0C447C',marginBottom:8}}>✓ Exactement — les règles manquent de précision</div>
+            <div style={{fontSize:13,color:'#0C447C',lineHeight:1.7}}>
+              Pour distinguer un chat d'un chien, il faudrait des règles supplémentaires : la taille, la forme du museau, les habitudes comportementales, l'aboiement… Et pour traiter des centaines d'espèces, il faudrait des <strong>milliers de règles</strong> à écrire, tester et maintenir manuellement.
+              <br/><br/>
+              C'est précisément cette limite qui a poussé les chercheurs à imaginer une autre approche : <em>et si la machine pouvait apprendre les règles elle-même à partir d'exemples ?</em>
+            </div>
+          </div>
+        )}
       </Wrap>}
 
-      {/* STEP 5 — Advantages/limits */}
-      {s === 5 && <Wrap onNext={next}>
-        <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 14, textAlign: 'center' }}>À retenir</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-          <div style={{ padding:14, background:'#E1F5EE', borderRadius:12, border:'1.5px solid #5DCAA5' }}>
-            <div style={{ fontSize:24, marginBottom:6 }}>👍</div>
-            <div style={{ fontWeight:700, fontSize:13, color:'#085041', marginBottom:4 }}>AVANTAGE</div>
-            <div style={{ fontWeight:600, fontSize:15, color:'#085041', marginBottom:6 }}>Traçabilité</div>
-            <div style={{ fontSize:12, color:'#0a6050', lineHeight:1.5 }}>Les règles sont explicites. On peut retracer le chemin ayant conduit au résultat.</div>
+      s === 5 && <Wrap onNext={next} onPrev={prev} nextLabel="Phase suivante →">
+        <h3 style={{fontSize:18,fontWeight:800,marginBottom:6,color:'#1a1a2e'}}>À retenir — L'informatique traditionnelle</h3>
+        <p style={{fontSize:13,color:'#666',lineHeight:1.65,marginBottom:14}}>Voici les deux points essentiels à bien retenir avant de passer aux systèmes experts.</p>
+        <div style={{background:'white',borderRadius:16,border:'1.5px solid #E5E5E5',overflow:'hidden',marginBottom:14}}>
+          <div style={{padding:'14px 16px',background:'#D7FFB8',borderBottom:'2px solid #58CC02'}}>
+            <div style={{fontWeight:800,fontSize:15,color:'#2B7400'}}>👍 Avantage majeur : la traçabilité</div>
           </div>
-          <div style={{ padding:14, background:'#FAECE7', borderRadius:12, border:'1.5px solid #F0997B' }}>
-            <div style={{ fontSize:24, marginBottom:6 }}>⚠️</div>
-            <div style={{ fontWeight:700, fontSize:13, color:'#993C1D', marginBottom:4 }}>LIMITE</div>
-            <div style={{ fontWeight:600, fontSize:15, color:'#993C1D', marginBottom:6 }}>Complexité</div>
-            <div style={{ fontSize:12, color:'#7a2e10', lineHeight:1.5 }}>Plus les situations se multiplient, plus écrire et maintenir toutes les règles devient difficile.</div>
+          <div style={{padding:'14px 16px'}}>
+            <p style={{fontSize:13,color:'#444',lineHeight:1.7,marginBottom:10}}>Puisque chaque règle est écrite explicitement, il est possible de <strong>retracer précisément le chemin</strong> ayant conduit à un résultat. Si le programme prend une mauvaise décision, on peut revenir en arrière étape par étape et identifier quelle règle est défaillante.</p>
+            <div style={{background:'#F0FFF0',borderRadius:10,padding:'10px 12px',fontSize:12,color:'#2B7400',lineHeight:1.6}}>
+              <strong>Exemple :</strong> un logiciel de paye calcule un mauvais salaire. Le comptable peut ouvrir le code, lire les règles et trouver exactement l'erreur. C'est aussi ce qui permet l'audit, la conformité réglementaire et la certification de systèmes critiques (avionique, médical, nucléaire).
+            </div>
           </div>
+        </div>
+        <div style={{background:'white',borderRadius:16,border:'1.5px solid #E5E5E5',overflow:'hidden',marginBottom:14}}>
+          <div style={{padding:'14px 16px',background:'#FFDFE0',borderBottom:'2px solid #FF4B4B'}}>
+            <div style={{fontWeight:800,fontSize:15,color:'#CC0000'}}>⚠️ Limite fondamentale : la complexité</div>
+          </div>
+          <div style={{padding:'14px 16px'}}>
+            <p style={{fontSize:13,color:'#444',lineHeight:1.7,marginBottom:10}}>Pour des tâches <em>perceptuelles</em> — reconnaître un visage, comprendre une phrase, conduire une voiture — il faudrait formaliser des millions de règles implicites que <strong>l'humain lui-même ne sait pas énoncer</strong>. Comment décrire en règles ce qui fait qu'un visage "ressemble" à quelqu'un ?</p>
+            <div style={{background:'#FFF0F0',borderRadius:10,padding:'10px 12px',fontSize:12,color:'#CC0000',lineHeight:1.6}}>
+              <strong>Ce qu'on vient de voir avec le chien :</strong> 3 règles simples ne suffisent pas à distinguer un chat d'un chien. Pour être fiable, il faudrait des milliers de règles très précises — impossible à maintenir manuellement à grande échelle.
+            </div>
+          </div>
+        </div>
+        <div style={{background:'#EEEDFE',borderRadius:14,padding:'14px 16px',border:'1.5px solid #C5C0EF'}}>
+          <div style={{fontWeight:800,fontSize:13,color:'#3C3489',marginBottom:6}}>💡 Cette informatique est toujours partout</div>
+          <div style={{fontSize:13,color:'#3C3489',lineHeight:1.65}}>Logiciels de comptabilité, GPS, systèmes de réservation, feux de circulation, bancomats… L'informatique traditionnelle reste le fondement de la majorité des systèmes en production. Les âges suivants s'y <em>ajoutent</em>, ils ne la remplacent pas.</div>
         </div>
       </Wrap>}
 
-      {/* STEP 6 — Transition to expert systems */}
-      {s === 6 && <Wrap onNext={next} nextLabel="Découvrir le 2e âge →">
+      s === 6 && <Wrap onNext={next} onPrev={step > 0 ? prev : undefined} nextLabel="Découvrir le 2e âge →">
         <div style={{ textAlign:'center', padding:'20px 0', animation:'fadeIn .4s ease' }}>
           <div style={{ fontSize:36, marginBottom:14 }}>💭</div>
           <h3 style={{ fontSize:20, fontWeight:800, marginBottom:10 }}>Et si on mettait directement l'expertise humaine dans la machine ?</h3>
@@ -614,14 +659,14 @@ export default function ModulePage() {
       </Wrap>}
 
       {/* STEP 7 — Expert systems intro */}
-      {s === 7 && <Wrap onNext={next}>
+      {s === 7 && <Wrap onNext={next} onPrev={step > 0 ? prev : undefined}>
         <Tag color="#FAEEDA"><span style={{ color:'#633806' }}>🧪 ÂGE 2 — Années 1970-1980</span></Tag>
         <h2 style={{ fontSize:22, fontWeight:800, marginBottom:10 }}>« Mettons l'expert dans la machine. »</h2>
         <p style={{ fontSize:14, color:'var(--text2)', lineHeight:1.7 }}>Un <strong>ingénieur de la connaissance</strong> rencontre un spécialiste — médecin, ingénieur, technicien — et transforme son expertise en connaissances exploitables par un ordinateur.</p>
       </Wrap>}
 
       {/* STEP 8 — Expert system builder */}
-      {s === 8 && <Wrap onNext={expertStep>=3?next:undefined} canNext={expertStep>=3}>
+      {s === 8 && <Wrap onNext={expertStep>=3?next:undefined} onPrev={prev} canNext={expertStep>=3}>
         <h3 style={{ fontSize:16, fontWeight:700, marginBottom:4 }}>🎮 Construis le système expert</h3>
         <p style={{ fontSize:12, color:'var(--text2)', marginBottom:14 }}>Clique pour découvrir chaque composant</p>
         {[{title:'BASE DE RÈGLES',icon:'📋',body:'SI A + B → ALORS C · Les connaissances de l\'expert sous forme de règles.',bg:'#E6F1FB',tc:'#0C447C',bc:'#85B7EB'},
@@ -645,7 +690,7 @@ export default function ModulePage() {
       </Wrap>}
 
       {/* STEP 9 — Algorithm recipe */}
-      {s === 9 && <Wrap onNext={next}>
+      {s === 9 && <Wrap onNext={next} onPrev={step > 0 ? prev : undefined}>
         <div style={{ textAlign:'center', marginBottom:16 }}><div style={{ fontSize:44 }}>🍳</div></div>
         <h3 style={{ fontSize:17, fontWeight:700, marginBottom:10 }}>L'algorithme, c'est comme une recette</h3>
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:14 }}>
@@ -664,7 +709,7 @@ export default function ModulePage() {
       </Wrap>}
 
       {/* STEP 10 — Deep Blue */}
-      {s === 10 && <Wrap onNext={next}>
+      {s === 10 && <Wrap onNext={next} onPrev={step > 0 ? prev : undefined}>
         <div style={{ textAlign:'center', padding:'10px 0' }}>
           <div style={{ fontSize:44, marginBottom:6 }}>♟️</div>
           <h3 style={{ fontSize:20, fontWeight:800 }}>Deep Blue vs Kasparov</h3>
@@ -685,7 +730,7 @@ export default function ModulePage() {
       </Wrap>}
 
       {/* STEP 11 — Transition to neural networks */}
-      {s === 11 && <Wrap onNext={next} nextLabel="Découvrir les réseaux →">
+      {s === 11 && <Wrap onNext={next} onPrev={step > 0 ? prev : undefined} nextLabel="Découvrir les réseaux →">
         <div style={{ textAlign:'center', padding:'20px 0', animation:'fadeIn .4s ease' }}>
           <div style={{ fontSize:36, marginBottom:14 }}>🤔</div>
           <h3 style={{ fontSize:20, fontWeight:800, marginBottom:10 }}>Et si nous arrêtions de donner toutes les règles à la machine ?</h3>
@@ -694,7 +739,7 @@ export default function ModulePage() {
       </Wrap>}
 
       {/* STEP 12 — Neural networks intro + timeline */}
-      {s === 12 && <Wrap onNext={next}>
+      {s === 12 && <Wrap onNext={next} onPrev={step > 0 ? prev : undefined}>
         <Tag color="#E6F1FB"><span style={{ color:'#0C447C' }}>🔗 ÂGE 3 — Réseaux de neurones</span></Tag>
         <h2 style={{ fontSize:22, fontWeight:800, marginBottom:14 }}>« Et si la machine apprenait ? »</h2>
         {[{y:'1943',t:'McCulloch & Pitts : premier modèle mathématique du neurone'},{y:'1956',t:'Atelier de Dartmouth — le champ de l\'IA se structure'},{y:'1957-58',t:'Rosenblatt développe le perceptron'},{y:'Ensuite…',t:'Développement progressif des réseaux neuronaux jusqu\'à aujourd\'hui'}].map(({y,t},i)=>(
@@ -706,7 +751,7 @@ export default function ModulePage() {
       </Wrap>}
 
       {/* STEP 13 — Brain vs network */}
-      {s === 13 && <Wrap onNext={next}>
+      {s === 13 && <Wrap onNext={next} onPrev={step > 0 ? prev : undefined}>
         <h3 style={{ fontSize:16, fontWeight:700, marginBottom:14, textAlign:'center' }}>Cerveau vs Réseau artificiel</h3>
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:14 }}>
           <div style={{ padding:14, background:'var(--bg2)', borderRadius:12, textAlign:'center' }}><div style={{ fontSize:34, marginBottom:6 }}>🧠</div><div style={{ fontWeight:600, fontSize:12 }}>CERVEAU</div><div style={{ fontSize:11, color:'var(--text2)', marginTop:4, lineHeight:1.5 }}>Neurones biologiques + synapses</div></div>
@@ -716,7 +761,7 @@ export default function ModulePage() {
       </Wrap>}
 
       {/* STEP 14 — Layers and weights */}
-      {s === 14 && <Wrap onNext={next}>
+      {s === 14 && <Wrap onNext={next} onPrev={step > 0 ? prev : undefined}>
         <h3 style={{ fontSize:16, fontWeight:700, marginBottom:14 }}>Couches et poids</h3>
         <div style={{ display:'flex', justifyContent:'center', alignItems:'center', gap:6, marginBottom:18, flexWrap:'wrap' }}>
           {['ENTRÉE','●●','●●','●●','SORTIE'].map((l,i)=>(
@@ -733,7 +778,7 @@ export default function ModulePage() {
       </Wrap>}
 
       {/* STEP 15 — Cat learning */}
-      {s === 15 && <Wrap onNext={next}>
+      {s === 15 && <Wrap onNext={next} onPrev={step > 0 ? prev : undefined}>
         <h3 style={{ fontSize:16, fontWeight:700, marginBottom:4 }}>🎮 Apprenons à reconnaître un chat</h3>
         <p style={{ fontSize:12, color:'var(--text2)', marginBottom:14 }}>Le réseau fait des erreurs au début… puis il apprend !</p>
         {[{p:'CAMION',pct:72,ok:false},{p:'CHIEN',pct:58,ok:false},{p:'FÉLIN 🟠',pct:84,ok:false},{p:'CHAT ✅',pct:96,ok:true}].map((a,i)=>(
@@ -755,7 +800,7 @@ export default function ModulePage() {
       </Wrap>}
 
       {/* STEP 16 — Generalization */}
-      {s === 16 && <Wrap onNext={next}>
+      {s === 16 && <Wrap onNext={next} onPrev={step > 0 ? prev : undefined}>
         <h3 style={{ fontSize:16, fontWeight:700, marginBottom:8 }}>La généralisation</h3>
         <p style={{ fontSize:14, color:'var(--text2)', marginBottom:14, lineHeight:1.6 }}>L'objectif n'est pas de reconnaître uniquement les images déjà vues. Le modèle doit <strong>généraliser à de nouvelles situations</strong>.</p>
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
@@ -770,7 +815,7 @@ export default function ModulePage() {
       </Wrap>}
 
       {/* STEP 17 — Big comparison */}
-      {s === 17 && <Wrap onNext={next}>
+      {s === 17 && <Wrap onNext={next} onPrev={step > 0 ? prev : undefined}>
         <h3 style={{ fontSize:16, fontWeight:700, marginBottom:14, textAlign:'center' }}>Le grand changement</h3>
         <div style={{ padding:14, background:'var(--bg2)', borderRadius:12, marginBottom:10 }}>
           <div style={{ fontWeight:700, fontSize:12, color:'var(--text2)', marginBottom:8 }}>💻 INFORMATIQUE TRADITIONNELLE</div>
@@ -784,7 +829,7 @@ export default function ModulePage() {
       </Wrap>}
 
       {/* STEP 18 — Black box */}
-      {s === 18 && <Wrap onNext={next}>
+      {s === 18 && <Wrap onNext={next} onPrev={step > 0 ? prev : undefined}>
         <div style={{ textAlign:'center', marginBottom:16 }}>
           <div style={{ display:'inline-block', background:'#E1F5EE', padding:'10px 20px', borderRadius:12, marginBottom:12 }}><span style={{ fontSize:14, fontWeight:700, color:'#085041' }}>✨ LA CAPACITÉ D'APPRENDRE</span></div>
           <div style={{ fontSize:20, color:'#993C1D', fontWeight:700, marginBottom:8 }}>…mais une difficulté apparaît.</div>
@@ -801,7 +846,7 @@ export default function ModulePage() {
       </Wrap>}
 
       {/* STEP 19 — Generative AI acceleration */}
-      {s === 19 && <Wrap onNext={next} nextLabel="Découvrir l'IA générative →">
+      {s === 19 && <Wrap onNext={next} onPrev={step > 0 ? prev : undefined} nextLabel="Découvrir l'IA générative →">
         <div style={{ textAlign:'center', padding:'10px 0', animation:'fadeIn .4s ease' }}>
           {[['🌐','Internet'],['📚','Données massives'],['⚡','Puissance de calcul / GPU'],['🔀','Transformer (2017)'],['✨','IA GÉNÉRATIVE']].map(([icon,label],i)=>(
             <div key={i}>
@@ -815,7 +860,7 @@ export default function ModulePage() {
       </Wrap>}
 
       {/* STEP 20 — Gen AI intro */}
-      {s === 20 && <Wrap onNext={next}>
+      {s === 20 && <Wrap onNext={next} onPrev={step > 0 ? prev : undefined}>
         <Tag color="#FBEAF0"><span style={{ color:'#72243E' }}>✨ ÂGE 4 — IA Générative</span></Tag>
         <h2 style={{ fontSize:21, fontWeight:800, marginBottom:10 }}>La machine ne fait plus seulement reconnaître. Elle peut aussi <em>générer</em>.</h2>
         <p style={{ fontSize:13, color:'var(--text2)', lineHeight:1.7, marginBottom:14 }}>L'IA générative existait avant ChatGPT. On se concentre ici sur les <strong>LLM — Large Language Models</strong> : de très grands réseaux entraînés sur d'immenses volumes de texte.</p>
@@ -829,7 +874,7 @@ export default function ModulePage() {
       </Wrap>}
 
       {/* STEP 21 — Tokens */}
-      {s === 21 && <Wrap onNext={next}>
+      {s === 21 && <Wrap onNext={next} onPrev={step > 0 ? prev : undefined}>
         <h3 style={{ fontSize:17, fontWeight:700, marginBottom:4 }}>🔤 Les tokens</h3>
         <p style={{ fontSize:13, color:'var(--text2)', marginBottom:14 }}>Un token est l'unité élémentaire que le modèle manipule.</p>
         <div style={{ marginBottom:14 }}>
@@ -844,7 +889,7 @@ export default function ModulePage() {
       </Wrap>}
 
       {/* STEP 22 — Marble bag */}
-      {s === 22 && <Wrap onNext={marbles.length>=6?next:undefined} canNext={marbles.length>=6}>
+      {s === 22 && <Wrap onNext={marbles.length>=6?next:undefined} onPrev={prev} canNext={marbles.length>=6}>
         <h3 style={{ fontSize:17, fontWeight:700, marginBottom:4 }}>🎲 Le sac de billes</h3>
         <p style={{ fontSize:12, color:'var(--text2)', marginBottom:14 }}>Pioche des billes pour comprendre les probabilités</p>
         <div style={{ textAlign:'center', padding:'18px', background:'var(--bg2)', borderRadius:14, marginBottom:14 }}>
@@ -866,7 +911,7 @@ export default function ModulePage() {
       </Wrap>}
 
       {/* STEP 23 — Word prediction */}
-      {s === 23 && <Wrap onNext={wordChoice!==null?next:undefined} canNext={wordChoice!==null}>
+      {s === 23 && <Wrap onNext={wordChoice!==null?next:undefined} onPrev={prev} canNext={wordChoice!==null}>
         <div style={{ textAlign:'center', marginBottom:18 }}>
           <h3 style={{ fontSize:22, fontWeight:800, marginBottom:6 }}>Bonjour, comment ça…</h3>
           <p style={{ fontSize:13, color:'var(--text2)' }}>Quel token suit naturellement ?</p>
@@ -885,7 +930,7 @@ export default function ModulePage() {
       </Wrap>}
 
       {/* STEP 24 — Rabbit */}
-      {s === 24 && <Wrap onNext={rabbitCtx!==null?next:undefined} canNext={rabbitCtx!==null}>
+      {s === 24 && <Wrap onNext={rabbitCtx!==null?next:undefined} onPrev={prev} canNext={rabbitCtx!==null}>
         <h3 style={{ fontSize:16, fontWeight:700, marginBottom:14 }}>🐰 Le défi du lapin</h3>
         <p style={{ fontSize:15, fontWeight:700, marginBottom:10, textAlign:'center' }}>« Qu'est-ce que je fais de mon lapin ? »</p>
         <p style={{ fontSize:13, color:'var(--text2)', marginBottom:12 }}>La réponse devrait être différente selon le contexte. Lequel ?</p>
@@ -901,7 +946,7 @@ export default function ModulePage() {
       </Wrap>}
 
       {/* STEP 25 — Vectors */}
-      {s === 25 && <Wrap onNext={next}>
+      {s === 25 && <Wrap onNext={next} onPrev={step > 0 ? prev : undefined}>
         <h3 style={{ fontSize:17, fontWeight:700, marginBottom:8 }}>📍 Les vecteurs</h3>
         <p style={{ fontSize:13, color:'var(--text2)', lineHeight:1.6, marginBottom:14 }}>Les tokens sont transformés en <strong>représentations numériques</strong> dans un espace à des centaines de dimensions.</p>
         <div style={{ padding:14, background:'var(--bg2)', borderRadius:12, marginBottom:10, textAlign:'center' }}>
@@ -916,7 +961,7 @@ export default function ModulePage() {
       </Wrap>}
 
       {/* STEP 26 — GPT reveal */}
-      {s === 26 && <Wrap onNext={gptReveal>=3?next:undefined} canNext={gptReveal>=3}>
+      {s === 26 && <Wrap onNext={gptReveal>=3?next:undefined} onPrev={prev} canNext={gptReveal>=3}>
         <div style={{ textAlign:'center', marginBottom:18 }}>
           <h3 style={{ fontSize:34, fontWeight:900, letterSpacing:5 }}>GPT</h3>
           <p style={{ fontSize:12, color:'var(--text2)' }}>Clique pour révéler chaque lettre</p>
@@ -930,7 +975,7 @@ export default function ModulePage() {
       </Wrap>}
 
       {/* STEP 27 — Attention */}
-      {s === 27 && <Wrap onNext={next}>
+      {s === 27 && <Wrap onNext={next} onPrev={step > 0 ? prev : undefined}>
         <h3 style={{ fontSize:17, fontWeight:700, marginBottom:8 }}>👁️ L'Attention</h3>
         <p style={{ fontSize:13, color:'var(--text2)', lineHeight:1.6, marginBottom:14 }}>Comment le modèle sait-il quelles parties du contexte sont importantes ?</p>
         <div style={{ padding:14, background:'var(--bg2)', borderRadius:12, marginBottom:14, fontStyle:'italic', fontSize:14, lineHeight:1.8 }}>
@@ -941,7 +986,7 @@ export default function ModulePage() {
       </Wrap>}
 
       {/* STEP 28 — Agents */}
-      {s === 28 && <Wrap onNext={next}>
+      {s === 28 && <Wrap onNext={next} onPrev={step > 0 ? prev : undefined}>
         <Tag color="#EAF3DE"><span style={{ color:'#27500A' }}>🤖 ET MAINTENANT ?</span></Tag>
         <h3 style={{ fontSize:17, fontWeight:700, marginBottom:14 }}>Chatbot vs Agent IA</h3>
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
@@ -958,7 +1003,7 @@ export default function ModulePage() {
       </Wrap>}
 
       {/* STEP 29 — World models */}
-      {s === 29 && <Wrap onNext={next}>
+      {s === 29 && <Wrap onNext={next} onPrev={step > 0 ? prev : undefined}>
         <h3 style={{ fontSize:17, fontWeight:700, marginBottom:8 }}>🌍 World Models</h3>
         <div style={{ padding:14, background:'var(--bg2)', borderRadius:12, marginBottom:14, fontSize:14, fontWeight:700, textAlign:'center' }}>Comprendre énormément de textes suffit-il pour comprendre le monde ?</div>
         <p style={{ fontSize:13, color:'var(--text2)', lineHeight:1.6, marginBottom:12 }}>Yann LeCun et d'autres défendent l'idée qu'un humain apprend aussi grâce à :</p>
@@ -971,7 +1016,7 @@ export default function ModulePage() {
       </Wrap>}
 
       {/* STEP 30 — Summary */}
-      {s === 30 && <Wrap onNext={next} nextLabel="Passer au quiz final →">
+      {s === 30 && <Wrap onNext={next} onPrev={step > 0 ? prev : undefined} nextLabel="Passer au quiz final →">
         <h3 style={{ fontSize:17, fontWeight:700, marginBottom:14, textAlign:'center' }}>Synthèse des 4 âges</h3>
         {[{icon:'💻',n:'1',t:'Informatique traditionnelle',b:"L'humain écrit les instructions. La machine les exécute.",bg:'#EEEDFE',c:'#3C3489'},
           {icon:'🧪',n:'2',t:'Systèmes experts',b:"L'humain formalise l'expertise en règles. Un moteur les applique.",bg:'#FAEEDA',c:'#633806'},
