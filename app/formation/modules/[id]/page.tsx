@@ -279,7 +279,7 @@ export default function ModulePage() {
   // Learning state
   const [step, setStep] = useState(0)
   const [humorMsg, setHumorMsg] = useState<string|null>(null)
-  const [celebration, setCelebration] = useState<typeof PHASE_CELEBRATIONS[0] | null>(null)
+  const [celebration, setCelebration] = useState<{atStep:number,icon:string,title:string,sub:string,color:string,bg:string}|null>(null)
   const [catStep, setCatStep] = useState(0)
   const [dogAnswer, setDogAnswer] = useState<boolean | null>(null)
   const [expertStep, setExpertStep] = useState(0)
