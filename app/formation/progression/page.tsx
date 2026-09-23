@@ -104,12 +104,29 @@ export default function ProgressionPage() {
                 <div key={m.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, maxWidth: 90 }}>
                   <div style={{
                     width: 72, height: 72, borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #085041, #5DCAA5)',
+                    background: '#040F1D',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 32,
-                    boxShadow: '0 4px 16px rgba(8,80,65,0.3)',
+                    boxShadow: '0 4px 16px rgba(0,184,107,0.5)',
+                    border: '2px solid #00B86B',
                   }}>
-                    🏅
+                    <svg width="44" height="44" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect width="200" height="200" rx="20" fill="#040F1D"/>
+                      <path d="M20 100 L58 100 L58 58 L100 58" stroke="#00B86B" strokeWidth="14" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M180 100 L142 100 L142 58 L100 58" stroke="#00B86B" strokeWidth="14" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M100 180 L100 142 L142 142 L142 100" stroke="#00B86B" strokeWidth="14" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M100 20 L100 58 L58 58 L58 100" stroke="#00B86B" strokeWidth="14" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                      <rect x="60" y="60" width="80" height="80" rx="8" fill="#0D1F3C" stroke="#2D5AA8" strokeWidth="6"/>
+                      <rect x="74" y="74" width="52" height="52" rx="4" fill="#060E1A"/>
+                      {([[85,85],[100,85],[115,85],[85,100],[115,100],[85,115],[100,115],[115,115]] as [number,number][]).map(([cx,cy],i)=>(<circle key={i} cx={cx} cy={cy} r="5.5" fill="#1A6AC8"/>))}
+                      <rect x="90" y="90" width="20" height="20" rx="3" fill="#0A2050" stroke="#2D6AC8" strokeWidth="4"/>
+                      <text x="100" y="103" textAnchor="middle" fontSize="9" fill="white" fontWeight="900" fontFamily="monospace">AI</text>
+                      {[60,80,100,120,140].map((pos,i)=>[
+                        <rect key={`t${i}`} x={pos-5} y="0" width="10" height="14" rx="2" fill="#B8860B"/>,
+                        <rect key={`b${i}`} x={pos-5} y="186" width="10" height="14" rx="2" fill="#B8860B"/>,
+                        <rect key={`l${i}`} x="0" y={pos-5} width="14" height="10" rx="2" fill="#B8860B"/>,
+                        <rect key={`r${i}`} x="186" y={pos-5} width="14" height="10" rx="2" fill="#B8860B"/>,
+                      ])}
+                    </svg>
                   </div>
                   <div style={{ fontSize: 11, textAlign: 'center', color: 'var(--text)', fontWeight: 500, lineHeight: 1.3 }}>
                     {titre}
