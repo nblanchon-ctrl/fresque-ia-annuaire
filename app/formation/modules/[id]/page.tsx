@@ -531,17 +531,42 @@ export default function ModulePage() {
 
       {/* STEP 3 — Binary */}
       {s === 3 && <Wrap onNext={next}>
-        <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 14 }}>Le 0 et le 1</h3>
-        <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginBottom: 16 }}>
-          {[['0','courant ne passe pas','#1a1a18','white','#6B7280'],['1','courant passe','var(--accent)','white','#CECBF6']].map(([n,d,bg,c,dc],i)=>(
-            <div key={i} style={{ textAlign: 'center', padding: '18px 28px', background: bg, color: c, borderRadius: 12 }}>
-              <div style={{ fontSize: 36, fontWeight: 900 }}>{n}</div>
-              <div style={{ fontSize: 11, marginTop: 4, color: dc }}>{d}</div>
+        <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 6, color: '#1a1a2e' }}>Le 0 et le 1 — fondement du calcul</h3>
+        <p style={{ fontSize: 13, color: '#666', lineHeight: 1.65, marginBottom: 14 }}>Tous les ordinateurs fonctionnent en binaire. À l'échelle des circuits électroniques, tout est soit <strong>1</strong> (le courant passe) soit <strong>0</strong> (le courant ne passe pas).</p>
+        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginBottom: 16 }}>
+          {[['0','Le courant ne passe pas','🔴 Circuit ouvert','#1a1a18','white','#9CA3AF'],['1','Le courant passe','🟢 Circuit fermé','var(--accent)','white','#CECBF6']].map(([n,d,e,bg,c,dc],i)=>(
+            <div key={i} style={{ flex: 1, textAlign: 'center', padding: '18px 14px', background: bg, color: c, borderRadius: 14, boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
+              <div style={{ fontSize: 44, fontWeight: 900 }}>{n}</div>
+              <div style={{ fontSize: 16, margin: '6px 0' }}>{e}</div>
+              <div style={{ fontSize: 12, color: dc, lineHeight: 1.4 }}>{d}</div>
             </div>
           ))}
         </div>
-        <div style={{ padding: 14, background: '#FAECE7', borderRadius: 12, border: '1px solid #F0997B', fontSize: 14, lineHeight: 1.6 }}>
-          ⚠️ <strong>Important :</strong> le fonctionnement binaire (0/1) et un arbre de décision (oui/non) sont deux choses différentes. Un programme n'est pas obligatoirement un arbre binaire.
+        {/* Lien avec l'arbre de décision */}
+        <div style={{ background: '#E6F1FB', borderRadius: 14, padding: '14px 16px', marginBottom: 12, border: '1.5px solid #85B7EB' }}>
+          <div style={{ fontWeight: 800, fontSize: 13, color: '#0C447C', marginBottom: 8 }}>🔗 Le lien avec l'arbre de décision</div>
+          <p style={{ fontSize: 13, color: '#0C447C', lineHeight: 1.7, margin: 0 }}>
+            Dans un arbre de décision, chaque condition donne une réponse <strong>OUI ou NON</strong>. Au niveau des circuits électroniques, ce OUI/NON se traduit directement en binaire :
+          </p>
+          <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
+            <div style={{ flex: 1, padding: '10px 12px', background: 'white', borderRadius: 10, textAlign: 'center' }}>
+              <div style={{ fontWeight: 800, fontSize: 14, color: '#2B7400', marginBottom: 4 }}>OUI ✓</div>
+              <div style={{ fontSize: 22, fontWeight: 900, color: 'var(--accent)' }}>= 1</div>
+              <div style={{ fontSize: 11, color: '#0C447C', marginTop: 4 }}>courant passe<br/>circuit fermé</div>
+            </div>
+            <div style={{ flex: 1, padding: '10px 12px', background: 'white', borderRadius: 10, textAlign: 'center' }}>
+              <div style={{ fontWeight: 800, fontSize: 14, color: '#CC0000', marginBottom: 4 }}>NON ✗</div>
+              <div style={{ fontSize: 22, fontWeight: 900, color: '#1a1a2e' }}>= 0</div>
+              <div style={{ fontSize: 11, color: '#0C447C', marginTop: 4 }}>courant ne passe pas<br/>circuit ouvert</div>
+            </div>
+          </div>
+        </div>
+        {/* La nuance importante */}
+        <div style={{ background: '#FFF9E6', borderRadius: 14, padding: '14px 16px', border: '1.5px solid #FFC800' }}>
+          <div style={{ fontWeight: 800, fontSize: 13, color: '#8B5E00', marginBottom: 8 }}>⚡ La nuance importante</div>
+          <p style={{ fontSize: 13, color: '#8B5E00', lineHeight: 1.7, margin: 0 }}>
+            Le binaire (0/1) est le <strong>niveau matériel</strong> — la langue des circuits électroniques. L'arbre de décision (OUI/NON) est le <strong>niveau logique</strong> — la structure du programme. Les deux sont liés, mais distincts : un programme peut avoir des dizaines de choix possibles (pas seulement oui/non), tous représentés en binaire dans les circuits. Le 0 et le 1 sont le <em>substrat</em>, pas la structure du raisonnement.
+          </p>
         </div>
       </Wrap>}
 
