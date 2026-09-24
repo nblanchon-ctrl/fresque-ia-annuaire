@@ -31,8 +31,8 @@ type Animateur = {id:string;prenom:string;nom:string;photo_url:string|null;email
 type CRMClient = {
   id:string;name:string;logo_url:string|null;size:string|null
   secteur:string|null;region:string|null;tags:string[];status:string
-  created_at:string;created_by:string|null;notes:string|null
-  animateur?:Animateur|null
+  created_at:string;created_by:string|null;notes:string|null;referent_id:string|null
+  animateur?:Animateur|null;referent?:Animateur|null
 }
 
 export default function CRMPage() {
@@ -50,7 +50,7 @@ export default function CRMPage() {
   const [showModal, setShowModal] = useState(false)
   const [showStatusPopup, setShowStatusPopup] = useState(false)
   const [newClientId, setNewClientId] = useState<string|null>(null)
-  const [form, setForm] = useState({name:'',size:'',secteur:'',secteurAutre:'',region:'',tags:'',notes:''})
+  const [form, setForm] = useState({name:'',size:'',secteur:'',secteurAutre:'',region:'',tags:'',notes:'',referent_id:''})
   const [logoFile, setLogoFile] = useState<File|null>(null)
   const [logoPreview, setLogoPreview] = useState('')
   const [saving, setSaving] = useState(false)
@@ -75,7 +75,7 @@ export default function CRMPage() {
   async function loadClients(anis?:Animateur[]){
     const list=anis||animateurs
     const {data}=await supabase.from('crm_clients').select('*').order('created_at',{ascending:false})
-    setClients((data||[]).map(c=>({...c,animateur:list.find(a=>a.id===c.created_by)||null})))
+    setClients((data||[]).map(c=>({...c,animateur:list.find(a=>a.id===c.created_by)||null,referent:list.find(a=>a.id===c.referent_id)||null})))
   }
 
   async function handleLogoChange(e:React.ChangeEvent<HTMLInputElement>){
@@ -111,7 +111,7 @@ export default function CRMPage() {
       setNewClientId(data.id)
       setShowModal(false)
       setShowStatusPopup(true)
-      setForm({name:'',size:'',secteur:'',secteurAutre:'',region:'',tags:'',notes:''})
+      setForm({name:'',size:'',secteur:'',secteurAutre:'',region:'',tags:'',notes:'',referent_id:''})
       setLogoFile(null);setLogoPreview('')
     }
   }
@@ -237,21 +237,19 @@ export default function CRMPage() {
                     {client.region&&<span style={{padding:'2px 8px',borderRadius:20,background:'#F0F0F4',color:'#555',fontSize:11}}>{client.region}</span>}
                     {(client.tags||[]).slice(0,2).map(t=><span key={t} style={{padding:'2px 8px',borderRadius:20,background:'#FFF9E6',color:'#8B5E00',fontSize:11}}>#{t}</span>)}
                   </div>
-                  {/* Creator */}
-                  {client.animateur&&(
+                  {/* Référent */}
+                  {(()=>{const ref=client.referent||client.animateur; return ref&&(
                     <div style={{display:'flex',alignItems:'center',gap:8,padding:'7px 9px',background:'#F8F8F8',borderRadius:10}}>
                       <div style={{width:26,height:26,borderRadius:'50%',overflow:'hidden',flexShrink:0,background:'#E5E5E5'}}>
-                        {client.animateur.photo_url
-                          ?<img src={client.animateur.photo_url} style={{width:'100%',height:'100%',objectFit:'cover'}}/>
-                          :<span style={{display:'flex',alignItems:'center',justifyContent:'center',width:'100%',height:'100%',fontSize:11}}>👤</span>}
+                        {ref.photo_url?<img src={ref.photo_url} style={{width:'100%',height:'100%',objectFit:'cover'}}/>:<span style={{display:'flex',alignItems:'center',justifyContent:'center',width:'100%',height:'100%',fontSize:11}}>👤</span>}
                       </div>
                       <div style={{flex:1,minWidth:0}}>
-                        <div style={{fontSize:11,fontWeight:700,color:'#1a1a2e',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{client.animateur.prenom} {client.animateur.nom}</div>
-                        <div style={{fontSize:10,color:'#888'}}>{new Date(client.created_at).toLocaleDateString('fr-FR')}</div>
+                        <div style={{fontSize:10,color:'#888',marginBottom:1}}>Référent</div>
+                        <div style={{fontSize:11,fontWeight:700,color:'#1a1a2e',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{ref.prenom} {ref.nom}</div>
                       </div>
-                      <a href={`mailto:${client.animateur.email}`} style={{fontSize:13,textDecoration:'none',flexShrink:0}} onClick={e=>e.stopPropagation()}>✉️</a>
+                      <a href={`mailto:${ref.email}`} style={{fontSize:13,textDecoration:'none',flexShrink:0}} onClick={e=>e.stopPropagation()}>✉️</a>
                     </div>
-                  )}
+                  )})()}
                 </div>
                 <div style={{borderTop:'1px solid #F0F0F0',padding:'7px 14px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
                   <span style={{fontSize:11,color:'#888'}}>Voir détails & commentaires →</span>
@@ -340,6 +338,16 @@ export default function CRMPage() {
                 <label style={{fontSize:13,fontWeight:600,display:'block',marginBottom:4}}>Note initiale <span style={{fontWeight:400,color:'#888'}}>(visible par tous)</span></label>
                 <textarea value={form.notes} onChange={e=>setForm({...form,notes:e.target.value})} placeholder="Contexte, historique, prochain contact…" rows={3}
                   style={{width:'100%',padding:'10px 12px',borderRadius:10,border:'1.5px solid #E5E5E5',fontSize:13,boxSizing:'border-box',resize:'vertical',fontFamily:'inherit',outline:'none'}}/>
+              </div>
+              <div>
+                <label style={{fontSize:13,fontWeight:600,display:'block',marginBottom:5}}>Référent <span style={{fontWeight:400,color:'#888'}}>(par défaut : vous)</span></label>
+                <select value={form.referent_id} onChange={e=>setForm({...form,referent_id:e.target.value})}
+                  style={{width:'100%',padding:'10px 12px',borderRadius:10,border:'1.5px solid #E5E5E5',fontSize:13,boxSizing:'border-box'}}>
+                  <option value="">Moi ({me?.prenom} {me?.nom})</option>
+                  {animateurs.filter(a=>a.id!==me?.id).map(a=>(
+                    <option key={a.id} value={a.id}>{a.prenom} {a.nom}</option>
+                  ))}
+                </select>
               </div>
               <button onClick={handleCreate} disabled={!form.name.trim()||saving}
                 style={{padding:'14px',borderRadius:14,background:form.name.trim()?'#1a1a2e':'#E5E5E5',color:form.name.trim()?'white':'#888',border:'none',fontWeight:800,fontSize:15,cursor:form.name.trim()?'pointer':'default'}}>
