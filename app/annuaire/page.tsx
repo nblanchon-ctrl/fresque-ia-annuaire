@@ -57,6 +57,15 @@ export default function EspacePage() {
       border: '#EF9F27',
     },
     {
+      href: '/crm',
+      icon: '🤝',
+      label: 'CRM',
+      desc: lang === 'en' ? 'Clients, prospects and event spaces.' : 'Clients, prospects et espaces de prospection.',
+      color: '#E1F0FF',
+      textColor: '#1a4a7a',
+      border: '#5B9BD5',
+    },
+    {
       href: 'https://community.lafresquedelia.com/la-fresque-de-lia/channels/town-square',
       icon: '💬',
       label: 'Mattermost',
