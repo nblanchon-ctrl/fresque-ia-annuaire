@@ -14,7 +14,7 @@ const SECTEURS = [
 const REGIONS = [
   'Auvergne-Rhône-Alpes','Bourgogne-Franche-Comté','Bretagne','Centre-Val de Loire',
   'Grand Est','Hauts-de-France','Île-de-France','Normandie','Nouvelle-Aquitaine',
-  'Occitanie','Pays de la Loire',"Provence-Alpes-Côte d'Azur",'Europe','International',
+  'Occitanie','Pays de la Loire',"Provence-Alpes-Côte d'Azur",'Europe','International','Autre',
 ]
 const SIZES = [
   { key:'micro',        label:'< 50 salariés',       short:'< 50' },
@@ -50,7 +50,7 @@ export default function CRMPage() {
   const [showModal, setShowModal] = useState(false)
   const [showStatusPopup, setShowStatusPopup] = useState(false)
   const [newClientId, setNewClientId] = useState<string|null>(null)
-  const [form, setForm] = useState({name:'',size:'',secteur:'',secteurAutre:'',region:'',tags:'',notes:''})
+  const [form, setForm] = useState({name:'',size:'',secteur:'',secteurAutre:'',region:'',regionAutre:'',tags:'',notes:''})
   const [referentId, setReferentId] = useState('')
   const [logoFile, setLogoFile] = useState<File|null>(null)
   const [logoPreview, setLogoPreview] = useState('')
@@ -104,7 +104,7 @@ export default function CRMPage() {
     const tags=form.tags.split(',').map(t=>t.trim()).filter(Boolean)
     const {data,error}=await supabase.from('crm_clients').insert({
       name:form.name.trim(),logo_url,size:form.size||null,
-      secteur:finalSecteur,region:form.region||null,
+      secteur:finalSecteur,region:form.region==='Autre'&&form.regionAutre.trim()?`Autre — ${form.regionAutre.trim()}`:form.region||null,
       tags,notes:form.notes.trim()||null,status:'prospect_chaud',created_by:me.id,referent_id:referentId||me.id,
     }).select().single()
     setSaving(false)
@@ -112,7 +112,7 @@ export default function CRMPage() {
       setNewClientId(data.id)
       setShowModal(false)
       setShowStatusPopup(true)
-      setForm({name:'',size:'',secteur:'',secteurAutre:'',region:'',tags:'',notes:''})
+      setForm({name:'',size:'',secteur:'',secteurAutre:'',region:'',regionAutre:'',tags:'',notes:''})
       setReferentId('')
       setLogoFile(null);setLogoPreview('')
     }
@@ -325,12 +325,19 @@ export default function CRMPage() {
               )}
               <div>
                 <label style={{fontSize:13,fontWeight:600,display:'block',marginBottom:5}}>Région</label>
-                <select value={form.region} onChange={e=>setForm({...form,region:e.target.value})}
+                <select value={form.region} onChange={e=>setForm({...form,region:e.target.value,regionAutre:''})}
                   style={{width:'100%',padding:'10px 12px',borderRadius:10,border:'1.5px solid #E5E5E5',fontSize:13,boxSizing:'border-box'}}>
                   <option value="">Sélectionner</option>
                   {REGIONS.map(r=><option key={r} value={r}>{r}</option>)}
                 </select>
               </div>
+              {form.region==='Autre'&&(
+                <div>
+                  <label style={{fontSize:13,fontWeight:600,display:'block',marginBottom:5}}>Précisez la région</label>
+                  <input value={form.regionAutre} onChange={e=>setForm({...form,regionAutre:e.target.value})} placeholder="Ex : DOM-TOM, Maroc, Italie…"
+                    style={{width:'100%',padding:'10px 12px',borderRadius:10,border:'1.5px solid #E5E5E5',fontSize:13,boxSizing:'border-box',outline:'none'}}/>
+                </div>
+              )}
               <div>
                 <label style={{fontSize:13,fontWeight:600,display:'block',marginBottom:4}}>Tags <span style={{fontWeight:400,color:'#888'}}>(séparés par des virgules)</span></label>
                 <input value={form.tags} onChange={e=>setForm({...form,tags:e.target.value})} placeholder="Ex : innovation, RH, durabilité…"
