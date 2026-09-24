@@ -29,6 +29,7 @@ export default function AdminPage() {
   // Photo upload
   const [photoFile, setPhotoFile] = useState<File | null>(null)
   const [photoPreview, setPhotoPreview] = useState('')
+  const [photoError, setPhotoError] = useState('')
   const photoRef = useRef<HTMLInputElement>(null)
 
   // Modal reset password
@@ -72,6 +73,7 @@ export default function AdminPage() {
     setEditForm({ ...a })
     setPhotoFile(null)
     setPhotoPreview('')
+    setPhotoError('')
   }
 
   const cancelEdit = () => {
@@ -79,6 +81,7 @@ export default function AdminPage() {
     setEditForm({})
     setPhotoFile(null)
     setPhotoPreview('')
+    setPhotoError('')
   }
 
   const saveEdit = async () => {
@@ -87,16 +90,22 @@ export default function AdminPage() {
 
     // Upload photo if changed
     let photo_url = editForm.photo_url
+    setPhotoError('')
     if (photoFile) {
       const ext = photoFile.name.split('.').pop()
-      const path = `${editId}/avatar_${Date.now()}.${ext}`
+      // Flat path to avoid folder-based RLS restrictions
+      const path = `admin_${editId}_${Date.now()}.${ext}`
       const { error: upErr } = await supabase.storage
         .from('avatars')
         .upload(path, photoFile, { upsert: true })
-      if (!upErr) {
-        const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path)
-        photo_url = urlData.publicUrl
+      if (upErr) {
+        console.error('Upload error:', upErr)
+        setPhotoError(`Erreur upload : ${upErr.message}`)
+        setSaving(false)
+        return
       }
+      const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path)
+      photo_url = urlData.publicUrl
     }
 
     const { error } = await supabase.from('animateurs').update({
@@ -122,6 +131,7 @@ export default function AdminPage() {
       setEditForm({})
       setPhotoFile(null)
       setPhotoPreview('')
+      setPhotoError('')
     }
     setSaving(false)
   }
@@ -309,9 +319,14 @@ export default function AdminPage() {
                                   }}
                                 />
                               </div>
-                              {photoFile && (
+                              {photoFile && !photoError && (
                                 <div style={{ fontSize: 11, color: 'var(--text3)', marginTop: 6 }}>
                                   {lang === 'en' ? 'Will be applied on save.' : 'Sera appliquée à la sauvegarde.'}
+                                </div>
+                              )}
+                              {photoError && (
+                                <div style={{ fontSize: 12, color: 'var(--danger, #CC0000)', marginTop: 6, fontWeight: 600 }}>
+                                  ⚠️ {photoError}
                                 </div>
                               )}
                             </div>
