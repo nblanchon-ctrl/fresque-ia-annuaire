@@ -91,10 +91,10 @@ export default function AdminPage() {
       const ext = photoFile.name.split('.').pop()
       const path = `${editId}/avatar_${Date.now()}.${ext}`
       const { error: upErr } = await supabase.storage
-        .from('avatar')
+        .from('avatars')
         .upload(path, photoFile, { upsert: true })
       if (!upErr) {
-        const { data: urlData } = supabase.storage.from('avatar').getPublicUrl(path)
+        const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path)
         photo_url = urlData.publicUrl
       }
     }
