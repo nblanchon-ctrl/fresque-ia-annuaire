@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase'
 import type { Animateur } from '@/lib/types'
 import { useLanguage, LanguageSwitch } from '@/lib/i18n'
@@ -25,6 +25,11 @@ export default function AdminPage() {
   const [editId, setEditId] = useState<string | null>(null)
   const [editForm, setEditForm] = useState<Partial<Animateur>>({})
   const [saving, setSaving] = useState(false)
+
+  // Photo upload
+  const [photoFile, setPhotoFile] = useState<File | null>(null)
+  const [photoPreview, setPhotoPreview] = useState('')
+  const photoRef = useRef<HTMLInputElement>(null)
 
   // Modal reset password
   const [pwdModal, setPwdModal] = useState<Animateur | null>(null)
@@ -62,23 +67,61 @@ export default function AdminPage() {
     if (editId === id) setEditId(null)
   }
 
-  const startEdit = (a: Animateur) => { setEditId(a.id); setEditForm({ ...a }) }
-  const cancelEdit = () => { setEditId(null); setEditForm({}) }
+  const startEdit = (a: Animateur) => {
+    setEditId(a.id)
+    setEditForm({ ...a })
+    setPhotoFile(null)
+    setPhotoPreview('')
+  }
+
+  const cancelEdit = () => {
+    setEditId(null)
+    setEditForm({})
+    setPhotoFile(null)
+    setPhotoPreview('')
+  }
 
   const saveEdit = async () => {
     if (!editId) return
     setSaving(true)
+
+    // Upload photo if changed
+    let photo_url = editForm.photo_url
+    if (photoFile) {
+      const ext = photoFile.name.split('.').pop()
+      const path = `${editId}/avatar_${Date.now()}.${ext}`
+      const { error: upErr } = await supabase.storage
+        .from('photos')
+        .upload(path, photoFile, { upsert: true })
+      if (!upErr) {
+        const { data: urlData } = supabase.storage.from('photos').getPublicUrl(path)
+        photo_url = urlData.publicUrl
+      }
+    }
+
     const { error } = await supabase.from('animateurs').update({
-      nom: editForm.nom, titre: editForm.titre, email: editForm.email,
-      telephone: editForm.telephone, region: editForm.region, ville: editForm.ville,
-      bio: editForm.bio, competences: editForm.competences || [],
+      nom: editForm.nom,
+      titre: editForm.titre,
+      email: editForm.email,
+      telephone: editForm.telephone,
+      region: editForm.region,
+      ville: editForm.ville,
+      bio: editForm.bio,
+      competences: editForm.competences || [],
       badge_observateur: editForm.badge_observateur || false,
       badge_coanimateur: editForm.badge_coanimateur || false,
+      photo_url,
       updated_at: new Date().toISOString()
     }).eq('id', editId)
+
     if (!error) {
-      setAnimateurs(prev => prev.map(a => a.id === editId ? { ...a, ...editForm } as Animateur : a))
-      setEditId(null); setEditForm({})
+      setAnimateurs(prev => prev.map(a =>
+        a.id === editId ? { ...a, ...editForm, photo_url } as Animateur : a
+      ))
+      setEditId(null)
+      setEditForm({})
+      setPhotoFile(null)
+      setPhotoPreview('')
     }
     setSaving(false)
   }
@@ -94,33 +137,28 @@ export default function AdminPage() {
 
   const handleSetPassword = async () => {
     if (!pwdModal || !me) return
-    if (newPwd.length < 8) { setPwdError(lang === 'en' ? 'Password must be at least 8 characters.' : 'Mot de passe trop court (8 car. min.).'); return }
+    if (newPwd.length < 8) {
+      setPwdError(lang === 'en' ? 'Password must be at least 8 characters.' : 'Mot de passe trop court (8 car. min.).')
+      return
+    }
     setPwdSaving(true)
     setPwdError('')
-
     const res = await fetch('/api/admin/reset-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId: pwdModal.id, newPassword: newPwd, requesterId: me.id })
     })
-
     const data = await res.json()
-    if (!res.ok || data.error) {
-      setPwdError(data.error || 'Erreur.')
-    } else {
-      setPwdDone(true)
-    }
+    if (!res.ok || data.error) { setPwdError(data.error || 'Erreur.') } else { setPwdDone(true) }
     setPwdSaving(false)
   }
 
   const sendMailWithPassword = () => {
     if (!pwdModal) return
-    const sujet = lang === 'en'
-      ? 'Your new password — Fresque de l\'IA'
-      : 'Votre nouveau mot de passe — Fresque de l\'IA'
+    const sujet = lang === 'en' ? "Your new password — Fresque de l'IA" : "Votre nouveau mot de passe — Fresque de l'IA"
     const corps = lang === 'en'
-      ? `Hello ${pwdModal.nom},\n\nYour password has been reset.\n\nNew password: ${newPwd}\n\nYou can log in at:\n${window.location.origin}\n\nWe recommend changing your password after logging in (My profile → Change password).\n\nBest regards`
-      : `Bonjour ${pwdModal.nom},\n\nVotre mot de passe a été réinitialisé.\n\nNouveau mot de passe : ${newPwd}\n\nVous pouvez vous connecter ici :\n${window.location.origin}\n\nNous vous recommandons de modifier votre mot de passe après connexion (Mon profil → Modifier mon mot de passe).\n\nCordialement`
+      ? `Hello ${pwdModal.nom},\n\nYour password has been reset.\n\nNew password: ${newPwd}\n\nLogin: ${window.location.origin}\n\nBest regards`
+      : `Bonjour ${pwdModal.nom},\n\nVotre mot de passe a été réinitialisé.\n\nNouveau mot de passe : ${newPwd}\n\nConnexion : ${window.location.origin}\n\nCordialement`
     window.location.href = `mailto:${pwdModal.email}?subject=${encodeURIComponent(sujet)}&body=${encodeURIComponent(corps)}`
   }
 
@@ -135,9 +173,7 @@ export default function AdminPage() {
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
-    link.href = url
-    link.download = `animateurs-${new Date().toISOString().slice(0, 10)}.csv`
-    link.click()
+    link.href = url; link.download = `animateurs-${new Date().toISOString().slice(0, 10)}.csv`; link.click()
     URL.revokeObjectURL(url)
   }
 
@@ -148,9 +184,7 @@ export default function AdminPage() {
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
-    link.href = url
-    link.download = `emails-animateurs-${new Date().toISOString().slice(0, 10)}.csv`
-    link.click()
+    link.href = url; link.download = `emails-animateurs-${new Date().toISOString().slice(0, 10)}.csv`; link.click()
     URL.revokeObjectURL(url)
   }
 
@@ -177,9 +211,7 @@ export default function AdminPage() {
         <div style={{ fontSize: 15, fontWeight: 500, marginBottom: 4 }}>{t('admin.exports')}</div>
         <div style={{ fontSize: 13, color: 'var(--text2)', marginBottom: '1rem' }}>{t('admin.exportsHint')}</div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          <button className="btn btn-primary" onClick={exportEmailsCSV}>
-            {t('admin.downloadEmails')} ({emailsAvec.length})
-          </button>
+          <button className="btn btn-primary" onClick={exportEmailsCSV}>{t('admin.downloadEmails')} ({emailsAvec.length})</button>
           <button className="btn" onClick={exportCSV}>{t('admin.downloadAll')}</button>
         </div>
       </div>
@@ -202,34 +234,35 @@ export default function AdminPage() {
                 <>
                   <tr key={a.id} style={{ borderBottom: editId === a.id ? 'none' : '0.5px solid var(--border)', background: editId === a.id ? 'var(--bg2)' : 'transparent' }}>
                     <td style={{ padding: '10px 12px' }}>
-                      <a href={`/profile/${a.id}`} style={{ color: 'var(--accent)', fontWeight: 500 }}>{a.nom}</a>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div style={{ width: 28, height: 28, borderRadius: '50%', overflow: 'hidden', background: 'var(--bg2)', flexShrink: 0 }}>
+                          {a.photo_url
+                            ? <img src={a.photo_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+                            : <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', fontSize: 13 }}>👤</span>
+                          }
+                        </div>
+                        <a href={`/profile/${a.id}`} style={{ color: 'var(--accent)', fontWeight: 500 }}>{a.nom}</a>
+                      </div>
                     </td>
                     <td style={{ padding: '10px 12px', color: 'var(--text2)' }}>{a.email || '—'}</td>
                     <td style={{ padding: '10px 12px', color: 'var(--text2)' }}>{a.region || '—'}</td>
-                    <td style={{ padding: '10px 12px', color: 'var(--text2)' }}>
-                      {new Date(a.created_at).toLocaleDateString('fr-FR')}
-                    </td>
+                    <td style={{ padding: '10px 12px', color: 'var(--text2)' }}>{new Date(a.created_at).toLocaleDateString('fr-FR')}</td>
                     <td style={{ padding: '10px 12px' }}>
                       <input type="checkbox" checked={a.is_admin} onChange={() => toggleAdmin(a.id, a.is_admin)} />
                     </td>
                     <td style={{ padding: '10px 12px', textAlign: 'right' }}>
                       <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                        {editId === a.id ? (
-                          <button className="btn btn-sm" onClick={cancelEdit}>{t('common.cancel')}</button>
-                        ) : (
-                          <button className="btn btn-sm" onClick={() => startEdit(a)}>{t('common.edit')}</button>
-                        )}
+                        {editId === a.id
+                          ? <button className="btn btn-sm" onClick={cancelEdit}>{t('common.cancel')}</button>
+                          : <button className="btn btn-sm" onClick={() => startEdit(a)}>{t('common.edit')}</button>
+                        }
                         {a.email && (
-                          <button className="btn btn-sm"
-                            style={{ color: 'var(--accent)', borderColor: 'var(--accent)' }}
-                            onClick={() => openPwdModal(a)}
-                            title={lang === 'en' ? 'Set a new password' : 'Définir un nouveau mot de passe'}>
+                          <button className="btn btn-sm" style={{ color: 'var(--accent)', borderColor: 'var(--accent)' }}
+                            onClick={() => openPwdModal(a)} title={lang === 'en' ? 'Set a new password' : 'Définir un nouveau mot de passe'}>
                             🔑
                           </button>
                         )}
-                        <button className="btn btn-sm btn-danger" onClick={() => deleteAnimateur(a.id)}>
-                          {t('common.delete')}
-                        </button>
+                        <button className="btn btn-sm btn-danger" onClick={() => deleteAnimateur(a.id)}>{t('common.delete')}</button>
                       </div>
                     </td>
                   </tr>
@@ -241,6 +274,50 @@ export default function AdminPage() {
                           <div style={{ fontSize: 14, fontWeight: 500, marginBottom: '1rem', color: 'var(--text2)' }}>
                             {t('admin.editingTitle')} {a.nom}
                           </div>
+
+                          {/* ── PHOTO DE PROFIL ── */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '14px 16px', background: 'var(--bg2)', borderRadius: 'var(--radius)', marginBottom: '1rem', border: '0.5px solid var(--border)' }}>
+                            <div style={{ position: 'relative', flexShrink: 0 }}>
+                              <div style={{ width: 68, height: 68, borderRadius: '50%', overflow: 'hidden', background: '#E5E5E5', border: '2px solid var(--border)' }}>
+                                {photoPreview
+                                  ? <img src={photoPreview} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                  : editForm.photo_url
+                                    ? <img src={editForm.photo_url as string} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+                                    : <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', fontSize: 28 }}>👤</span>
+                                }
+                              </div>
+                              <div style={{ position: 'absolute', bottom: 0, right: 0, width: 22, height: 22, borderRadius: '50%', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11 }}>✏️</div>
+                            </div>
+                            <div>
+                              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>
+                                {lang === 'en' ? 'Profile photo' : 'Photo de profil'}
+                              </div>
+                              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                                <button type="button" className="btn btn-sm" onClick={() => photoRef.current?.click()}>
+                                  {photoFile ? `✓ ${photoFile.name.slice(0, 22)}…` : (lang === 'en' ? 'Replace photo' : 'Remplacer la photo')}
+                                </button>
+                                {photoFile && (
+                                  <button type="button" className="btn btn-sm btn-danger"
+                                    onClick={() => { setPhotoFile(null); setPhotoPreview('') }}>
+                                    ✕ {lang === 'en' ? 'Cancel' : 'Annuler'}
+                                  </button>
+                                )}
+                                <input ref={photoRef} type="file" accept="image/*" style={{ display: 'none' }}
+                                  onChange={e => {
+                                    const f = e.target.files?.[0]
+                                    if (f) { setPhotoFile(f); setPhotoPreview(URL.createObjectURL(f)) }
+                                  }}
+                                />
+                              </div>
+                              {photoFile && (
+                                <div style={{ fontSize: 11, color: 'var(--text3)', marginTop: 6 }}>
+                                  {lang === 'en' ? 'Will be applied on save.' : 'Sera appliquée à la sauvegarde.'}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* ── CHAMPS PROFIL ── */}
                           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
                             <div className="form-group" style={{ marginBottom: 0 }}>
                               <label className="form-label">{t('directory.name')}</label>
@@ -280,6 +357,7 @@ export default function AdminPage() {
                                 onChange={e => setF('competences', e.target.value.split(',').map(s => s.trim()).filter(Boolean))} />
                             </div>
                           </div>
+
                           <div style={{ display: 'flex', gap: 16, marginBottom: '1rem' }}>
                             {[
                               { key: 'badge_observateur', label: '👁 ' + t('badge.observer') },
@@ -293,6 +371,7 @@ export default function AdminPage() {
                               </label>
                             ))}
                           </div>
+
                           <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                             <button className="btn" onClick={cancelEdit}>{t('common.cancel')}</button>
                             <button className="btn btn-primary" onClick={saveEdit} disabled={saving}>
@@ -310,7 +389,7 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {/* Modal définir un nouveau mot de passe */}
+      {/* Modal mot de passe */}
       {pwdModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: '1rem' }}>
           <div className="card" style={{ maxWidth: 440, width: '100%' }}>
@@ -320,24 +399,15 @@ export default function AdminPage() {
             <div style={{ fontSize: 13, color: 'var(--text2)', marginBottom: '1.25rem' }}>
               {pwdModal.nom} — {pwdModal.email}
             </div>
-
             {!pwdDone ? (
               <>
                 {pwdError && <div className="alert alert-error">{pwdError}</div>}
                 <div className="form-group">
-                  <label className="form-label">
-                    {lang === 'en' ? 'New password *' : 'Nouveau mot de passe *'}
-                  </label>
+                  <label className="form-label">{lang === 'en' ? 'New password *' : 'Nouveau mot de passe *'}</label>
                   <div style={{ display: 'flex', gap: 8 }}>
                     <input className="form-input" style={{ flex: 1, fontFamily: 'monospace', fontSize: 15, letterSpacing: 1 }}
                       value={newPwd} onChange={e => setNewPwd(e.target.value)} />
-                    <button type="button" className="btn btn-sm" onClick={() => setNewPwd(generatePassword())}
-                      title={lang === 'en' ? 'Generate a new password' : 'Générer un nouveau mot de passe'}>
-                      🔄
-                    </button>
-                  </div>
-                  <div style={{ fontSize: 11, color: 'var(--text3)', marginTop: 4 }}>
-                    {lang === 'en' ? 'You can edit it or click 🔄 to generate another one.' : 'Vous pouvez le modifier ou cliquer sur 🔄 pour en générer un autre.'}
+                    <button type="button" className="btn btn-sm" onClick={() => setNewPwd(generatePassword())} title="Générer">🔄</button>
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
@@ -350,21 +420,17 @@ export default function AdminPage() {
             ) : (
               <>
                 <div className="alert alert-success">
-                  {lang === 'en' ? 'Password updated successfully!' : 'Mot de passe mis à jour avec succès !'}
+                  {lang === 'en' ? 'Password updated!' : 'Mot de passe mis à jour !'}
                 </div>
                 <div style={{ background: 'var(--bg2)', borderRadius: 8, padding: '12px 16px', marginBottom: '1rem' }}>
                   <div style={{ fontSize: 12, color: 'var(--text2)', marginBottom: 4 }}>
-                    {lang === 'en' ? 'New password to communicate:' : 'Nouveau mot de passe à communiquer :'}
+                    {lang === 'en' ? 'New password:' : 'Nouveau mot de passe :'}
                   </div>
-                  <div style={{ fontFamily: 'monospace', fontSize: 18, fontWeight: 600, letterSpacing: 2, color: 'var(--accent)' }}>
-                    {newPwd}
-                  </div>
+                  <div style={{ fontFamily: 'monospace', fontSize: 18, fontWeight: 600, letterSpacing: 2, color: 'var(--accent)' }}>{newPwd}</div>
                 </div>
                 <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                   <button className="btn" onClick={() => setPwdModal(null)}>{lang === 'en' ? 'Close' : 'Fermer'}</button>
-                  <button className="btn btn-primary" onClick={sendMailWithPassword}>
-                    ✉️ {lang === 'en' ? 'Send by email' : 'Envoyer par mail'}
-                  </button>
+                  <button className="btn btn-primary" onClick={sendMailWithPassword}>✉️ {lang === 'en' ? 'Send by email' : 'Envoyer par mail'}</button>
                 </div>
               </>
             )}
