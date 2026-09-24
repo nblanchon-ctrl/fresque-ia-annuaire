@@ -50,7 +50,8 @@ export default function CRMPage() {
   const [showModal, setShowModal] = useState(false)
   const [showStatusPopup, setShowStatusPopup] = useState(false)
   const [newClientId, setNewClientId] = useState<string|null>(null)
-  const [form, setForm] = useState({name:'',size:'',secteur:'',secteurAutre:'',region:'',tags:'',notes:'',referent_id:''})
+  const [form, setForm] = useState({name:'',size:'',secteur:'',secteurAutre:'',region:'',tags:'',notes:''})
+  const [referentId, setReferentId] = useState('')
   const [logoFile, setLogoFile] = useState<File|null>(null)
   const [logoPreview, setLogoPreview] = useState('')
   const [saving, setSaving] = useState(false)
@@ -104,14 +105,15 @@ export default function CRMPage() {
     const {data,error}=await supabase.from('crm_clients').insert({
       name:form.name.trim(),logo_url,size:form.size||null,
       secteur:finalSecteur,region:form.region||null,
-      tags,notes:form.notes.trim()||null,status:'prospect_chaud',created_by:me.id,
+      tags,notes:form.notes.trim()||null,status:'prospect_chaud',created_by:me.id,referent_id:referentId||me.id,
     }).select().single()
     setSaving(false)
     if(!error&&data){
       setNewClientId(data.id)
       setShowModal(false)
       setShowStatusPopup(true)
-      setForm({name:'',size:'',secteur:'',secteurAutre:'',region:'',tags:'',notes:'',referent_id:''})
+      setForm({name:'',size:'',secteur:'',secteurAutre:'',region:'',tags:'',notes:''})
+      setReferentId('')
       setLogoFile(null);setLogoPreview('')
     }
   }
@@ -341,11 +343,11 @@ export default function CRMPage() {
               </div>
               <div>
                 <label style={{fontSize:13,fontWeight:600,display:'block',marginBottom:5}}>Référent <span style={{fontWeight:400,color:'#888'}}>(par défaut : vous)</span></label>
-                <select value={form.referent_id} onChange={e=>setForm({...form,referent_id:e.target.value})}
+                <select value={referentId} onChange={e=>setReferentId(e.target.value)}
                   style={{width:'100%',padding:'10px 12px',borderRadius:10,border:'1.5px solid #E5E5E5',fontSize:13,boxSizing:'border-box'}}>
-                  <option value="">Moi ({me?.prenom} {me?.nom})</option>
+                  <option value="">Moi — {me?.nom}</option>
                   {animateurs.filter(a=>a.id!==me?.id).map(a=>(
-                    <option key={a.id} value={a.id}>{a.prenom} {a.nom}</option>
+                    <option key={a.id} value={a.id}>{a.nom}</option>
                   ))}
                 </select>
               </div>
