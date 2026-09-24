@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import Link from 'next/link'
@@ -50,6 +50,9 @@ export default function CRMClientDetailPage() {
   const [editMode, setEditMode] = useState(false)
   const [editForm, setEditForm] = useState({name:'',size:'',secteur:'',secteurAutre:'',region:'',tags:'',notes:'',status:'',referent_id:''})
   const [saving, setSaving] = useState(false)
+  const [logoFile, setLogoFile] = useState<File|null>(null)
+  const [logoPreview, setLogoPreview] = useState('')
+  const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(()=>{
     Promise.all([
@@ -101,17 +104,28 @@ export default function CRMClientDetailPage() {
   async function saveEdit(){
     if(!client) return
     setSaving(true)
+    let logo_url=client.logo_url
+    if(logoFile){
+      const ext=logoFile.name.split('.').pop()
+      const path=`logos/${Date.now()}.${ext}`
+      const {error:upErr}=await supabase.storage.from('crm-logos').upload(path,logoFile,{upsert:true})
+      if(!upErr){
+        const {data:urlData}=supabase.storage.from('crm-logos').getPublicUrl(path)
+        logo_url=urlData.publicUrl||null
+      }
+    }
     const finalSecteur=editForm.secteur==='Autre'&&editForm.secteurAutre.trim()
       ?`Autre — ${editForm.secteurAutre.trim()}`:editForm.secteur||null
     const tags=editForm.tags.split(',').map(t=>t.trim()).filter(Boolean)
     const {error}=await supabase.from('crm_clients').update({
       name:editForm.name.trim(),size:editForm.size||null,secteur:finalSecteur,
-      region:editForm.region||null,tags,notes:editForm.notes.trim()||null,status:editForm.status,referent_id:editForm.referent_id||null,
+      region:editForm.region||null,tags,notes:editForm.notes.trim()||null,status:editForm.status,referent_id:editForm.referent_id||null,logo_url,
     }).eq('id',client.id)
     setSaving(false)
     if(!error){
       const newRef=animateurs.find(a=>a.id===editForm.referent_id)||null
-      setClient(prev=>prev?{...prev,name:editForm.name,size:editForm.size||null,secteur:finalSecteur,region:editForm.region||null,tags,notes:editForm.notes||null,status:editForm.status,referent_id:editForm.referent_id||null,referent:newRef}:prev)
+      setClient(prev=>prev?{...prev,name:editForm.name,size:editForm.size||null,secteur:finalSecteur,region:editForm.region||null,tags,notes:editForm.notes||null,status:editForm.status,referent_id:editForm.referent_id||null,referent:newRef,logo_url}:prev)
+      setLogoFile(null);setLogoPreview('')
       setEditMode(false)
     }
   }
@@ -218,6 +232,25 @@ export default function CRMClientDetailPage() {
               <button onClick={()=>setEditMode(false)} style={{background:'none',border:'none',fontSize:20,cursor:'pointer',color:'#888'}}>✕</button>
             </div>
             <div style={{padding:20,display:'flex',flexDirection:'column',gap:13}}>
+              {/* Logo upload */}
+              <div style={{display:'flex',alignItems:'center',gap:14}}>
+                <div onClick={()=>fileRef.current?.click()} style={{width:68,height:68,borderRadius:14,border:'2px dashed #CCC',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',overflow:'hidden',flexShrink:0,background:'#F8F8F8',position:'relative'}}>
+                  {logoPreview
+                    ?<img src={logoPreview} style={{width:'100%',height:'100%',objectFit:'contain',padding:4}}/>
+                    :client?.logo_url&&client.logo_url.startsWith('http')
+                      ?<img src={client.logo_url} style={{width:'100%',height:'100%',objectFit:'contain',padding:4}}/>
+                      :<span style={{fontSize:26}}>🏢</span>}
+                  <div style={{position:'absolute',bottom:0,right:0,background:'#1a1a2e',color:'white',fontSize:10,padding:'2px 5px',borderRadius:'8px 0 0 0'}}>✏️</div>
+                </div>
+                <div>
+                  <div style={{fontSize:13,fontWeight:600,marginBottom:4}}>Logo</div>
+                  <button onClick={()=>fileRef.current?.click()} style={{padding:'6px 14px',borderRadius:8,border:'1.5px solid #E5E5E5',background:'white',fontSize:12,cursor:'pointer'}}>
+                    {logoFile?'✓ '+logoFile.name.slice(0,18)+'…':'Remplacer le logo'}
+                  </button>
+                  {logoFile&&<button onClick={()=>{setLogoFile(null);setLogoPreview('')}} style={{marginLeft:8,padding:'6px 10px',borderRadius:8,border:'none',background:'#FFDFE0',color:'#CC0000',fontSize:12,cursor:'pointer'}}>✕ Annuler</button>}
+                  <input ref={fileRef} type="file" accept="image/*" style={{display:'none'}} onChange={e=>{const f=e.target.files?.[0];if(f){setLogoFile(f);setLogoPreview(URL.createObjectURL(f))}}}/>
+                </div>
+              </div>
               <div>
                 <label style={{fontSize:13,fontWeight:600,display:'block',marginBottom:5}}>Nom *</label>
                 <input value={editForm.name} onChange={e=>setEditForm({...editForm,name:e.target.value})}
