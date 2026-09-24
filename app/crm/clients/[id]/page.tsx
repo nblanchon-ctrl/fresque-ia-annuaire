@@ -32,7 +32,7 @@ type Commentaire = {id:string;contenu:string;created_at:string;animateur_id:stri
 type CRMClient = {
   id:string;name:string;logo_url:string|null;size:string|null;secteur:string|null
   region:string|null;tags:string[];status:string;created_at:string;created_by:string|null
-  notes:string|null;animateur?:Animateur|null
+  notes:string|null;referent_id:string|null;animateur?:Animateur|null;referent?:Animateur|null
 }
 
 export default function CRMClientDetailPage() {
@@ -43,11 +43,12 @@ export default function CRMClientDetailPage() {
   const [commentaires, setCommentaires] = useState<Commentaire[]>([])
   const [me, setMe] = useState<Animateur|null>(null)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [animateurs, setAnimateurs] = useState<Animateur[]>([])
   const [loading, setLoading] = useState(true)
   const [newComment, setNewComment] = useState('')
   const [postingComment, setPostingComment] = useState(false)
   const [editMode, setEditMode] = useState(false)
-  const [editForm, setEditForm] = useState({name:'',size:'',secteur:'',secteurAutre:'',region:'',tags:'',notes:'',status:''})
+  const [editForm, setEditForm] = useState({name:'',size:'',secteur:'',secteurAutre:'',region:'',tags:'',notes:'',status:'',referent_id:''})
   const [saving, setSaving] = useState(false)
 
   useEffect(()=>{
@@ -58,6 +59,7 @@ export default function CRMClientDetailPage() {
       supabase.from('crm_client_commentaires').select('*').eq('client_id',id as string).order('created_at'),
     ]).then(async([{data:{user}},{data:anis},{data:clientData},{data:comms}])=>{
       const all=(anis||[]) as Animateur[]
+      setAnimateurs(all)
       if(user){
         const myAni=all.find(a=>a.id===user.id)||null
         setMe(myAni)
@@ -65,12 +67,12 @@ export default function CRMClientDetailPage() {
         setIsAdmin(ad?.is_admin||false)
       }
       if(clientData){
-        const enriched={...clientData,animateur:all.find(a=>a.id===clientData.created_by)||null}
+        const enriched={...clientData,animateur:all.find(a=>a.id===clientData.created_by)||null,referent:all.find(a=>a.id===clientData.referent_id)||null}
         setClient(enriched)
         setEditForm({
           name:clientData.name,size:clientData.size||'',secteur:clientData.secteur||'',
           secteurAutre:'',region:clientData.region||'',
-          tags:(clientData.tags||[]).join(', '),notes:clientData.notes||'',status:clientData.status,
+          tags:(clientData.tags||[]).join(', '),notes:clientData.notes||'',status:clientData.status,referent_id:clientData.referent_id||'',
         })
       }
       setCommentaires((comms||[]).map(c=>({...c,animateur:all.find(a=>a.id===c.animateur_id)||null})))
@@ -104,11 +106,12 @@ export default function CRMClientDetailPage() {
     const tags=editForm.tags.split(',').map(t=>t.trim()).filter(Boolean)
     const {error}=await supabase.from('crm_clients').update({
       name:editForm.name.trim(),size:editForm.size||null,secteur:finalSecteur,
-      region:editForm.region||null,tags,notes:editForm.notes.trim()||null,status:editForm.status,
+      region:editForm.region||null,tags,notes:editForm.notes.trim()||null,status:editForm.status,referent_id:editForm.referent_id||null,
     }).eq('id',client.id)
     setSaving(false)
     if(!error){
-      setClient(prev=>prev?{...prev,name:editForm.name,size:editForm.size||null,secteur:finalSecteur,region:editForm.region||null,tags,notes:editForm.notes||null,status:editForm.status}:prev)
+      const newRef=animateurs.find(a=>a.id===editForm.referent_id)||null
+      setClient(prev=>prev?{...prev,name:editForm.name,size:editForm.size||null,secteur:finalSecteur,region:editForm.region||null,tags,notes:editForm.notes||null,status:editForm.status,referent_id:editForm.referent_id||null,referent:newRef}:prev)
       setEditMode(false)
     }
   }
@@ -180,19 +183,31 @@ export default function CRMClientDetailPage() {
                 </div>
               )}
 
-              {/* Créateur */}
-              {client.animateur&&(
-                <div style={{display:'flex',alignItems:'center',gap:12,padding:'12px 14px',background:'#F8F8F8',borderRadius:12}}>
-                  <div style={{width:40,height:40,borderRadius:'50%',overflow:'hidden',flexShrink:0,background:'#E5E5E5'}}>
-                    {client.animateur.photo_url?<img src={client.animateur.photo_url} style={{width:'100%',height:'100%',objectFit:'cover'}}/>:<span style={{display:'flex',alignItems:'center',justifyContent:'center',width:'100%',height:'100%',fontSize:16}}>👤</span>}
+              {/* Référent + Créateur */}
+              <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                {(()=>{const ref=client.referent||client.animateur; return ref&&(
+                  <div style={{display:'flex',alignItems:'center',gap:12,padding:'12px 14px',background:'#E6F1FB',borderRadius:12,border:'1.5px solid #85B7EB'}}>
+                    <div style={{width:40,height:40,borderRadius:'50%',overflow:'hidden',flexShrink:0,background:'#E5E5E5'}}>
+                      {ref.photo_url?<img src={ref.photo_url} style={{width:'100%',height:'100%',objectFit:'cover'}}/>:<span style={{display:'flex',alignItems:'center',justifyContent:'center',width:'100%',height:'100%',fontSize:16}}>👤</span>}
+                    </div>
+                    <div style={{flex:1}}>
+                      <div style={{fontSize:11,fontWeight:600,color:'#0C447C',marginBottom:2}}>Référent</div>
+                      <div style={{fontSize:14,fontWeight:800,color:'#1a1a2e'}}>{ref.prenom} {ref.nom}</div>
+                    </div>
+                    <a href={`mailto:${ref.email}`} style={{padding:'7px 14px',borderRadius:10,background:'white',border:'1.5px solid #85B7EB',color:'#0C447C',textDecoration:'none',fontSize:13,fontWeight:600}}>✉️ Contacter</a>
                   </div>
-                  <div style={{flex:1}}>
-                    <div style={{fontSize:13,fontWeight:700,color:'#1a1a2e'}}>{client.animateur.prenom} {client.animateur.nom}</div>
-                    <div style={{fontSize:12,color:'#888'}}>Ajouté le {new Date(client.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}</div>
+                )})()}
+                {client.animateur&&client.referent&&client.animateur.id!==client.referent.id&&(
+                  <div style={{display:'flex',alignItems:'center',gap:10,padding:'8px 12px',background:'#F8F8F8',borderRadius:10}}>
+                    <div style={{width:28,height:28,borderRadius:'50%',overflow:'hidden',flexShrink:0,background:'#E5E5E5'}}>
+                      {client.animateur.photo_url?<img src={client.animateur.photo_url} style={{width:'100%',height:'100%',objectFit:'cover'}}/>:<span style={{display:'flex',alignItems:'center',justifyContent:'center',width:'100%',height:'100%',fontSize:11}}>👤</span>}
+                    </div>
+                    <div style={{flex:1}}>
+                      <div style={{fontSize:10,color:'#888'}}>Créé par {client.animateur.prenom} {client.animateur.nom} · {new Date(client.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}</div>
+                    </div>
                   </div>
-                  <a href={`mailto:${client.animateur.email}`} style={{padding:'7px 14px',borderRadius:10,background:'white',border:'1.5px solid #E5E5E5',color:'#1a1a2e',textDecoration:'none',fontSize:13,fontWeight:600}}>✉️ Contacter</a>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         ) : (
@@ -261,6 +276,15 @@ export default function CRMClientDetailPage() {
                 <label style={{fontSize:13,fontWeight:600,display:'block',marginBottom:4}}>Note</label>
                 <textarea value={editForm.notes} onChange={e=>setEditForm({...editForm,notes:e.target.value})} rows={3}
                   style={{width:'100%',padding:'10px 12px',borderRadius:10,border:'1.5px solid #E5E5E5',fontSize:13,boxSizing:'border-box',resize:'vertical',fontFamily:'inherit',outline:'none'}}/>
+              </div>
+              <div>
+                <label style={{fontSize:13,fontWeight:600,display:'block',marginBottom:5}}>Référent</label>
+                <select value={editForm.referent_id} onChange={e=>setEditForm({...editForm,referent_id:e.target.value})}
+                  style={{width:'100%',padding:'10px 12px',borderRadius:10,border:'1.5px solid #E5E5E5',fontSize:13,boxSizing:'border-box'}}>
+                  {animateurs.map(a=>(
+                    <option key={a.id} value={a.id}>{a.prenom} {a.nom}{a.id===client?.created_by?' (créateur)':''}</option>
+                  ))}
+                </select>
               </div>
               <div style={{display:'flex',gap:10}}>
                 <button onClick={()=>setEditMode(false)} style={{flex:1,padding:'12px',borderRadius:12,border:'1.5px solid #E5E5E5',background:'white',fontWeight:600,fontSize:14,cursor:'pointer'}}>Annuler</button>
