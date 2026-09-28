@@ -56,6 +56,14 @@ export default function CRMEvenementsPage() {
     setEvents(enriched)
   }
 
+  async function deleteEvenement(id: string) {
+    if (!confirm('Supprimer cet espace événement ? Cette action est irréversible.')) return
+    setDeletingId(id)
+    await supabase.from('crm_evenements').delete().eq('id', id)
+    setEvents(prev => prev.filter(e => e.id !== id))
+    setDeletingId(null)
+  }
+
   function toggleParticipant(id: string) {
     setSelectedParticipants(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
   }
@@ -139,7 +147,16 @@ export default function CRMEvenementsPage() {
                   </div>
                   {ev.description && <div style={{ fontSize: 13, color: '#888', lineHeight: 1.5 }}>{ev.description}</div>}
                 </div>
-                <span style={{ fontSize: 22, flexShrink: 0 }}>→</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flexShrink: 0, alignItems: 'flex-end' }}>
+                  <span style={{ fontSize: 22 }}>→</span>
+                  {(isAdmin || ev.created_by === me?.id) && (
+                    <button onClick={e => { e.stopPropagation(); e.preventDefault(); deleteEvenement(ev.id) }}
+                      disabled={deletingId === ev.id}
+                      style={{ padding: '3px 10px', borderRadius: 8, border: 'none', background: '#FFDFE0', color: '#CC0000', fontSize: 11, cursor: 'pointer', fontWeight: 600 }}>
+                      {deletingId === ev.id ? '...' : 'Supprimer'}
+                    </button>
+                  )}
+                </div>
               </div>
               {/* Participants */}
               {ev.participants && ev.participants.length > 0 && (
