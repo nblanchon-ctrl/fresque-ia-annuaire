@@ -1,4 +1,5 @@
 'use client'
+import { sendNotification } from '@/lib/sendNotification'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import type { Animateur } from '@/lib/types'
@@ -201,6 +202,8 @@ export default function AgendaPage() {
       await supabase.from('interventions').update(payload).eq('id', selectedIntervention.id)
     } else {
       await supabase.from('interventions').insert({ ...payload, animateur_id: me.id })
+      const et2 = getEventType(fType)
+      await sendNotification({ type: 'agenda', titre: `${et2.emoji} Nouvel evenement : ${fLieu}`, contenu: `${me.nom} - ${new Date(fDate).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}`, lien: '/agenda' })
       const autresEmails = allEmails.filter(e => e !== me.email)
       if (autresEmails.length > 0) {
         const et = getEventType(fType)
