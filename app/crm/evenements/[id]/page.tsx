@@ -12,7 +12,7 @@ type PContact = { id:string; name:string; email:string|null; phone:string|null; 
 type Comm = { id:string; contenu:string; created_at:string; animateur_id:string|null; ani?:Ani }
 type EAction = { id:string; titre:string; description:string|null; deadline:string|null; statut:string; animateur_id:string|null; ani?:Ani }
 type JourJ = { id:string; name:string; organisation:string|null; email:string|null; phone:string|null; notes:string|null; transferred:boolean; sous_groupe_id:string|null }
-type Doc = { id:string; categorie:string; nom:string; file_name:string; file_url:string; file_type:string|null; file_size:number|null; uploaded_by:string|null; created_at:string; ani?:Ani }
+type Doc = { id:string; categorie:string; nom:string; file_name:string; file_url:string; file_type:string|null; file_size:number|null; is_external:boolean; uploaded_by:string|null; created_at:string; ani?:Ani }
 type Evenement = { id:string; name:string; date_debut:string; date_fin:string|null; description:string|null; created_by:string|null }
 
 const STATUTS: Record<string,{label:string;bg:string;color:string;border:string}> = {
@@ -135,25 +135,54 @@ type DocSectionProps = {
   title:string; emoji:string; desc:string; categorie:string
   docs:Doc[]; me:Ani|null; isAdmin:boolean; uploading:boolean
   onUpload:(files:FileList)=>void; onDelete:(id:string,url:string)=>void
+  onAddLink:(nom:string,url:string,categorie:'kit_com'|'documentation')=>void
 }
 
-function DocSection({title,emoji,desc,docs,me,isAdmin,uploading,onUpload,onDelete}:DocSectionProps) {
+function DocSection({title,emoji,desc,categorie,docs,me,isAdmin,uploading,onUpload,onDelete,onAddLink}:DocSectionProps) {
   const inputRef = React.useRef<HTMLInputElement>(null)
   const [viewingDoc, setViewingDoc] = React.useState<Doc|null>(null)
+  const [showLinkForm, setShowLinkForm] = React.useState(false)
+  const [linkNom, setLinkNom] = React.useState('')
+  const [linkUrl, setLinkUrl] = React.useState('')
   return (
     <div style={{background:'white',borderRadius:16,border:'1.5px solid #E5E5E5',overflow:'hidden'}}>
       {viewingDoc&&<DocViewer doc={viewingDoc} onClose={()=>setViewingDoc(null)}/>}
-      <div style={{padding:'14px 18px',borderBottom:'1px solid #F0F0F0',display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:10}}>
-        <div>
+      <div style={{padding:'14px 18px',borderBottom:'1px solid #F0F0F0',display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:8,flexWrap:'wrap'}}>
+        <div style={{flex:1}}>
           <div style={{fontWeight:800,fontSize:15}}>{emoji} {title}</div>
           <div style={{fontSize:12,color:'#888',marginTop:2}}>{desc}</div>
         </div>
-        <button onClick={()=>inputRef.current?.click()} disabled={uploading}
-          style={{padding:'6px 14px',borderRadius:10,background:uploading?'#E5E5E5':'#1a1a2e',color:uploading?'#888':'white',border:'none',fontWeight:600,fontSize:12,cursor:uploading?'default':'pointer',flexShrink:0}}>
-          {uploading?'⏳ Upload...':'+ Ajouter'}
-        </button>
+        <div style={{display:'flex',gap:6,flexShrink:0}}>
+          <button onClick={()=>setShowLinkForm(v=>!v)}
+            style={{padding:'6px 12px',borderRadius:10,background:showLinkForm?'#534AB7':'#EEEDFE',color:showLinkForm?'white':'#3C3489',border:'1.5px solid #AFA9EC',fontWeight:600,fontSize:12,cursor:'pointer'}}>
+            🔗 Lien
+          </button>
+          <button onClick={()=>inputRef.current?.click()} disabled={uploading}
+            style={{padding:'6px 12px',borderRadius:10,background:uploading?'#E5E5E5':'#1a1a2e',color:uploading?'#888':'white',border:'none',fontWeight:600,fontSize:12,cursor:uploading?'default':'pointer'}}>
+            {uploading?'⏳':'📎 Fichier'}
+          </button>
+        </div>
         <input ref={inputRef} type="file" multiple style={{display:'none'}} onChange={e=>e.target.files&&onUpload(e.target.files)}/>
       </div>
+      {showLinkForm&&(
+        <div style={{padding:'12px 16px',background:'#F8F9FF',borderBottom:'1px solid #F0F0F0',display:'flex',gap:8,flexWrap:'wrap',alignItems:'flex-end'}}>
+          <div style={{flex:2,minWidth:140}}>
+            <div style={{fontSize:11,fontWeight:600,marginBottom:4,color:'#555'}}>Nom du lien</div>
+            <input value={linkNom} onChange={e=>setLinkNom(e.target.value)} placeholder="Ex : Kit de com Tour de France"
+              style={{width:'100%',padding:'7px 10px',borderRadius:8,border:'1.5px solid #E5E5E5',fontSize:13,outline:'none',boxSizing:'border-box'}}/>
+          </div>
+          <div style={{flex:3,minWidth:180}}>
+            <div style={{fontSize:11,fontWeight:600,marginBottom:4,color:'#555'}}>URL</div>
+            <input value={linkUrl} onChange={e=>setLinkUrl(e.target.value)} placeholder="https://..."
+              style={{width:'100%',padding:'7px 10px',borderRadius:8,border:'1.5px solid #E5E5E5',fontSize:13,outline:'none',boxSizing:'border-box'}}/>
+          </div>
+          <button onClick={()=>{if(linkNom&&linkUrl){onAddLink(linkNom,linkUrl,categorie as 'kit_com'|'documentation');setLinkNom('');setLinkUrl('');setShowLinkForm(false)}}}
+            disabled={!linkNom.trim()||!linkUrl.trim()}
+            style={{padding:'7px 16px',borderRadius:8,background:linkNom&&linkUrl?'#534AB7':'#E5E5E5',color:linkNom&&linkUrl?'white':'#888',border:'none',fontWeight:700,fontSize:12,cursor:linkNom&&linkUrl?'pointer':'default'}}>
+            Ajouter
+          </button>
+        </div>
+      )}
       <div style={{padding:'8px 16px 12px'}}>
         {docs.length===0&&!uploading&&(
           <div style={{textAlign:'center',padding:'24px',color:'#888',fontSize:13}}>
@@ -165,8 +194,8 @@ function DocSection({title,emoji,desc,docs,me,isAdmin,uploading,onUpload,onDelet
           <div key={d.id} style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',borderRadius:12,border:'1.5px solid #F0F0F0',background:'#FAFAFA',marginBottom:6,transition:'all .15s',cursor:'pointer'}}
             onMouseEnter={e=>{(e.currentTarget as HTMLDivElement).style.borderColor='#1a1a2e';(e.currentTarget as HTMLDivElement).style.background='#F5F5FF'}}
             onMouseLeave={e=>{(e.currentTarget as HTMLDivElement).style.borderColor='#F0F0F0';(e.currentTarget as HTMLDivElement).style.background='#FAFAFA'}}
-            onClick={()=>setViewingDoc(d)}>
-            <span style={{fontSize:26,flexShrink:0}}>{fileEmoji(d.file_type,d.file_name)}</span>
+            onClick={()=>!d.is_external&&setViewingDoc(d)}>
+            <span style={{fontSize:26,flexShrink:0}}>{d.is_external?'🔗':fileEmoji(d.file_type,d.file_name)}</span>
             <div style={{flex:1,minWidth:0}}>
               <div style={{fontSize:13,fontWeight:700,color:'#1a1a2e',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{d.nom}</div>
               <div style={{fontSize:11,color:'#888',marginTop:1}}>
@@ -176,14 +205,22 @@ function DocSection({title,emoji,desc,docs,me,isAdmin,uploading,onUpload,onDelet
               </div>
             </div>
             <div style={{display:'flex',gap:5,flexShrink:0}} onClick={e=>e.stopPropagation()}>
-              <button onClick={()=>setViewingDoc(d)}
-                style={{padding:'5px 12px',borderRadius:8,background:'#E6F1FB',color:'#0C447C',border:'none',fontSize:12,fontWeight:600,cursor:'pointer'}}>
-                Ouvrir
-              </button>
-              <a href={d.file_url} download={d.file_name} onClick={e=>e.stopPropagation()}
-                style={{padding:'5px 10px',borderRadius:8,background:'#F0F0F4',color:'#555',textDecoration:'none',fontSize:12,fontWeight:600}}>
-                ↓
-              </a>
+              {d.is_external
+                ? <a href={d.file_url} target="_blank" rel="noopener noreferrer" onClick={e=>e.stopPropagation()}
+                    style={{padding:'5px 12px',borderRadius:8,background:'#E6F1FB',color:'#0C447C',textDecoration:'none',fontSize:12,fontWeight:600}}>
+                    Ouvrir ↗
+                  </a>
+                : <>
+                    <button onClick={()=>setViewingDoc(d)}
+                      style={{padding:'5px 12px',borderRadius:8,background:'#E6F1FB',color:'#0C447C',border:'none',fontSize:12,fontWeight:600,cursor:'pointer'}}>
+                      Ouvrir
+                    </button>
+                    <a href={d.file_url} download={d.file_name} onClick={e=>e.stopPropagation()}
+                      style={{padding:'5px 10px',borderRadius:8,background:'#F0F0F4',color:'#555',textDecoration:'none',fontSize:12,fontWeight:600}}>
+                      ↓
+                    </a>
+                  </>
+              }
               {(me?.id===d.uploaded_by||isAdmin)&&(
                 <button onClick={e=>{e.stopPropagation();onDelete(d.id,d.file_url)}}
                   style={{padding:'5px 10px',borderRadius:8,background:'#FFDFE0',color:'#CC0000',border:'none',fontSize:12,cursor:'pointer',fontWeight:600}}>
@@ -340,6 +377,18 @@ export default function CRMEvenementPage() {
     }).select().single()
     if (data) setDocuments(prev=>[...prev,{...data,ani:me}])
     setUploadingDoc(false)
+  }
+
+  async function addExternalLink(nom:string, url:string, categorie:'kit_com'|'documentation') {
+    if (!me||!nom.trim()||!url.trim()) return
+    const fullUrl = url.startsWith('http') ? url : 'https://'+url
+    const {data} = await supabase.from('crm_evenement_documents').insert({
+      evenement_id:id, categorie, nom:nom.trim(),
+      file_name:nom.trim(), file_url:fullUrl,
+      file_type:'external', file_size:null,
+      is_external:true, uploaded_by:me.id,
+    }).select().single()
+    if (data) setDocuments(prev=>[...prev,{...data,is_external:true,ani:me}])
   }
 
   async function deleteDoc(docId:string, fileUrl:string) {
@@ -641,12 +690,14 @@ export default function CRMEvenementPage() {
             categorie="kit_com" docs={documents.filter(d=>d.categorie==='kit_com')}
             me={me} isAdmin={isAdmin} uploading={uploadingDoc&&docCategorie==='kit_com'}
             onUpload={files=>{setDocCategorie('kit_com');Array.from(files).forEach(f=>uploadDoc(f,'kit_com'))}}
+            onAddLink={addExternalLink}
             onDelete={deleteDoc}/>
           <DocSection title="Documentation" emoji="📁"
             desc="Visuels, images, supports de presentation, ressources graphiques..."
             categorie="documentation" docs={documents.filter(d=>d.categorie==='documentation')}
             me={me} isAdmin={isAdmin} uploading={uploadingDoc&&docCategorie==='documentation'}
             onUpload={files=>{setDocCategorie('documentation');Array.from(files).forEach(f=>uploadDoc(f,'documentation'))}}
+            onAddLink={addExternalLink}
             onDelete={deleteDoc}/>
         </div>}
       </div>
