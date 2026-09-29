@@ -19,6 +19,7 @@ export default function CRMEvenementsPage() {
   const [animateurs, setAnimateurs] = useState<Animateur[]>([])
   const [me, setMe] = useState<Animateur | null>(null)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [deletingId, setDeletingId] = useState<string|null>(null)
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [saving, setSaving] = useState(false)
