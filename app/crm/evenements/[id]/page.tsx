@@ -35,16 +35,29 @@ function Avatar({ani,size=28}:{ani?:Ani|null;size?:number}) {
   )
 }
 
-function FileIcon({type}:{type:string|null}) {
-  if (!type) return <span>📄</span>
-  if (type.includes('image')) return <span>🖼️</span>
-  if (type.includes('pdf')) return <span>📕</span>
-  if (type.includes('html') || type.includes('htm')) return <span>🌐</span>
-  if (type.includes('word') || type.includes('doc')) return <span>📝</span>
-  if (type.includes('sheet') || type.includes('excel') || type.includes('csv')) return <span>📊</span>
-  if (type.includes('zip') || type.includes('archive')) return <span>📦</span>
-  if (type.includes('markdown') || type.includes('text')) return <span>📃</span>
-  return <span>📄</span>
+function fileEmoji(type:string|null, name:string) {
+  if (!type && !name) return '📄'
+  const t = (type||'').toLowerCase()
+  const n = (name||'').toLowerCase()
+  if (t.includes('image') || /\.(png|jpg|jpeg|gif|webp|svg)$/.test(n)) return '🖼️'
+  if (t.includes('pdf') || n.endsWith('.pdf')) return '📕'
+  if (t.includes('html') || /\.html?$/.test(n)) return '🌐'
+  if (t.includes('word') || /\.docx?$/.test(n)) return '📝'
+  if (t.includes('sheet') || t.includes('excel') || /\.(xlsx?|csv)$/.test(n)) return '📊'
+  if (t.includes('zip') || t.includes('archive') || /\.(zip|rar|7z)$/.test(n)) return '📦'
+  if (t.includes('markdown') || n.endsWith('.md')) return '📃'
+  if (t.includes('video') || /\.(mp4|mov|avi)$/.test(n)) return '🎬'
+  return '📄'
+}
+
+function isHtml(type:string|null, name:string) {
+  return (type||'').includes('html') || /\.html?$/.test((name||'').toLowerCase())
+}
+function isImage(type:string|null, name:string) {
+  return (type||'').includes('image') || /\.(png|jpg|jpeg|gif|webp|svg)$/.test((name||'').toLowerCase())
+}
+function isPdf(type:string|null, name:string) {
+  return (type||'').includes('pdf') || (name||'').toLowerCase().endsWith('.pdf')
 }
 
 function formatSize(bytes:number|null) {
@@ -52,6 +65,70 @@ function formatSize(bytes:number|null) {
   if (bytes < 1024) return bytes+'B'
   if (bytes < 1024*1024) return Math.round(bytes/1024)+'KB'
   return (bytes/(1024*1024)).toFixed(1)+'MB'
+}
+
+function DocViewer({doc, onClose}:{doc:Doc; onClose:()=>void}) {
+  const [htmlContent, setHtmlContent] = React.useState<string|null>(null)
+  const [loading, setLoading] = React.useState(false)
+
+  React.useEffect(()=>{
+    if (isHtml(doc.file_type, doc.file_name)) {
+      setLoading(true)
+      fetch(doc.file_url)
+        .then(r=>r.text())
+        .then(html=>{
+          // Inject base tag so relative links don't break
+          const withBase = html.replace('<head>', `<head><base href="${doc.file_url}">`)
+          setHtmlContent(withBase)
+        })
+        .catch(()=>setHtmlContent('<p style="padding:2rem;color:#888">Impossible de charger le document.</p>'))
+        .finally(()=>setLoading(false))
+    }
+  },[doc])
+
+  return (
+    <div style={{position:'fixed',inset:0,zIndex:200,background:'rgba(0,0,0,0.8)',display:'flex',flexDirection:'column'}}>
+      {/* Header */}
+      <div style={{background:'#1a1a2e',padding:'12px 16px',display:'flex',alignItems:'center',gap:12,flexShrink:0}}>
+        <span style={{fontSize:20}}>{fileEmoji(doc.file_type,doc.file_name)}</span>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{fontWeight:700,fontSize:14,color:'white',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{doc.nom}</div>
+          <div style={{fontSize:11,color:'rgba(255,255,255,0.5)'}}>{doc.file_name}</div>
+        </div>
+        <a href={doc.file_url} download={doc.file_name}
+          style={{padding:'6px 14px',borderRadius:8,background:'rgba(255,255,255,0.15)',color:'white',textDecoration:'none',fontSize:12,fontWeight:600}}>
+          ↓ Télécharger
+        </a>
+        <button onClick={onClose} style={{background:'rgba(255,255,255,0.15)',border:'none',color:'white',fontSize:18,cursor:'pointer',width:32,height:32,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
+      </div>
+      {/* Content */}
+      <div style={{flex:1,overflow:'hidden',background:'white'}}>
+        {loading&&<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',color:'#888',fontSize:14}}>Chargement...</div>}
+        {!loading&&isHtml(doc.file_type,doc.file_name)&&htmlContent&&(
+          <iframe srcDoc={htmlContent} style={{width:'100%',height:'100%',border:'none'}} sandbox="allow-same-origin"/>
+        )}
+        {!loading&&isImage(doc.file_type,doc.file_name)&&(
+          <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',padding:16,background:'#F0F0F0'}}>
+            <img src={doc.file_url} style={{maxWidth:'100%',maxHeight:'100%',objectFit:'contain',borderRadius:8,boxShadow:'0 4px 20px rgba(0,0,0,0.2)'}}/>
+          </div>
+        )}
+        {!loading&&isPdf(doc.file_type,doc.file_name)&&(
+          <iframe src={doc.file_url} style={{width:'100%',height:'100%',border:'none'}}/>
+        )}
+        {!loading&&!isHtml(doc.file_type,doc.file_name)&&!isImage(doc.file_type,doc.file_name)&&!isPdf(doc.file_type,doc.file_name)&&!htmlContent&&(
+          <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',gap:16}}>
+            <span style={{fontSize:64}}>{fileEmoji(doc.file_type,doc.file_name)}</span>
+            <div style={{fontSize:16,fontWeight:600,color:'#1a1a2e'}}>{doc.nom}</div>
+            <div style={{fontSize:13,color:'#888'}}>Aperçu non disponible pour ce type de fichier.</div>
+            <a href={doc.file_url} download={doc.file_name}
+              style={{padding:'10px 24px',borderRadius:12,background:'#1a1a2e',color:'white',textDecoration:'none',fontSize:14,fontWeight:700}}>
+              ↓ Télécharger
+            </a>
+          </div>
+        )}
+      </div>
+    </div>
+  )
 }
 
 type DocSectionProps = {
@@ -62,47 +139,53 @@ type DocSectionProps = {
 
 function DocSection({title,emoji,desc,docs,me,isAdmin,uploading,onUpload,onDelete}:DocSectionProps) {
   const inputRef = React.useRef<HTMLInputElement>(null)
+  const [viewingDoc, setViewingDoc] = React.useState<Doc|null>(null)
   return (
     <div style={{background:'white',borderRadius:16,border:'1.5px solid #E5E5E5',overflow:'hidden'}}>
-      <div style={{padding:'14px 18px',borderBottom:'1px solid #F0F0F0',display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
+      {viewingDoc&&<DocViewer doc={viewingDoc} onClose={()=>setViewingDoc(null)}/>}
+      <div style={{padding:'14px 18px',borderBottom:'1px solid #F0F0F0',display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:10}}>
         <div>
           <div style={{fontWeight:800,fontSize:15}}>{emoji} {title}</div>
           <div style={{fontSize:12,color:'#888',marginTop:2}}>{desc}</div>
         </div>
         <button onClick={()=>inputRef.current?.click()} disabled={uploading}
           style={{padding:'6px 14px',borderRadius:10,background:uploading?'#E5E5E5':'#1a1a2e',color:uploading?'#888':'white',border:'none',fontWeight:600,fontSize:12,cursor:uploading?'default':'pointer',flexShrink:0}}>
-          {uploading?'Upload...':'+ Ajouter'}
+          {uploading?'⏳ Upload...':'+ Ajouter'}
         </button>
         <input ref={inputRef} type="file" multiple style={{display:'none'}} onChange={e=>e.target.files&&onUpload(e.target.files)}/>
       </div>
       <div style={{padding:'8px 16px 12px'}}>
         {docs.length===0&&!uploading&&(
-          <div style={{textAlign:'center',padding:'20px',color:'#888',fontSize:13}}>
+          <div style={{textAlign:'center',padding:'24px',color:'#888',fontSize:13}}>
+            <div style={{fontSize:32,marginBottom:8}}>📂</div>
             Aucun document — cliquez sur "+ Ajouter" pour uploader des fichiers.
           </div>
         )}
         {docs.map(d=>(
-          <div key={d.id} style={{display:'flex',alignItems:'center',gap:10,padding:'9px 12px',borderRadius:10,border:'1.5px solid #F0F0F0',background:'#FAFAFA',marginBottom:6,animation:'fadeIn .3s ease'}}>
-            <span style={{fontSize:22,flexShrink:0}}><FileIcon type={d.file_type}/></span>
+          <div key={d.id} style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',borderRadius:12,border:'1.5px solid #F0F0F0',background:'#FAFAFA',marginBottom:6,transition:'all .15s',cursor:'pointer'}}
+            onMouseEnter={e=>{(e.currentTarget as HTMLDivElement).style.borderColor='#1a1a2e';(e.currentTarget as HTMLDivElement).style.background='#F5F5FF'}}
+            onMouseLeave={e=>{(e.currentTarget as HTMLDivElement).style.borderColor='#F0F0F0';(e.currentTarget as HTMLDivElement).style.background='#FAFAFA'}}
+            onClick={()=>setViewingDoc(d)}>
+            <span style={{fontSize:26,flexShrink:0}}>{fileEmoji(d.file_type,d.file_name)}</span>
             <div style={{flex:1,minWidth:0}}>
               <div style={{fontSize:13,fontWeight:700,color:'#1a1a2e',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{d.nom}</div>
-              <div style={{fontSize:11,color:'#888'}}>
+              <div style={{fontSize:11,color:'#888',marginTop:1}}>
                 {d.ani?.nom}
-                {d.file_size&&<span> · {formatSize(d.file_size)}</span>}
+                {d.file_size?<span> · {formatSize(d.file_size)}</span>:null}
                 <span> · {new Date(d.created_at).toLocaleDateString('fr-FR')}</span>
               </div>
             </div>
-            <div style={{display:'flex',gap:6,flexShrink:0}}>
-              <a href={d.file_url} target="_blank" rel="noopener noreferrer"
-                style={{padding:'5px 12px',borderRadius:8,background:'#E6F1FB',color:'#0C447C',textDecoration:'none',fontSize:12,fontWeight:600}}>
+            <div style={{display:'flex',gap:5,flexShrink:0}} onClick={e=>e.stopPropagation()}>
+              <button onClick={()=>setViewingDoc(d)}
+                style={{padding:'5px 12px',borderRadius:8,background:'#E6F1FB',color:'#0C447C',border:'none',fontSize:12,fontWeight:600,cursor:'pointer'}}>
                 Ouvrir
-              </a>
-              <a href={d.file_url} download={d.file_name}
+              </button>
+              <a href={d.file_url} download={d.file_name} onClick={e=>e.stopPropagation()}
                 style={{padding:'5px 10px',borderRadius:8,background:'#F0F0F4',color:'#555',textDecoration:'none',fontSize:12,fontWeight:600}}>
                 ↓
               </a>
               {(me?.id===d.uploaded_by||isAdmin)&&(
-                <button onClick={()=>onDelete(d.id,d.file_url)}
+                <button onClick={e=>{e.stopPropagation();onDelete(d.id,d.file_url)}}
                   style={{padding:'5px 10px',borderRadius:8,background:'#FFDFE0',color:'#CC0000',border:'none',fontSize:12,cursor:'pointer',fontWeight:600}}>
                   ✕
                 </button>
