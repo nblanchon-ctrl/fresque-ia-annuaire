@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import Link from 'next/link'
@@ -12,6 +12,7 @@ type PContact = { id:string; name:string; email:string|null; phone:string|null; 
 type Comm = { id:string; contenu:string; created_at:string; animateur_id:string|null; ani?:Ani }
 type EAction = { id:string; titre:string; description:string|null; deadline:string|null; statut:string; animateur_id:string|null; ani?:Ani }
 type JourJ = { id:string; name:string; organisation:string|null; email:string|null; phone:string|null; notes:string|null; transferred:boolean; sous_groupe_id:string|null }
+type Doc = { id:string; categorie:string; nom:string; file_name:string; file_url:string; file_type:string|null; file_size:number|null; uploaded_by:string|null; created_at:string; ani?:Ani }
 type Evenement = { id:string; name:string; date_debut:string; date_fin:string|null; description:string|null; created_by:string|null }
 
 const STATUTS: Record<string,{label:string;bg:string;color:string;border:string}> = {
@@ -34,6 +35,86 @@ function Avatar({ani,size=28}:{ani?:Ani|null;size?:number}) {
   )
 }
 
+function FileIcon({type}:{type:string|null}) {
+  if (!type) return <span>📄</span>
+  if (type.includes('image')) return <span>🖼️</span>
+  if (type.includes('pdf')) return <span>📕</span>
+  if (type.includes('html') || type.includes('htm')) return <span>🌐</span>
+  if (type.includes('word') || type.includes('doc')) return <span>📝</span>
+  if (type.includes('sheet') || type.includes('excel') || type.includes('csv')) return <span>📊</span>
+  if (type.includes('zip') || type.includes('archive')) return <span>📦</span>
+  if (type.includes('markdown') || type.includes('text')) return <span>📃</span>
+  return <span>📄</span>
+}
+
+function formatSize(bytes:number|null) {
+  if (!bytes) return ''
+  if (bytes < 1024) return bytes+'B'
+  if (bytes < 1024*1024) return Math.round(bytes/1024)+'KB'
+  return (bytes/(1024*1024)).toFixed(1)+'MB'
+}
+
+type DocSectionProps = {
+  title:string; emoji:string; desc:string; categorie:string
+  docs:Doc[]; me:Ani|null; isAdmin:boolean; uploading:boolean
+  onUpload:(files:FileList)=>void; onDelete:(id:string,url:string)=>void
+}
+
+function DocSection({title,emoji,desc,docs,me,isAdmin,uploading,onUpload,onDelete}:DocSectionProps) {
+  const inputRef = React.useRef<HTMLInputElement>(null)
+  return (
+    <div style={{background:'white',borderRadius:16,border:'1.5px solid #E5E5E5',overflow:'hidden'}}>
+      <div style={{padding:'14px 18px',borderBottom:'1px solid #F0F0F0',display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
+        <div>
+          <div style={{fontWeight:800,fontSize:15}}>{emoji} {title}</div>
+          <div style={{fontSize:12,color:'#888',marginTop:2}}>{desc}</div>
+        </div>
+        <button onClick={()=>inputRef.current?.click()} disabled={uploading}
+          style={{padding:'6px 14px',borderRadius:10,background:uploading?'#E5E5E5':'#1a1a2e',color:uploading?'#888':'white',border:'none',fontWeight:600,fontSize:12,cursor:uploading?'default':'pointer',flexShrink:0}}>
+          {uploading?'Upload...':'+ Ajouter'}
+        </button>
+        <input ref={inputRef} type="file" multiple style={{display:'none'}} onChange={e=>e.target.files&&onUpload(e.target.files)}/>
+      </div>
+      <div style={{padding:'8px 16px 12px'}}>
+        {docs.length===0&&!uploading&&(
+          <div style={{textAlign:'center',padding:'20px',color:'#888',fontSize:13}}>
+            Aucun document — cliquez sur "+ Ajouter" pour uploader des fichiers.
+          </div>
+        )}
+        {docs.map(d=>(
+          <div key={d.id} style={{display:'flex',alignItems:'center',gap:10,padding:'9px 12px',borderRadius:10,border:'1.5px solid #F0F0F0',background:'#FAFAFA',marginBottom:6,animation:'fadeIn .3s ease'}}>
+            <span style={{fontSize:22,flexShrink:0}}><FileIcon type={d.file_type}/></span>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontSize:13,fontWeight:700,color:'#1a1a2e',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{d.nom}</div>
+              <div style={{fontSize:11,color:'#888'}}>
+                {d.ani?.nom}
+                {d.file_size&&<span> · {formatSize(d.file_size)}</span>}
+                <span> · {new Date(d.created_at).toLocaleDateString('fr-FR')}</span>
+              </div>
+            </div>
+            <div style={{display:'flex',gap:6,flexShrink:0}}>
+              <a href={d.file_url} target="_blank" rel="noopener noreferrer"
+                style={{padding:'5px 12px',borderRadius:8,background:'#E6F1FB',color:'#0C447C',textDecoration:'none',fontSize:12,fontWeight:600}}>
+                Ouvrir
+              </a>
+              <a href={d.file_url} download={d.file_name}
+                style={{padding:'5px 10px',borderRadius:8,background:'#F0F0F4',color:'#555',textDecoration:'none',fontSize:12,fontWeight:600}}>
+                ↓
+              </a>
+              {(me?.id===d.uploaded_by||isAdmin)&&(
+                <button onClick={()=>onDelete(d.id,d.file_url)}
+                  style={{padding:'5px 10px',borderRadius:8,background:'#FFDFE0',color:'#CC0000',border:'none',fontSize:12,cursor:'pointer',fontWeight:600}}>
+                  ✕
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function CRMEvenementPage() {
   const {id} = useParams()
   const supabase = createClient()
@@ -42,7 +123,7 @@ export default function CRMEvenementPage() {
   const [me, setMe] = useState<Ani|null>(null)
   const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [tab, setTab] = useState<'organisation'|'prospection'|'sousgroupes'|'jourj'>('organisation')
+  const [tab, setTab] = useState<'organisation'|'prospection'|'sousgroupes'|'jourj'|'documents'>('organisation')
   const [membres, setMembres] = useState<Membre[]>([])
   const [actions, setActions] = useState<EAction[]>([])
   const [editMembre, setEditMembre] = useState<string|null>(null)
@@ -64,9 +145,13 @@ export default function CRMEvenementPage() {
   const [showJJModal, setShowJJModal] = useState(false)
   const [jjForm, setJjForm] = useState({name:'',organisation:'',email:'',phone:'',notes:'',sous_groupe_id:''})
   const [showAddMembre, setShowAddMembre] = useState(false)
+  // Documents
+  const [documents, setDocuments] = useState<Doc[]>([])
+  const [uploadingDoc, setUploadingDoc] = useState(false)
+  const [docCategorie, setDocCategorie] = useState<'kit_com'|'documentation'>('kit_com')
 
   const load = useCallback(async () => {
-    const [{data:{user}},{data:anis},{data:ev},{data:membs},{data:prosp},{data:pcontacts},{data:comms},{data:acts},{data:sgs},{data:jj}] = await Promise.all([
+    const [{data:{user}},{data:anis},{data:ev},{data:membs},{data:prosp},{data:pcontacts},{data:comms},{data:acts},{data:sgs},{data:jj},{data:docs}] = await Promise.all([
       supabase.auth.getUser(),
       supabase.from('animateurs').select('id,nom,photo_url,email'),
       supabase.from('crm_evenements').select('*').eq('id',id as string).single(),
@@ -77,6 +162,7 @@ export default function CRMEvenementPage() {
       supabase.from('crm_evenement_actions').select('*').eq('evenement_id',id as string).order('deadline',{ascending:true,nullsFirst:false}),
       supabase.from('crm_evenement_sous_groupes').select('*').eq('evenement_id',id as string).order('created_at'),
       supabase.from('crm_jour_j').select('*').eq('evenement_id',id as string).order('created_at'),
+      supabase.from('crm_evenement_documents').select('*').eq('evenement_id',id as string).order('created_at'),
     ])
     const all = (anis||[]) as Ani[]
     setAnimateurs(all)
@@ -96,6 +182,7 @@ export default function CRMEvenementPage() {
     setActions((acts||[]).map(a=>({...a,ani:all.find(x=>x.id===a.animateur_id)})))
     setSousGroupes((sgs||[]) as SousGroupe[])
     setJourJList((jj||[]) as JourJ[])
+    setDocuments((docs||[]).map((d:Doc)=>({...d,ani:all.find(a=>a.id===d.uploaded_by)})))
     setLoading(false)
   },[id])
 
@@ -155,6 +242,32 @@ export default function CRMEvenementPage() {
     if(data) setSousGroupes(prev=>[...prev,data as SousGroupe])
     setShowSGModal(false);setSgForm({name:'',type:'',description:''})
   }
+  async function uploadDoc(file: File, categorie: 'kit_com'|'documentation') {
+    if (!me) return
+    setUploadingDoc(true)
+    const ext = file.name.split('.').pop()
+    const path = `${id}/${categorie}/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`
+    const {error:upErr} = await supabase.storage.from('event-docs').upload(path, file, {upsert:true})
+    if (upErr) { setUploadingDoc(false); return }
+    const {data:urlData} = supabase.storage.from('event-docs').getPublicUrl(path)
+    const {data} = await supabase.from('crm_evenement_documents').insert({
+      evenement_id:id, categorie, nom:file.name.replace(/\.[^/.]+$/,''),
+      file_name:file.name, file_url:urlData.publicUrl,
+      file_type:file.type||null, file_size:file.size||null, uploaded_by:me.id,
+    }).select().single()
+    if (data) setDocuments(prev=>[...prev,{...data,ani:me}])
+    setUploadingDoc(false)
+  }
+
+  async function deleteDoc(docId:string, fileUrl:string) {
+    if (!confirm('Supprimer ce document ?')) return
+    // Extract path from URL
+    const urlParts = fileUrl.split('/event-docs/')
+    if (urlParts[1]) await supabase.storage.from('event-docs').remove([urlParts[1]])
+    await supabase.from('crm_evenement_documents').delete().eq('id',docId)
+    setDocuments(prev=>prev.filter(d=>d.id!==docId))
+  }
+
   async function addJourJ() {
     if(!jjForm.name.trim()||!me) return
     const {data}=await supabase.from('crm_jour_j').insert({evenement_id:id,...jjForm,added_by:me.id,transferred:false,sous_groupe_id:jjForm.sous_groupe_id||null}).select().single()
@@ -174,7 +287,7 @@ export default function CRMEvenementPage() {
   const nonMembres=animateurs.filter(a=>!membres.find(m=>m.animateur_id===a.id))
   const filteredProspects=prospects.filter(p=>sgFilter==='global'?!p.sous_groupe_id:p.sous_groupe_id===sgFilter)
 
-  const TABS=[{k:'organisation',label:'Membres & Planning'},{k:'prospection',label:'Prospection'},{k:'sousgroupes',label:'Sous-groupes'},{k:'jourj',label:'Jour J'}] as const
+  const TABS=[{k:'organisation',label:'Membres & Planning'},{k:'prospection',label:'Prospection'},{k:'sousgroupes',label:'Sous-groupes'},{k:'jourj',label:'Jour J'},{k:'documents',label:'Documents'}] as const
 
   return (
     <div style={{minHeight:'100vh',background:'#F7F7F7'}}>
@@ -430,6 +543,21 @@ export default function CRMEvenementPage() {
                 :<button onClick={()=>transferToGlobal(jj)} style={{padding:'5px 12px',borderRadius:8,background:'#1a1a2e',color:'white',border:'none',fontSize:11,cursor:'pointer',fontWeight:600,flexShrink:0}}>CRM global</button>}
             </div>
           ))}
+        </div>}
+        {/* ══ DOCUMENTS ══ */}
+        {tab==='documents'&&<div style={{display:'flex',flexDirection:'column',gap:16}}>
+          <DocSection title="Kit de com" emoji="📢"
+            desc="Cadrage, argumentaires, modeles d'invitation, prospection..."
+            categorie="kit_com" docs={documents.filter(d=>d.categorie==='kit_com')}
+            me={me} isAdmin={isAdmin} uploading={uploadingDoc&&docCategorie==='kit_com'}
+            onUpload={files=>{setDocCategorie('kit_com');Array.from(files).forEach(f=>uploadDoc(f,'kit_com'))}}
+            onDelete={deleteDoc}/>
+          <DocSection title="Documentation" emoji="📁"
+            desc="Visuels, images, supports de presentation, ressources graphiques..."
+            categorie="documentation" docs={documents.filter(d=>d.categorie==='documentation')}
+            me={me} isAdmin={isAdmin} uploading={uploadingDoc&&docCategorie==='documentation'}
+            onUpload={files=>{setDocCategorie('documentation');Array.from(files).forEach(f=>uploadDoc(f,'documentation'))}}
+            onDelete={deleteDoc}/>
         </div>}
       </div>
 
