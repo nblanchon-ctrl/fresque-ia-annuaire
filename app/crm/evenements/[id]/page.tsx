@@ -344,11 +344,18 @@ export default function CRMEvenementPage() {
 
   async function deleteDoc(docId:string, fileUrl:string) {
     if (!confirm('Supprimer ce document ?')) return
-    // Extract path from URL
-    const urlParts = fileUrl.split('/event-docs/')
-    if (urlParts[1]) await supabase.storage.from('event-docs').remove([urlParts[1]])
-    await supabase.from('crm_evenement_documents').delete().eq('id',docId)
-    setDocuments(prev=>prev.filter(d=>d.id!==docId))
+    // Supprimer en base immédiatement (met à jour l'UI)
+    const { error } = await supabase.from('crm_evenement_documents').delete().eq('id', docId)
+    if (error) { alert('Erreur : ' + error.message); return }
+    setDocuments(prev => prev.filter(d => d.id !== docId))
+    // Supprimer du Storage en arrière-plan (non bloquant)
+    try {
+      const match = fileUrl.split('/object/public/event-docs/')
+      if (match[1]) {
+        const path = decodeURIComponent(match[1].split('?')[0])
+        await supabase.storage.from('event-docs').remove([path])
+      }
+    } catch {}
   }
 
   async function addJourJ() {
