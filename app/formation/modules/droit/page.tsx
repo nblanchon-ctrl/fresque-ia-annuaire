@@ -30,6 +30,35 @@ const PHASE_CELEBRATIONS = [
   { atStep: 16, icon: "🌍", title: "Introduction complete !", sub: "Tu es pret a explorer les mecanismes juridiques concrets. Le quiz t'attend !", color: "#534AB7", bg: "#EEEDFE" },
 ]
 
+
+function JusticeBadge({ size = 100 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <rect width="200" height="200" rx="20" fill="#0C1A2E"/>
+      {/* Base et tige */}
+      <rect x="97" y="60" width="6" height="100" fill="#C9A84C"/>
+      <rect x="70" y="155" width="60" height="8" rx="4" fill="#C9A84C"/>
+      {/* Barre horizontale */}
+      <rect x="40" y="62" width="120" height="6" rx="3" fill="#C9A84C"/>
+      {/* Chaine gauche */}
+      <line x1="55" y1="68" x2="55" y2="95" stroke="#C9A84C" strokeWidth="2.5"/>
+      {/* Plateau gauche */}
+      <ellipse cx="55" cy="100" rx="22" ry="6" fill="none" stroke="#C9A84C" strokeWidth="2.5"/>
+      <path d="M33 98 Q55 112 77 98" fill="none" stroke="#C9A84C" strokeWidth="2.5"/>
+      {/* Chaine droite */}
+      <line x1="145" y1="68" x2="145" y2="88" stroke="#C9A84C" strokeWidth="2.5"/>
+      {/* Plateau droit (penché - déséquilibre symbolique) */}
+      <ellipse cx="145" cy="93" rx="22" ry="6" fill="none" stroke="#C9A84C" strokeWidth="2.5"/>
+      <path d="M123 91 Q145 105 167 91" fill="none" stroke="#C9A84C" strokeWidth="2.5"/>
+      {/* Étoiles */}
+      <circle cx="55" cy="100" r="3" fill="#F0D080" opacity="0.7"/>
+      <circle cx="145" cy="93" r="3" fill="#F0D080" opacity="0.7"/>
+      {/* Texte */}
+      <text x="100" y="180" textAnchor="middle" fontSize="8" fill="#C9A84C" fontWeight="800" fontFamily="monospace" letterSpacing="1.5">DROIT & IA</text>
+    </svg>
+  )
+}
+
 function Confetti() {
   const pieces = Array.from({ length: 28 }, (_, i) => ({
     color: ['#58CC02','#FFC800','#FF4B4B','#1CB0F6','#CE82FF','#FF9600'][i % 6],
@@ -242,9 +271,21 @@ export default function ModulePage() {
         {header}
         <div style={{ padding: '24px 16px 40px', maxWidth: 700, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 24 }}>
-            <div style={{ fontSize: 52, marginBottom: 12 }}>{pct === 100 ? '⚖️' : pct >= 80 ? '🎯' : '💪'}</div>
-            <div style={{ fontSize: 32, fontWeight: 900, color: '#534AB7', marginBottom: 8 }}>{total} / {QUIZ.length}</div>
-            <p style={{ fontSize: 14, color: '#555', lineHeight: 1.6 }}>{pct === 100 ? 'Parfait ! Tu maitrises les fondamentaux du droit de l\'IA.' : pct >= 80 ? 'Beau parcours ! Quelques notions meritent encore un peu d\'entrainement.' : 'Continue a apprendre ! Le module t\'attend pour une revision.'}</p>
+            {pct === 100 ? (
+              <div style={{ animation: 'fadeIn .5s ease' }}>
+                <div style={{ marginBottom: 12 }}><JusticeBadge size={96} /></div>
+                <div style={{ display: 'inline-block', background: '#0C1A2E', color: '#C9A84C', fontSize: 11, fontWeight: 700, padding: '4px 14px', borderRadius: 20, marginBottom: 8, letterSpacing: 1 }}>BADGE DÉBLOQUÉ ✦</div>
+                <h2 style={{ fontSize: 24, fontWeight: 900, marginBottom: 4 }}>MAITRISE DROIT & IA</h2>
+                <div style={{ fontSize: 32, fontWeight: 900, color: '#C9A84C', marginBottom: 8 }}>{QUIZ.length} / {QUIZ.length} : 100 %</div>
+                <p style={{ fontSize: 14, color: '#555', lineHeight: 1.6 }}>Parfait ! Tu maitrises les fondamentaux du droit de l'IA.</p>
+              </div>
+            ) : (
+              <div>
+                <div style={{ fontSize: 52, marginBottom: 12 }}>{pct >= 80 ? '🎯' : '💪'}</div>
+                <div style={{ fontSize: 32, fontWeight: 900, color: '#534AB7', marginBottom: 8 }}>{total} / {QUIZ.length}</div>
+                <p style={{ fontSize: 14, color: '#555', lineHeight: 1.6 }}>{pct >= 80 ? "Beau parcours !" : "Continue a apprendre !"}</p>
+              </div>
+            )}
           </div>
           {wrongs.length > 0 && (
             <div style={{ marginBottom: 20 }}>
