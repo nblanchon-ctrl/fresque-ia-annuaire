@@ -18,10 +18,10 @@ const REGIONS = [
   'Occitanie','Pays de la Loire',"Provence-Alpes-Côte d'Azur",'Europe','International',
 ]
 const SIZES = [
-  {key:'micro',label:'< 50 salariés',short:'< 50'},
-  {key:'pme',label:'50 – 500 salariés',short:'PME'},
-  {key:'eti',label:'500 – 2000 salariés',short:'ETI'},
-  {key:'grand_groupe',label:'> 2000 salariés',short:'Grand groupe'},
+  {key:'micro',labelFr:'< 50 salariés',labelEn:'< 50 employees',short:'< 50'},
+  {key:'pme',labelFr:'50 – 500 salariés',labelEn:'50–500 employees',short:'PME'},
+  {key:'eti',labelFr:'500 – 2000 salariés',labelEn:'500–2000 empl.',short:'ETI'},
+  {key:'grand_groupe',labelFr:'> 2000 salariés',labelEn:'> 2000 employees',short:'Large'},
 ]
 const STATUS_COLORS: Record<string,{bg:string;color:string;border:string;labelFr:string;labelEn:string}> = {
   client:         {bg:'#D7FFB8',color:'#2B7400',border:'#58CC02',labelFr:'Client ✓',labelEn:'Client ✓'},
@@ -180,7 +180,7 @@ export default function CRMClientDetailPage() {
 
               {/* Info badges */}
               <div style={{display:'flex',flexWrap:'wrap',gap:8,marginBottom:16}}>
-                {sz&&<div style={{padding:'6px 14px',borderRadius:20,background:'#E6F1FB',color:'#0C447C',fontSize:13,fontWeight:600}}>{sz.label}</div>}
+                {sz&&<div style={{padding:'6px 14px',borderRadius:20,background:'#E6F1FB',color:'#0C447C',fontSize:13,fontWeight:600}}>{lang==='en'?sz.labelEn:sz.labelFr}</div>}
                 {client.secteur&&<div style={{padding:'6px 14px',borderRadius:20,background:'#EEEDFE',color:'#3C3489',fontSize:13,fontWeight:600}}>{client.secteur}</div>}
                 {client.region&&<div style={{padding:'6px 14px',borderRadius:20,background:'#F0F0F4',color:'#555',fontSize:13}}>{client.region}</div>}
               </div>
@@ -276,7 +276,7 @@ export default function CRMClientDetailPage() {
                   <select value={editForm.size} onChange={e=>setEditForm({...editForm,size:e.target.value})}
                     style={{width:'100%',padding:'10px',borderRadius:10,border:'1.5px solid #E5E5E5',fontSize:13,boxSizing:'border-box'}}>
                     <option value="">Sélectionner</option>
-                    {SIZES.map(s=><option key={s.key} value={s.key}>{lang==='en'?s.labelEn:s.labelFr}</option>)}
+                    {SIZES.map(s=><option key={s.key} value={s.key}>{(lang==='en'?s.labelEn:s.labelFr)||s.short}</option>)}
                   </select>
                 </div>
                 <div>
