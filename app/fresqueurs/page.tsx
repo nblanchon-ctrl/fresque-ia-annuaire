@@ -94,8 +94,9 @@ export default function FresqueursPage() {
         .eq('completed', true)
       const newPcb = new Set<string>()
       const newDroit = new Set<string>()
-      ;(progs || []).forEach((p: { animateur_id: string, modules: { slug?: string, titre?: string } | null }) => {
-        if (p.modules?.slug === 'droit') {
+      ;(progs || []).forEach((p: { animateur_id: string, modules: { slug?: string, titre?: string }[] | null }) => {
+        const mod = Array.isArray(p.modules) ? p.modules[0] : p.modules
+        if (mod?.slug === 'droit') {
           newDroit.add(p.animateur_id)
         } else {
           newPcb.add(p.animateur_id)
