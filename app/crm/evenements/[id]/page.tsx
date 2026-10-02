@@ -16,7 +16,7 @@ type JourJ = { id:string; name:string; organisation:string|null; email:string|nu
 type Doc = { id:string; categorie:string; nom:string; file_name:string; file_url:string; file_type:string|null; file_size:number|null; is_external:boolean; uploaded_by:string|null; created_at:string; ani?:Ani }
 type Evenement = { id:string; name:string; date_debut:string; date_fin:string|null; description:string|null; created_by:string|null }
 
-const STATUTS: Record<string,{labelFr:string;labelEn:string;bg:string;color:string;border:string}> = {
+const STATUTS = {
   contacte:   {labelFr:'Contacte',    labelEn:'Contacted',  bg:'#E6F1FB',color:'#0C447C',border:'#85B7EB'},
   rdv_fait:   {labelFr:'RDV fait',    labelEn:'Meeting done', bg:'#FAEEDA',color:'#633806',border:'#EF9F27'},
   accepte:    {labelFr:'Accepte',     labelEn:'Accepted',     bg:'#D7FFB8',color:'#2B7400',border:'#58CC02'},
@@ -432,7 +432,7 @@ export default function CRMEvenementPage() {
   const filteredProspects=prospects.filter(p=>sgFilter==='global'?!p.sous_groupe_id:p.sous_groupe_id===sgFilter)
 
   const TAB_KEYS = ['organisation','prospection','sousgroupes','jourj','documents'] as const
-  const TAB_LABELS: Record<string,{fr:string,en:string}> = {
+  const TAB_LABELS = {
     organisation:{fr:'Membres & Planning',en:'Members & Planning'},
     prospection:{fr:'Prospection',en:'Prospection'},
     sousgroupes:{fr:'Sous-groupes',en:'Sub-groups'},
@@ -518,7 +518,7 @@ export default function CRMEvenementPage() {
                     <div style={{padding:'12px 14px',background:'#F8F9FF',borderTop:'1px solid #F0F0F0',display:'flex',flexDirection:'column',gap:8}}>
                       <input value={membreForm.role} onChange={e=>setMembreForm(f=>({...f,role:e.target.value}))} placeholder={t2("Role dans l'evenement (ex : Coordinateur, Accueil...)","Role in the event (e.g. Coordinator, Welcome...)")} className="fi" style={{fontSize:12}}/>
                       <textarea value={membreForm.notes_role} onChange={e=>setMembreForm(f=>({...f,notes_role:e.target.value}))} placeholder={t2("Notes d'organisation pour ce role...","Organisation notes for this role...")} rows={2} className="fi" style={{resize:'none'}}/>
-                      <button onClick={()=>saveMembre(m.animateur_id)} style={{alignSelf:'flex-end',padding:'6px 16px',borderRadius:8,background:'#1a1a2e',color:'white',border:'none',fontWeight:700,fontSize:12,cursor:'pointer'}}>{t2('Sauvegarder','Save')</button>
+                      <button onClick={()=>saveMembre(m.animateur_id)} style={{alignSelf:'flex-end',padding:'6px 16px',borderRadius:8,background:'#1a1a2e',color:'white',border:'none',fontWeight:700,fontSize:12,cursor:'pointer'}}>{t2('Sauvegarder','Save')}</button>
                     </div>
                   )}
                 </div>
@@ -530,7 +530,7 @@ export default function CRMEvenementPage() {
           <div style={{background:'white',borderRadius:16,border:'1.5px solid #E5E5E5',overflow:'hidden'}}>
             <div style={{padding:'14px 18px',borderBottom:'1px solid #F0F0F0',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
               <span style={{fontWeight:800,fontSize:15}}>{t2('Planning partage','Shared planning')}</span>
-              <button onClick={()=>setShowActionModal(true)} style={{padding:'6px 14px',borderRadius:10,background:'#1a1a2e',color:'white',border:'none',fontWeight:600,fontSize:12,cursor:'pointer'}}>+ {t2('Action','Action')</button>
+              <button onClick={()=>setShowActionModal(true)} style={{padding:'6px 14px',borderRadius:10,background:'#1a1a2e',color:'white',border:'none',fontWeight:600,fontSize:12,cursor:'pointer'}}>+ {t2('Action','Action')}</button>
             </div>
             <div style={{padding:'12px 16px'}}>
               {actions.length===0&&<div style={{textAlign:'center',padding:'16px',color:'#888',fontSize:13}}>{t2('Aucune action planifiee.','No planned actions.')}</div>}
@@ -564,7 +564,7 @@ export default function CRMEvenementPage() {
             {sousGroupes.map(sg=>(
               <button key={sg.id} onClick={()=>setSgFilter(sg.id)} style={{padding:'6px 14px',borderRadius:20,border:`1.5px solid ${sgFilter===sg.id?'#534AB7':'#E5E5E5'}`,background:sgFilter===sg.id?'#534AB7':'white',color:sgFilter===sg.id?'white':'#555',fontSize:12,cursor:'pointer',fontWeight:600}}>{sg.name}</button>
             ))}
-            <button onClick={()=>{setShowProspectModal(true);setProspectForm(f=>({...f,sous_groupe_id:sgFilter==='global'?'':sgFilter}))}} style={{marginLeft:'auto',padding:'7px 16px',borderRadius:10,background:'#1a1a2e',color:'white',border:'none',fontWeight:700,fontSize:12,cursor:'pointer'}}>+ {t2('Organisation','Organisation')</button>
+            <button onClick={()=>{setShowProspectModal(true);setProspectForm(f=>({...f,sous_groupe_id:sgFilter==='global'?'':sgFilter}))}} style={{marginLeft:'auto',padding:'7px 16px',borderRadius:10,background:'#1a1a2e',color:'white',border:'none',fontWeight:700,fontSize:12,cursor:'pointer'}}>+ {t2('Organisation','Organisation')}</button>
           </div>
           {STATUT_ORDER.map(statut=>{
             const s=STATUTS[statut]
@@ -642,7 +642,7 @@ export default function CRMEvenementPage() {
         {/* ══ SOUS-GROUPES ══ */}
         {tab==='sousgroupes'&&<div>
           <div style={{display:'flex',justifyContent:'flex-end',marginBottom:14}}>
-            <button onClick={()=>setShowSGModal(true)} style={{padding:'8px 16px',borderRadius:10,background:'#1a1a2e',color:'white',border:'none',fontWeight:700,fontSize:13,cursor:'pointer'}}>+ {t2('Sous-groupe','Sub-group')</button>
+            <button onClick={()=>setShowSGModal(true)} style={{padding:'8px 16px',borderRadius:10,background:'#1a1a2e',color:'white',border:'none',fontWeight:700,fontSize:13,cursor:'pointer'}}>+ {t2('Sous-groupe','Sub-group')}</button>
           </div>
           {sousGroupes.length===0&&<div style={{textAlign:'center',padding:'40px',color:'#888',background:'white',borderRadius:16,border:'1.5px solid #E5E5E5'}}><div style={{fontWeight:700}}>{t2('Aucun sous-groupe','No sub-groups')}</div><div style={{fontSize:13,marginTop:4}}>{t2('Creez des sous-ensembles regionaux, thematiques ou par secteur.','Create regional, thematic or sector sub-groups.')}</div></div>}
           <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill, minmax(250px,1fr))',gap:12}}>
@@ -660,7 +660,7 @@ export default function CRMEvenementPage() {
                   </div>
                   <div style={{padding:'10px 16px'}}>
                     <div style={{fontSize:12,color:'#888',marginBottom:6}}>{sgp.length} organisation{sgp.length!==1?'s':''}</div>
-                    <button onClick={()=>{setTab('prospection');setSgFilter(sg.id)}} style={{width:'100%',padding:'7px',borderRadius:8,border:'1.5px solid #E5E5E5',background:'white',fontSize:12,cursor:'pointer',fontWeight:600,color:'#534AB7'}}>{t2('Voir la prospection','View prospecting')</button>
+                    <button onClick={()=>{setTab('prospection');setSgFilter(sg.id)}} style={{width:'100%',padding:'7px',borderRadius:8,border:'1.5px solid #E5E5E5',background:'white',fontSize:12,cursor:'pointer',fontWeight:600,color:'#534AB7'}}>{t2('Voir la prospection','View prospecting')}</button>
                   </div>
                 </div>
               )
@@ -675,7 +675,7 @@ export default function CRMEvenementPage() {
             <div style={{fontSize:12,color:'#0C447C'}}>{t2('Enregistrez les personnes rencontrees. Elles pourront etre transferees dans le CRM global.','Record the people you meet. They can be transferred to the global CRM.')}</div>
           </div>
           <div style={{display:'flex',justifyContent:'flex-end',marginBottom:12}}>
-            <button onClick={()=>setShowJJModal(true)} style={{padding:'8px 16px',borderRadius:10,background:'#1a1a2e',color:'white',border:'none',fontWeight:700,fontSize:13,cursor:'pointer'}}>+ {t2('Contact','Contact')</button>
+            <button onClick={()=>setShowJJModal(true)} style={{padding:'8px 16px',borderRadius:10,background:'#1a1a2e',color:'white',border:'none',fontWeight:700,fontSize:13,cursor:'pointer'}}>+ t2('Contact','Contact')</button>
           </div>
           {jourJList.length===0&&<div style={{textAlign:'center',padding:'40px',color:'#888',background:'white',borderRadius:16,border:'1.5px solid #E5E5E5'}}><div style={{fontWeight:700}}>{t2('Aucun contact enregistre','No contacts recorded')}</div></div>}
           {jourJList.map(jj=>(
