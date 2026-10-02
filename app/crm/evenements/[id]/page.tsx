@@ -3,6 +3,7 @@ import React, { useEffect, useState, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import Link from 'next/link'
+import { useLanguage } from '@/lib/i18n'
 
 type Ani = { id:string; nom:string; photo_url:string|null; email:string }
 type Membre = { animateur_id:string; role:string|null; notes_role:string|null; ani?:Ani }
@@ -15,15 +16,15 @@ type JourJ = { id:string; name:string; organisation:string|null; email:string|nu
 type Doc = { id:string; categorie:string; nom:string; file_name:string; file_url:string; file_type:string|null; file_size:number|null; is_external:boolean; uploaded_by:string|null; created_at:string; ani?:Ani }
 type Evenement = { id:string; name:string; date_debut:string; date_fin:string|null; description:string|null; created_by:string|null }
 
-const STATUTS: Record<string,{label:string;bg:string;color:string;border:string}> = {
-  contacte:   {label:'Contacte',    bg:'#E6F1FB',color:'#0C447C',border:'#85B7EB'},
-  rdv_fait:   {label:'RDV fait',    bg:'#FAEEDA',color:'#633806',border:'#EF9F27'},
-  accepte:    {label:'Accepte',     bg:'#D7FFB8',color:'#2B7400',border:'#58CC02'},
-  refuse:     {label:'Refuse',      bg:'#FFDFE0',color:'#CC0000',border:'#FF4B4B'},
-  en_attente: {label:'En attente',  bg:'#F0F0F4',color:'#555',   border:'#CCC'},
+const STATUTS: Record<string,{labelFr:string;labelEn:string;bg:string;color:string;border:string}> = {
+  contacte:   {labelFr:'Contacte',    labelEn:'Contacted',  bg:'#E6F1FB',color:'#0C447C',border:'#85B7EB'},
+  rdv_fait:   {labelFr:'RDV fait',    labelEn:'Meeting done', bg:'#FAEEDA',color:'#633806',border:'#EF9F27'},
+  accepte:    {labelFr:'Accepte',     labelEn:'Accepted',     bg:'#D7FFB8',color:'#2B7400',border:'#58CC02'},
+  refuse:     {labelFr:'Refuse',      labelEn:'Declined',     bg:'#FFDFE0',color:'#CC0000',border:'#FF4B4B'},
+  en_attente: {labelFr:'En attente',  labelEn:'Pending',      bg:'#F0F0F4',color:'#555',   border:'#CCC'},
 }
 const STATUT_ORDER = ['contacte','rdv_fait','accepte','refuse','en_attente']
-const SG_TYPES = ['Regional','Thematique','Secteur','Autre']
+const SG_TYPES = lang==='en'?['Regional','Thematic','Sector','Other']:['Regional','Thematique','Secteur','Autre']
 
 function Avatar({ani,size=28}:{ani?:Ani|null;size?:number}) {
   return (
@@ -237,6 +238,8 @@ function DocSection({title,emoji,desc,categorie,docs,me,isAdmin,uploading,onUplo
 
 export default function CRMEvenementPage() {
   const {id} = useParams()
+  const { lang } = useLanguage()
+  const t2 = (fr: string, en: string) => lang === 'en' ? en : fr
   const supabase = createClient()
   const [event, setEvent] = useState<Evenement|null>(null)
   const [animateurs, setAnimateurs] = useState<Ani[]>([])
@@ -426,7 +429,7 @@ export default function CRMEvenementPage() {
   const nonMembres=animateurs.filter(a=>!membres.find(m=>m.animateur_id===a.id))
   const filteredProspects=prospects.filter(p=>sgFilter==='global'?!p.sous_groupe_id:p.sous_groupe_id===sgFilter)
 
-  const TABS=[{k:'organisation',label:'Membres & Planning'},{k:'prospection',label:'Prospection'},{k:'sousgroupes',label:'Sous-groupes'},{k:'jourj',label:'Jour J'},{k:'documents',label:'Documents'}] as const
+  const TABS=lang==='en'?[{k:'organisation',label:'Members & Planning'},{k:'prospection',label:'Prospection'},{k:'sousgroupes',label:'Sub-groups'},{k:'jourj',label:'Day J'},{k:'documents',label:'Documents'}]:[{k:'organisation',label:'Membres & Planning'},{k:'prospection',label:'Prospection'},{k:'sousgroupes',label:'Sous-groupes'},{k:'jourj',label:'Jour J'},{k:'documents',label:'Documents'}] as const
 
   return (
     <div style={{minHeight:'100vh',background:'#F7F7F7'}}>
@@ -457,8 +460,8 @@ export default function CRMEvenementPage() {
             </div>
           </div>
           <div style={{display:'flex',gap:6}}>
-            <span style={{padding:'3px 10px',borderRadius:20,background:'#F0F0F4',fontSize:11,color:'#555',fontWeight:600}}>{membres.length} membres</span>
-            <span style={{padding:'3px 10px',borderRadius:20,background:'#F0F0F4',fontSize:11,color:'#555',fontWeight:600}}>{prospects.length} prospects</span>
+            <span style={{padding:'3px 10px',borderRadius:20,background:'#F0F0F4',fontSize:11,color:'#555',fontWeight:600}}>{membres.length} {t2('membres','members')}</span>
+            <span style={{padding:'3px 10px',borderRadius:20,background:'#F0F0F4',fontSize:11,color:'#555',fontWeight:600}}>{prospects.length} {t2('prospects','prospects')}</span>
           </div>
         </div>
         <div style={{maxWidth:900,margin:'0 auto',display:'flex',gap:0,overflowX:'auto',borderTop:'1px solid #F0F0F0'}}>
@@ -475,8 +478,8 @@ export default function CRMEvenementPage() {
           {/* Membres */}
           <div style={{background:'white',borderRadius:16,border:'1.5px solid #E5E5E5',overflow:'hidden',marginBottom:16}}>
             <div style={{padding:'14px 18px',borderBottom:'1px solid #F0F0F0',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-              <span style={{fontWeight:800,fontSize:15}}>Membres de l'evenement</span>
-              <button onClick={()=>setShowAddMembre(!showAddMembre)} style={{padding:'6px 14px',borderRadius:10,background:'#1a1a2e',color:'white',border:'none',fontWeight:600,fontSize:12,cursor:'pointer'}}>{showAddMembre?'Fermer':'+ Ajouter'}</button>
+              <span style={{fontWeight:800,fontSize:15}}>{t2("Membres de l'evenement",'Event members')}</span>
+              <button onClick={()=>setShowAddMembre(!showAddMembre)} style={{padding:'6px 14px',borderRadius:10,background:'#1a1a2e',color:'white',border:'none',fontWeight:600,fontSize:12,cursor:'pointer'}}>{showAddMembre?t2('Fermer','Close'):'+ '+t2('Ajouter','Add')}</button>
             </div>
             {showAddMembre&&nonMembres.length>0&&(
               <div style={{padding:'10px 16px',background:'#F8F9FF',borderBottom:'1px solid #F0F0F0',display:'flex',flexWrap:'wrap',gap:6}}>
@@ -498,15 +501,15 @@ export default function CRMEvenementPage() {
                       {m.notes_role&&<div style={{fontSize:11,color:'#888',marginTop:2}}>{m.notes_role}</div>}
                     </div>
                     <div style={{display:'flex',gap:5}}>
-                      <button onClick={()=>{setEditMembre(editMembre===m.animateur_id?null:m.animateur_id);setMembreForm({role:m.role||'',notes_role:m.notes_role||''})}} style={{padding:'4px 10px',borderRadius:8,border:'1.5px solid #E5E5E5',background:'white',fontSize:11,cursor:'pointer',fontWeight:600}}>{editMembre===m.animateur_id?'Fermer':'Role'}</button>
-                      {(isAdmin||event.created_by===me?.id)&&<button onClick={()=>removeMembre(m.animateur_id)} style={{padding:'4px 10px',borderRadius:8,border:'none',background:'#FFDFE0',color:'#CC0000',fontSize:11,cursor:'pointer',fontWeight:600}}>Retirer</button>}
+                      <button onClick={()=>{setEditMembre(editMembre===m.animateur_id?null:m.animateur_id);setMembreForm({role:m.role||'',notes_role:m.notes_role||''})}} style={{padding:'4px 10px',borderRadius:8,border:'1.5px solid #E5E5E5',background:'white',fontSize:11,cursor:'pointer',fontWeight:600}}>{editMembre===m.animateur_id?t2('Fermer','Close'):t2('Role','Role')}</button>
+                      {(isAdmin||event.created_by===me?.id)&&<button onClick={()=>removeMembre(m.animateur_id)} style={{padding:'4px 10px',borderRadius:8,border:'none',background:'#FFDFE0',color:'#CC0000',fontSize:11,cursor:'pointer',fontWeight:600}}>{t2('Retirer','Remove')}</button>}
                     </div>
                   </div>
                   {editMembre===m.animateur_id&&(
                     <div style={{padding:'12px 14px',background:'#F8F9FF',borderTop:'1px solid #F0F0F0',display:'flex',flexDirection:'column',gap:8}}>
-                      <input value={membreForm.role} onChange={e=>setMembreForm(f=>({...f,role:e.target.value}))} placeholder="Role dans l'evenement (ex : Coordinateur, Accueil...)" className="fi" style={{fontSize:12}}/>
-                      <textarea value={membreForm.notes_role} onChange={e=>setMembreForm(f=>({...f,notes_role:e.target.value}))} placeholder="Notes d'organisation pour ce role..." rows={2} className="fi" style={{resize:'none'}}/>
-                      <button onClick={()=>saveMembre(m.animateur_id)} style={{alignSelf:'flex-end',padding:'6px 16px',borderRadius:8,background:'#1a1a2e',color:'white',border:'none',fontWeight:700,fontSize:12,cursor:'pointer'}}>Sauvegarder</button>
+                      <input value={membreForm.role} onChange={e=>setMembreForm(f=>({...f,role:e.target.value}))} placeholder={t2("Role dans l'evenement (ex : Coordinateur, Accueil...)","Role in the event (e.g. Coordinator, Welcome...)")} className="fi" style={{fontSize:12}}/>
+                      <textarea value={membreForm.notes_role} onChange={e=>setMembreForm(f=>({...f,notes_role:e.target.value}))} placeholder={t2("Notes d'organisation pour ce role...","Organisation notes for this role...")} rows={2} className="fi" style={{resize:'none'}}/>
+                      <button onClick={()=>saveMembre(m.animateur_id)} style={{alignSelf:'flex-end',padding:'6px 16px',borderRadius:8,background:'#1a1a2e',color:'white',border:'none',fontWeight:700,fontSize:12,cursor:'pointer'}}>{t2('Sauvegarder','Save')</button>
                     </div>
                   )}
                 </div>
@@ -517,11 +520,11 @@ export default function CRMEvenementPage() {
           {/* Planning */}
           <div style={{background:'white',borderRadius:16,border:'1.5px solid #E5E5E5',overflow:'hidden'}}>
             <div style={{padding:'14px 18px',borderBottom:'1px solid #F0F0F0',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-              <span style={{fontWeight:800,fontSize:15}}>Planning partage</span>
-              <button onClick={()=>setShowActionModal(true)} style={{padding:'6px 14px',borderRadius:10,background:'#1a1a2e',color:'white',border:'none',fontWeight:600,fontSize:12,cursor:'pointer'}}>+ Action</button>
+              <span style={{fontWeight:800,fontSize:15}}>{t2('Planning partage','Shared planning')}</span>
+              <button onClick={()=>setShowActionModal(true)} style={{padding:'6px 14px',borderRadius:10,background:'#1a1a2e',color:'white',border:'none',fontWeight:600,fontSize:12,cursor:'pointer'}}>+ {t2('Action','Action')</button>
             </div>
             <div style={{padding:'12px 16px'}}>
-              {actions.length===0&&<div style={{textAlign:'center',padding:'16px',color:'#888',fontSize:13}}>Aucune action planifiee.</div>}
+              {actions.length===0&&<div style={{textAlign:'center',padding:'16px',color:'#888',fontSize:13}}>{t2('Aucune action planifiee.','No planned actions.')}</div>}
               {actions.map(a=>{
                 const isLate=a.deadline&&a.statut!=='fait'&&new Date(a.deadline)<new Date()
                 const sColor={a_faire:'#555',en_cours:'#633806',fait:'#2B7400'}[a.statut]||'#555'
@@ -537,7 +540,7 @@ export default function CRMEvenementPage() {
                     </div>
                     {a.ani&&<Avatar ani={a.ani} size={22}/>}
                     {a.deadline&&<div style={{fontSize:11,fontWeight:700,color:isLate?'#CC0000':'#888',flexShrink:0}}>{isLate?'! ':''}{new Date(a.deadline).toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}</div>}
-                    <span style={{padding:'2px 8px',borderRadius:20,background:sBg,color:sColor,fontSize:10,fontWeight:700,flexShrink:0}}>{{a_faire:'A faire',en_cours:'En cours',fait:'Fait'}[a.statut]}</span>
+                    <span style={{padding:'2px 8px',borderRadius:20,background:sBg,color:sColor,fontSize:10,fontWeight:700,flexShrink:0}}>{(lang==='en'?{'a_faire':'To do','en_cours':'In progress','fait':'Done'}:{'a_faire':'A faire','en_cours':'En cours','fait':'Fait'})[a.statut]}</span>
                   </div>
                 )
               })}
@@ -552,7 +555,7 @@ export default function CRMEvenementPage() {
             {sousGroupes.map(sg=>(
               <button key={sg.id} onClick={()=>setSgFilter(sg.id)} style={{padding:'6px 14px',borderRadius:20,border:`1.5px solid ${sgFilter===sg.id?'#534AB7':'#E5E5E5'}`,background:sgFilter===sg.id?'#534AB7':'white',color:sgFilter===sg.id?'white':'#555',fontSize:12,cursor:'pointer',fontWeight:600}}>{sg.name}</button>
             ))}
-            <button onClick={()=>{setShowProspectModal(true);setProspectForm(f=>({...f,sous_groupe_id:sgFilter==='global'?'':sgFilter}))}} style={{marginLeft:'auto',padding:'7px 16px',borderRadius:10,background:'#1a1a2e',color:'white',border:'none',fontWeight:700,fontSize:12,cursor:'pointer'}}>+ Organisation</button>
+            <button onClick={()=>{setShowProspectModal(true);setProspectForm(f=>({...f,sous_groupe_id:sgFilter==='global'?'':sgFilter}))}} style={{marginLeft:'auto',padding:'7px 16px',borderRadius:10,background:'#1a1a2e',color:'white',border:'none',fontWeight:700,fontSize:12,cursor:'pointer'}}>+ {t2('Organisation','Organisation')</button>
           </div>
           {STATUT_ORDER.map(statut=>{
             const s=STATUTS[statut]
@@ -561,7 +564,7 @@ export default function CRMEvenementPage() {
             return (
               <div key={statut} style={{marginBottom:20}}>
                 <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
-                  <div style={{padding:'3px 12px',borderRadius:20,background:s.bg,color:s.color,fontWeight:800,fontSize:12,border:`1.5px solid ${s.border}`}}>{s.label}</div>
+                  <div style={{padding:'3px 12px',borderRadius:20,background:s.bg,color:s.color,fontWeight:800,fontSize:12,border:`1.5px solid ${s.border}`}}>{(lang==='en'?s.labelEn:s.labelFr)}</div>
                   <div style={{fontSize:12,color:'#888'}}>{groupe.length}</div>
                 </div>
                 {groupe.map(p=>(
@@ -578,13 +581,13 @@ export default function CRMEvenementPage() {
                         <div style={{display:'flex',gap:4,flexWrap:'wrap',justifyContent:'flex-end',maxWidth:200}}>
                           {STATUT_ORDER.filter(ns=>ns!==p.statut).map(ns=>(
                             <button key={ns} onClick={()=>updateStatut(p.id,ns)} style={{padding:'3px 8px',borderRadius:20,border:`1px solid ${STATUTS[ns].border}`,background:STATUTS[ns].bg,color:STATUTS[ns].color,fontSize:10,cursor:'pointer',fontWeight:700}}>
-                              {STATUTS[ns].label}
+                              {(lang==='en'?STATUTS[ns].labelEn:STATUTS[ns].labelFr)}
                             </button>
                           ))}
                         </div>
                       </div>
                       <button onClick={()=>setExpandedProspect(expandedProspect===p.id?null:p.id)} style={{background:'none',border:'none',cursor:'pointer',fontSize:12,color:'#534AB7',fontWeight:600,padding:0}}>
-                        {expandedProspect===p.id?'Reduire':'Voir'} ({(p.contacts||[]).length} contacts, {(p.commentaires||[]).length} commentaires)
+                        {expandedProspect===p.id?t2('Reduire','Collapse'):t2('Voir','View')} ({(p.contacts||[]).length} {t2('contacts','contacts')}, {(p.commentaires||[]).length} {t2('commentaires','comments')})
                       </button>
                     </div>
                     {expandedProspect===p.id&&(
@@ -613,7 +616,7 @@ export default function CRMEvenementPage() {
                           ))}
                           <div style={{display:'flex',gap:8}}>
                             <Avatar ani={me} size={26}/>
-                            <input value={newComment[p.id]||''} onChange={e=>setNewComment(prev=>({...prev,[p.id]:e.target.value}))} placeholder="Ajouter un commentaire..." style={{flex:1,padding:'7px 10px',borderRadius:8,border:'1.5px solid #E5E5E5',fontSize:12,outline:'none'}} onKeyDown={e=>{if(e.key==='Enter')postComment(p.id)}}/>
+                            <input value={newComment[p.id]||''} onChange={e=>setNewComment(prev=>({...prev,[p.id]:e.target.value}))} placeholder={t2('Ajouter un commentaire...','Add a comment...')} style={{flex:1,padding:'7px 10px',borderRadius:8,border:'1.5px solid #E5E5E5',fontSize:12,outline:'none'}} onKeyDown={e=>{if(e.key==='Enter')postComment(p.id)}}/>
                             <button onClick={()=>postComment(p.id)} style={{padding:'7px 12px',borderRadius:8,background:'#1a1a2e',color:'white',border:'none',fontSize:12,cursor:'pointer'}}>ok</button>
                           </div>
                         </div>
@@ -624,15 +627,15 @@ export default function CRMEvenementPage() {
               </div>
             )
           })}
-          {filteredProspects.length===0&&<div style={{textAlign:'center',padding:'40px',color:'#888',background:'white',borderRadius:16,border:'1.5px solid #E5E5E5'}}><div style={{fontSize:32,marginBottom:8}}>?</div><div style={{fontWeight:700}}>Aucune organisation</div></div>}
+          {filteredProspects.length===0&&<div style={{textAlign:'center',padding:'40px',color:'#888',background:'white',borderRadius:16,border:'1.5px solid #E5E5E5'}}><div style={{fontSize:32,marginBottom:8}}>?</div><div style={{fontWeight:700}}>{t2('Aucune organisation','No organisation')}</div></div>}
         </div>}
 
         {/* ══ SOUS-GROUPES ══ */}
         {tab==='sousgroupes'&&<div>
           <div style={{display:'flex',justifyContent:'flex-end',marginBottom:14}}>
-            <button onClick={()=>setShowSGModal(true)} style={{padding:'8px 16px',borderRadius:10,background:'#1a1a2e',color:'white',border:'none',fontWeight:700,fontSize:13,cursor:'pointer'}}>+ Sous-groupe</button>
+            <button onClick={()=>setShowSGModal(true)} style={{padding:'8px 16px',borderRadius:10,background:'#1a1a2e',color:'white',border:'none',fontWeight:700,fontSize:13,cursor:'pointer'}}>+ {t2('Sous-groupe','Sub-group')</button>
           </div>
-          {sousGroupes.length===0&&<div style={{textAlign:'center',padding:'40px',color:'#888',background:'white',borderRadius:16,border:'1.5px solid #E5E5E5'}}><div style={{fontWeight:700}}>Aucun sous-groupe</div><div style={{fontSize:13,marginTop:4}}>Creez des sous-ensembles regionaux, thematiques ou par secteur.</div></div>}
+          {sousGroupes.length===0&&<div style={{textAlign:'center',padding:'40px',color:'#888',background:'white',borderRadius:16,border:'1.5px solid #E5E5E5'}}><div style={{fontWeight:700}}>{t2('Aucun sous-groupe','No sub-groups')}</div><div style={{fontSize:13,marginTop:4}}>{t2('Creez des sous-ensembles regionaux, thematiques ou par secteur.','Create regional, thematic or sector sub-groups.')}</div></div>}
           <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill, minmax(250px,1fr))',gap:12}}>
             {sousGroupes.map(sg=>{
               const sgp=prospects.filter(p=>p.sous_groupe_id===sg.id)
@@ -648,7 +651,7 @@ export default function CRMEvenementPage() {
                   </div>
                   <div style={{padding:'10px 16px'}}>
                     <div style={{fontSize:12,color:'#888',marginBottom:6}}>{sgp.length} organisation{sgp.length!==1?'s':''}</div>
-                    <button onClick={()=>{setTab('prospection');setSgFilter(sg.id)}} style={{width:'100%',padding:'7px',borderRadius:8,border:'1.5px solid #E5E5E5',background:'white',fontSize:12,cursor:'pointer',fontWeight:600,color:'#534AB7'}}>Voir la prospection</button>
+                    <button onClick={()=>{setTab('prospection');setSgFilter(sg.id)}} style={{width:'100%',padding:'7px',borderRadius:8,border:'1.5px solid #E5E5E5',background:'white',fontSize:12,cursor:'pointer',fontWeight:600,color:'#534AB7'}}>{t2('Voir la prospection','View prospecting')</button>
                   </div>
                 </div>
               )
@@ -659,13 +662,13 @@ export default function CRMEvenementPage() {
         {/* ══ JOUR J ══ */}
         {tab==='jourj'&&<div>
           <div style={{background:'#E6F1FB',borderRadius:12,padding:'12px 14px',marginBottom:14,border:'1.5px solid #85B7EB'}}>
-            <div style={{fontWeight:700,fontSize:13,color:'#0C447C',marginBottom:3}}>Mode Jour J</div>
-            <div style={{fontSize:12,color:'#0C447C'}}>Enregistrez les personnes rencontrees. Elles pourront etre transferees dans le CRM global.</div>
+            <div style={{fontWeight:700,fontSize:13,color:'#0C447C',marginBottom:3}}>{t2('Mode Jour J','Day J Mode')}</div>
+            <div style={{fontSize:12,color:'#0C447C'}}>{t2('Enregistrez les personnes rencontrees. Elles pourront etre transferees dans le CRM global.','Record the people you meet. They can be transferred to the global CRM.')}</div>
           </div>
           <div style={{display:'flex',justifyContent:'flex-end',marginBottom:12}}>
-            <button onClick={()=>setShowJJModal(true)} style={{padding:'8px 16px',borderRadius:10,background:'#1a1a2e',color:'white',border:'none',fontWeight:700,fontSize:13,cursor:'pointer'}}>+ Contact</button>
+            <button onClick={()=>setShowJJModal(true)} style={{padding:'8px 16px',borderRadius:10,background:'#1a1a2e',color:'white',border:'none',fontWeight:700,fontSize:13,cursor:'pointer'}}>+ {t2('Contact','Contact')</button>
           </div>
-          {jourJList.length===0&&<div style={{textAlign:'center',padding:'40px',color:'#888',background:'white',borderRadius:16,border:'1.5px solid #E5E5E5'}}><div style={{fontWeight:700}}>Aucun contact enregistre</div></div>}
+          {jourJList.length===0&&<div style={{textAlign:'center',padding:'40px',color:'#888',background:'white',borderRadius:16,border:'1.5px solid #E5E5E5'}}><div style={{fontWeight:700}}>{t2('Aucun contact enregistre','No contacts recorded')}</div></div>}
           {jourJList.map(jj=>(
             <div key={jj.id} style={{background:'white',borderRadius:12,border:`1.5px solid ${jj.transferred?'#58CC02':'#E5E5E5'}`,padding:'12px 16px',display:'flex',gap:12,alignItems:'flex-start',marginBottom:8,animation:'fadeIn .3s ease'}}>
               <div style={{flex:1}}>
@@ -678,22 +681,22 @@ export default function CRMEvenementPage() {
                 {jj.notes&&<div style={{fontSize:12,color:'#888',marginTop:4}}>{jj.notes}</div>}
               </div>
               {jj.transferred
-                ?<span style={{padding:'4px 10px',borderRadius:20,background:'#D7FFB8',color:'#2B7400',fontSize:11,fontWeight:700,flexShrink:0}}>Dans le CRM</span>
-                :<button onClick={()=>transferToGlobal(jj)} style={{padding:'5px 12px',borderRadius:8,background:'#1a1a2e',color:'white',border:'none',fontSize:11,cursor:'pointer',fontWeight:600,flexShrink:0}}>CRM global</button>}
+                ?<span style={{padding:'4px 10px',borderRadius:20,background:'#D7FFB8',color:'#2B7400',fontSize:11,fontWeight:700,flexShrink:0}}>{t2('Dans le CRM','In CRM')}</span>
+                :<button onClick={()=>transferToGlobal(jj)} style={{padding:'5px 12px',borderRadius:8,background:'#1a1a2e',color:'white',border:'none',fontSize:11,cursor:'pointer',fontWeight:600,flexShrink:0}}>{t2('CRM global','Global CRM')}</button>}
             </div>
           ))}
         </div>}
         {/* ══ DOCUMENTS ══ */}
         {tab==='documents'&&<div style={{display:'flex',flexDirection:'column',gap:16}}>
-          <DocSection title="Kit de com" emoji="📢"
-            desc="Cadrage, argumentaires, modeles d'invitation, prospection..."
+          <DocSection title={t2('Kit de com','Comms kit')} emoji="📢"
+            desc={t2("Cadrage, argumentaires, modeles d'invitation, prospection...",'Framing, arguments, invitation templates, prospecting...')}
             categorie="kit_com" docs={documents.filter(d=>d.categorie==='kit_com')}
             me={me} isAdmin={isAdmin} uploading={uploadingDoc&&docCategorie==='kit_com'}
             onUpload={files=>{setDocCategorie('kit_com');Array.from(files).forEach(f=>uploadDoc(f,'kit_com'))}}
             onAddLink={addExternalLink}
             onDelete={deleteDoc}/>
-          <DocSection title="Documentation" emoji="📁"
-            desc="Visuels, images, supports de presentation, ressources graphiques..."
+          <DocSection title={t2('Documentation','Documentation')} emoji="📁"
+            desc={t2('Visuels, images, supports de presentation, ressources graphiques...','Visuals, images, presentation materials, graphic resources...')}
             categorie="documentation" docs={documents.filter(d=>d.categorie==='documentation')}
             me={me} isAdmin={isAdmin} uploading={uploadingDoc&&docCategorie==='documentation'}
             onUpload={files=>{setDocCategorie('documentation');Array.from(files).forEach(f=>uploadDoc(f,'documentation'))}}
@@ -706,59 +709,59 @@ export default function CRMEvenementPage() {
       {showActionModal&&<div className="modal-bg"><div className="modal-box">
         <div className="modal-head"><div style={{fontWeight:900,fontSize:15}}>Nouvelle action</div><button onClick={()=>setShowActionModal(false)} style={{background:'none',border:'none',fontSize:20,cursor:'pointer',color:'#888'}}>x</button></div>
         <div className="modal-body">
-          <input value={actionForm.titre} onChange={e=>setActionForm(f=>({...f,titre:e.target.value}))} placeholder="Action *" className="fi"/>
-          <textarea value={actionForm.description} onChange={e=>setActionForm(f=>({...f,description:e.target.value}))} placeholder="Description" rows={2} className="fi" style={{resize:'none'}}/>
+          <input value={actionForm.titre} onChange={e=>setActionForm(f=>({...f,titre:e.target.value}))} placeholder={t2('Action *','Action *')} className="fi"/>
+          <textarea value={actionForm.description} onChange={e=>setActionForm(f=>({...f,description:e.target.value}))} placeholder={t2('Description','Description')} rows={2} className="fi" style={{resize:'none'}}/>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
             <div><label style={{fontSize:11,fontWeight:600,display:'block',marginBottom:3}}>Deadline</label><input type="date" value={actionForm.deadline} onChange={e=>setActionForm(f=>({...f,deadline:e.target.value}))} className="fi-sm"/></div>
             <div><label style={{fontSize:11,fontWeight:600,display:'block',marginBottom:3}}>Assigne a</label><select value={actionForm.animateur_id} onChange={e=>setActionForm(f=>({...f,animateur_id:e.target.value}))} className="fi-sm"><option value="">Non assigne</option>{membres.map(m=><option key={m.animateur_id} value={m.animateur_id}>{m.ani?.nom}</option>)}</select></div>
           </div>
-          <button onClick={addAction} disabled={!actionForm.titre.trim()} className="btn-main" style={{background:actionForm.titre.trim()?'#1a1a2e':'#E5E5E5',color:actionForm.titre.trim()?'white':'#888'}}>Ajouter</button>
+          <button onClick={addAction} disabled={!actionForm.titre.trim()} className="btn-main" style={{background:actionForm.titre.trim()?'#1a1a2e':'#E5E5E5',color:actionForm.titre.trim()?'white':'#888'}}>{t2('Ajouter','Add')}</button>
         </div>
       </div></div>}
 
       {showProspectModal&&<div className="modal-bg"><div className="modal-box">
         <div className="modal-head"><div style={{fontWeight:900,fontSize:15}}>Nouvelle organisation</div><button onClick={()=>setShowProspectModal(false)} style={{background:'none',border:'none',fontSize:20,cursor:'pointer',color:'#888'}}>x</button></div>
         <div className="modal-body">
-          <input value={prospectForm.name} onChange={e=>setProspectForm(f=>({...f,name:e.target.value}))} placeholder="Nom *" className="fi"/>
+          <input value={prospectForm.name} onChange={e=>setProspectForm(f=>({...f,name:e.target.value}))} placeholder={t2('Nom *','Name *')} className="fi"/>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
-            <input value={prospectForm.secteur} onChange={e=>setProspectForm(f=>({...f,secteur:e.target.value}))} placeholder="Secteur" className="fi-sm"/>
-            <input value={prospectForm.region} onChange={e=>setProspectForm(f=>({...f,region:e.target.value}))} placeholder="Region" className="fi-sm"/>
+            <input value={prospectForm.secteur} onChange={e=>setProspectForm(f=>({...f,secteur:e.target.value}))} placeholder={t2('Secteur','Sector')} className="fi-sm"/>
+            <input value={prospectForm.region} onChange={e=>setProspectForm(f=>({...f,region:e.target.value}))} placeholder={t2('Region','Region')} className="fi-sm"/>
           </div>
           <div><label style={{fontSize:11,fontWeight:600,display:'block',marginBottom:4}}>Statut</label><div style={{display:'flex',gap:5,flexWrap:'wrap'}}>{STATUT_ORDER.map(s=><button key={s} onClick={()=>setProspectForm(f=>({...f,statut:s}))} style={{padding:'4px 10px',borderRadius:20,border:`1.5px solid ${prospectForm.statut===s?STATUTS[s].border:'#E5E5E5'}`,background:prospectForm.statut===s?STATUTS[s].bg:'white',color:prospectForm.statut===s?STATUTS[s].color:'#888',fontSize:11,cursor:'pointer',fontWeight:600}}>{STATUTS[s].label}</button>)}</div></div>
           {sousGroupes.length>0&&<select value={prospectForm.sous_groupe_id} onChange={e=>setProspectForm(f=>({...f,sous_groupe_id:e.target.value}))} className="fi-sm"><option value="">Global</option>{sousGroupes.map(sg=><option key={sg.id} value={sg.id}>{sg.name}</option>)}</select>}
-          <button onClick={addProspect} disabled={!prospectForm.name.trim()} className="btn-main" style={{background:prospectForm.name.trim()?'#1a1a2e':'#E5E5E5',color:prospectForm.name.trim()?'white':'#888'}}>Ajouter</button>
+          <button onClick={addProspect} disabled={!prospectForm.name.trim()} className="btn-main" style={{background:prospectForm.name.trim()?'#1a1a2e':'#E5E5E5',color:prospectForm.name.trim()?'white':'#888'}}>{t2('Ajouter','Add')}</button>
         </div>
       </div></div>}
 
       {showContactModal&&<div className="modal-bg" style={{zIndex:110}}><div className="modal-box" style={{maxWidth:360}}>
         <div className="modal-head"><div style={{fontWeight:900,fontSize:14}}>Ajouter un contact</div><button onClick={()=>setShowContactModal(null)} style={{background:'none',border:'none',fontSize:20,cursor:'pointer',color:'#888'}}>x</button></div>
         <div className="modal-body">
-          <input value={contactForm.name} onChange={e=>setContactForm(f=>({...f,name:e.target.value}))} placeholder="Nom *" className="fi"/>
-          <input value={contactForm.role_poste} onChange={e=>setContactForm(f=>({...f,role_poste:e.target.value}))} placeholder="Poste" className="fi-sm"/>
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}><input type="email" value={contactForm.email} onChange={e=>setContactForm(f=>({...f,email:e.target.value}))} placeholder="Email" className="fi-sm"/><input type="tel" value={contactForm.phone} onChange={e=>setContactForm(f=>({...f,phone:e.target.value}))} placeholder="Tel" className="fi-sm"/></div>
-          <button onClick={()=>addContact(showContactModal)} disabled={!contactForm.name.trim()} className="btn-main" style={{background:contactForm.name.trim()?'#1a1a2e':'#E5E5E5',color:contactForm.name.trim()?'white':'#888'}}>Ajouter</button>
+          <input value={contactForm.name} onChange={e=>setContactForm(f=>({...f,name:e.target.value}))} placeholder={t2('Nom *','Name *')} className="fi"/>
+          <input value={contactForm.role_poste} onChange={e=>setContactForm(f=>({...f,role_poste:e.target.value}))} placeholder={t2('Poste','Position')} className="fi-sm"/>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}><input type="email" value={contactForm.email} onChange={e=>setContactForm(f=>({...f,email:e.target.value}))} placeholder={t2('Email','Email')} className="fi-sm"/><input type="tel" value={contactForm.phone} onChange={e=>setContactForm(f=>({...f,phone:e.target.value}))} placeholder={t2('Tel','Phone')} className="fi-sm"/></div>
+          <button onClick={()=>addContact(showContactModal)} disabled={!contactForm.name.trim()} className="btn-main" style={{background:contactForm.name.trim()?'#1a1a2e':'#E5E5E5',color:contactForm.name.trim()?'white':'#888'}}>{t2('Ajouter','Add')}</button>
         </div>
       </div></div>}
 
       {showSGModal&&<div className="modal-bg"><div className="modal-box">
         <div className="modal-head"><div style={{fontWeight:900,fontSize:15}}>Nouveau sous-groupe</div><button onClick={()=>setShowSGModal(false)} style={{background:'none',border:'none',fontSize:20,cursor:'pointer',color:'#888'}}>x</button></div>
         <div className="modal-body">
-          <input value={sgForm.name} onChange={e=>setSgForm(f=>({...f,name:e.target.value}))} placeholder="Nom *" className="fi"/>
+          <input value={sgForm.name} onChange={e=>setSgForm(f=>({...f,name:e.target.value}))} placeholder={t2('Nom *','Name *')} className="fi"/>
           <div><label style={{fontSize:11,fontWeight:600,display:'block',marginBottom:4}}>Type</label><div style={{display:'flex',gap:5,flexWrap:'wrap'}}>{SG_TYPES.map(t=><button key={t} onClick={()=>setSgForm(f=>({...f,type:t}))} style={{padding:'4px 10px',borderRadius:20,border:`1.5px solid ${sgForm.type===t?'#534AB7':'#E5E5E5'}`,background:sgForm.type===t?'#EEEDFE':'white',color:sgForm.type===t?'#3C3489':'#555',fontSize:11,cursor:'pointer',fontWeight:600}}>{t}</button>)}</div></div>
-          <textarea value={sgForm.description} onChange={e=>setSgForm(f=>({...f,description:e.target.value}))} placeholder="Description" rows={2} className="fi" style={{resize:'none'}}/>
-          <button onClick={addSG} disabled={!sgForm.name.trim()} className="btn-main" style={{background:sgForm.name.trim()?'#1a1a2e':'#E5E5E5',color:sgForm.name.trim()?'white':'#888'}}>Creer</button>
+          <textarea value={sgForm.description} onChange={e=>setSgForm(f=>({...f,description:e.target.value}))} placeholder={t2('Description','Description')} rows={2} className="fi" style={{resize:'none'}}/>
+          <button onClick={addSG} disabled={!sgForm.name.trim()} className="btn-main" style={{background:sgForm.name.trim()?'#1a1a2e':'#E5E5E5',color:sgForm.name.trim()?'white':'#888'}}>{t2('Creer','Create')}</button>
         </div>
       </div></div>}
 
       {showJJModal&&<div className="modal-bg"><div className="modal-box">
         <div className="modal-head"><div style={{fontWeight:900,fontSize:15}}>Nouveau contact</div><button onClick={()=>setShowJJModal(false)} style={{background:'none',border:'none',fontSize:20,cursor:'pointer',color:'#888'}}>x</button></div>
         <div className="modal-body">
-          <input value={jjForm.name} onChange={e=>setJjForm(f=>({...f,name:e.target.value}))} placeholder="Prenom Nom *" className="fi"/>
-          <input value={jjForm.organisation} onChange={e=>setJjForm(f=>({...f,organisation:e.target.value}))} placeholder="Organisation" className="fi-sm"/>
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}><input type="email" value={jjForm.email} onChange={e=>setJjForm(f=>({...f,email:e.target.value}))} placeholder="Email" className="fi-sm"/><input type="tel" value={jjForm.phone} onChange={e=>setJjForm(f=>({...f,phone:e.target.value}))} placeholder="Tel" className="fi-sm"/></div>
-          <textarea value={jjForm.notes} onChange={e=>setJjForm(f=>({...f,notes:e.target.value}))} placeholder="Notes..." rows={2} className="fi" style={{resize:'none'}}/>
+          <input value={jjForm.name} onChange={e=>setJjForm(f=>({...f,name:e.target.value}))} placeholder={t2('Prenom Nom *','First Last *')} className="fi"/>
+          <input value={jjForm.organisation} onChange={e=>setJjForm(f=>({...f,organisation:e.target.value}))} placeholder={t2('Organisation','Organisation')} className="fi-sm"/>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}><input type="email" value={jjForm.email} onChange={e=>setJjForm(f=>({...f,email:e.target.value}))} placeholder={t2('Email','Email')} className="fi-sm"/><input type="tel" value={jjForm.phone} onChange={e=>setJjForm(f=>({...f,phone:e.target.value}))} placeholder={t2('Tel','Phone')} className="fi-sm"/></div>
+          <textarea value={jjForm.notes} onChange={e=>setJjForm(f=>({...f,notes:e.target.value}))} placeholder={t2('Notes...','Notes...')} rows={2} className="fi" style={{resize:'none'}}/>
           {sousGroupes.length>0&&<select value={jjForm.sous_groupe_id} onChange={e=>setJjForm(f=>({...f,sous_groupe_id:e.target.value}))} className="fi-sm"><option value="">Pas de sous-groupe</option>{sousGroupes.map(sg=><option key={sg.id} value={sg.id}>{sg.name}</option>)}</select>}
-          <button onClick={addJourJ} disabled={!jjForm.name.trim()} className="btn-main" style={{background:jjForm.name.trim()?'#1a1a2e':'#E5E5E5',color:jjForm.name.trim()?'white':'#888'}}>Enregistrer</button>
+          <button onClick={addJourJ} disabled={!jjForm.name.trim()} className="btn-main" style={{background:jjForm.name.trim()?'#1a1a2e':'#E5E5E5',color:jjForm.name.trim()?'white':'#888'}}>{t2('Enregistrer','Save')}</button>
         </div>
       </div></div>}
     </div>
