@@ -234,15 +234,6 @@ function AIChipBadge({ size = 100 }: { size?: number }) {
 }
 
 
-// ─── PHASE CELEBRATIONS DATA ──────────────────────────────────────────────────
-const PHASE_CELEBRATIONS = [
-  { atStep: 6,  icon: '💻', title: 'Age 1 maitrise !', sub: 'Tu comprends maintenant comment les humains ont appris a faire calculer les machines.', color: '#534AB7', bg: '#EEEDFE' },
-  { atStep: 11, icon: '🧪', title: 'Systemes experts explores !', sub: "Tu sais ce qu'est un moteur d'inference et pourquoi Deep Blue est fascinant.", color: '#633806', bg: '#FAEEDA' },
-  { atStep: 20, icon: '🔗', title: 'Reseaux de neurones maitrise !', sub: "Tu comprends comment une machine apprend et ce qu'est la boite noire.", color: '#0C447C', bg: '#E6F1FB' },
-  { atStep: 29, icon: '✨', title: 'IA generative decouverte !', sub: 'Tokens, vecteurs, attention, Transformer. Tu as tout compris.', color: '#72243E', bg: '#FBEAF0' },
-  { atStep: 31, icon: '🚀', title: 'Contenu termine ! Place au quiz.', sub: '20 questions pour valider. Un score parfait debloque le badge IA MASTER.', color: '#27500A', bg: '#EAF3DE' },
-]
-
 // ─── CONFETTI ─────────────────────────────────────────────────────────────────
 function Confetti() {
   const pieces = Array.from({ length: 28 }, (_, i) => ({
