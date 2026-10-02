@@ -475,7 +475,7 @@ export default function CRMEvenementPage() {
         </div>
         <div style={{maxWidth:900,margin:'0 auto',display:'flex',gap:0,overflowX:'auto',borderTop:'1px solid #F0F0F0'}}>
           {TAB_KEYS.map(k=>(
-            <button key={k} className={`ev-tab${tab===k?' active':''}`} onClick={()=>setTab(k as typeof tab)}>{lang==='en'?TAB_LABELS[k].en:TAB_LABELS[k].fr}</button>
+            <button key={k} className={`ev-tab${tab===k?' active':''}`} onClick={()=>setTab(k as typeof tab)}>{lang==='en'?(TAB_LABELS as Record<string,{fr:string,en:string}>)[k].en:(TAB_LABELS as Record<string,{fr:string,en:string}>)[k].fr}</button>
           ))}
         </div>
       </div>
@@ -660,7 +660,7 @@ export default function CRMEvenementPage() {
                   </div>
                   <div style={{padding:'10px 16px'}}>
                     <div style={{fontSize:12,color:'#888',marginBottom:6}}>{sgp.length} organisation{sgp.length!==1?'s':''}</div>
-                    <button onClick={()=>{setTab('prospection');setSgFilter(sg.id)}} style={{width:'100%',padding:'7px',borderRadius:8,border:'1.5px solid #E5E5E5',background:'white',fontSize:12,cursor:'pointer',fontWeight:600,color:'#534AB7'}}>{t2('Voir la prospection','View prospecting')}</button>
+                    <button onClick={()=>{setTab('prospection' as typeof tab);setSgFilter(sg.id)}} style={{width:'100%',padding:'7px',borderRadius:8,border:'1.5px solid #E5E5E5',background:'white',fontSize:12,cursor:'pointer',fontWeight:600,color:'#534AB7'}}>{t2('Voir la prospection','View prospecting')}</button>
                   </div>
                 </div>
               )
@@ -736,7 +736,7 @@ export default function CRMEvenementPage() {
             <input value={prospectForm.secteur} onChange={e=>setProspectForm(f=>({...f,secteur:e.target.value}))} placeholder={t2('Secteur','Sector')} className="fi-sm"/>
             <input value={prospectForm.region} onChange={e=>setProspectForm(f=>({...f,region:e.target.value}))} placeholder={t2('Region','Region')} className="fi-sm"/>
           </div>
-          <div><label style={{fontSize:11,fontWeight:600,display:'block',marginBottom:4}}>Statut</label><div style={{display:'flex',gap:5,flexWrap:'wrap'}}>{STATUT_ORDER.map(s=><button key={s} onClick={()=>setProspectForm(f=>({...f,statut:s}))} style={{padding:'4px 10px',borderRadius:20,border:`1.5px solid ${prospectForm.statut===s?STATUTS[s].border:'#E5E5E5'}`,background:prospectForm.statut===s?STATUTS[s].bg:'white',color:prospectForm.statut===s?STATUTS[s].color:'#888',fontSize:11,cursor:'pointer',fontWeight:600}}>{STATUTS[s].label}</button>)}</div></div>
+          <div><label style={{fontSize:11,fontWeight:600,display:'block',marginBottom:4}}>Statut</label><div style={{display:'flex',gap:5,flexWrap:'wrap'}}>{STATUT_ORDER.map(s=><button key={s} onClick={()=>setProspectForm(f=>({...f,statut:s}))} style={{padding:'4px 10px',borderRadius:20,border:`1.5px solid ${prospectForm.statut===s?STATUTS[s as keyof typeof STATUTS].border:'#E5E5E5'}`,background:prospectForm.statut===s?STATUTS[s as keyof typeof STATUTS].bg:'white',color:prospectForm.statut===s?STATUTS[s as keyof typeof STATUTS].color:'#888',fontSize:11,cursor:'pointer',fontWeight:600}}>{STATUTS[s as keyof typeof STATUTS].label}</button>)}</div></div>
           {sousGroupes.length>0&&<select value={prospectForm.sous_groupe_id} onChange={e=>setProspectForm(f=>({...f,sous_groupe_id:e.target.value}))} className="fi-sm"><option value="">Global</option>{sousGroupes.map(sg=><option key={sg.id} value={sg.id}>{sg.name}</option>)}</select>}
           <button onClick={addProspect} disabled={!prospectForm.name.trim()} className="btn-main" style={{background:prospectForm.name.trim()?'#1a1a2e':'#E5E5E5',color:prospectForm.name.trim()?'white':'#888'}}>{t2('Ajouter','Add')}</button>
         </div>
