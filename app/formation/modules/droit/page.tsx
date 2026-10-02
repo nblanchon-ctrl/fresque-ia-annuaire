@@ -130,12 +130,12 @@ function ProgressBar({ step, phase }: { step: number, phase: number }) {
   )
 }
 
-function FeedbackBar({ correct, expl, onNext, last }: { correct: boolean, expl: string, onNext: () => void, last: boolean }) {
+function FeedbackBar({ correct, expl, onNext, last, lang }: { correct: boolean, expl: string, onNext: () => void, last: boolean, lang: string }) {
   return (
     <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: correct ? '#D7FFB8' : '#FFDFE0', borderTop: `4px solid ${correct ? '#58CC02' : '#FF4B4B'}`, padding: '16px 20px 28px', zIndex: 100 }}>
       <div style={{ maxWidth: 700, margin: '0 auto' }}>
         <div style={{ fontWeight: 800, fontSize: 15, color: correct ? '#2B7400' : '#CC0000', marginBottom: 6 }}>
-          {correct ? 'Correct ✓' : 'Pas tout a fait ✗'}
+          {correct ? 'Correct ✓' : (lang==='en'?'Not quite ✗':'Pas tout a fait ✗')}
         </div>
         <p style={{ fontSize: 13, color: correct ? '#2B7400' : '#990000', lineHeight: 1.6, marginBottom: 12 }}>{expl}</p>
         <button onClick={onNext} style={{ width: '100%', padding: '14px', borderRadius: 14, border: 'none', background: correct ? '#58CC02' : '#FF4B4B', color: 'white', fontWeight: 800, fontSize: 15, cursor: 'pointer', boxShadow: correct ? '0 4px 0 #3D8A00' : '0 4px 0 #CC0000' }}>
@@ -146,8 +146,8 @@ function FeedbackBar({ correct, expl, onNext, last }: { correct: boolean, expl: 
   )
 }
 
-function Wrap({ children, onNext, onPrev, canNext = true, nextLabel = lang === 'en' ? 'Continue →' : 'Continuer →' }: {
-  children: React.ReactNode, onNext?: () => void, onPrev?: () => void, canNext?: boolean, nextLabel?: string
+function Wrap({ children, onNext, onPrev, canNext = true, nextLabel }: {
+  children: React.ReactNode, onNext?: () => void, onPrev?: () => void, canNext?: boolean, nextLabel?: string, lang?: string
 }) {
   return (
     <div style={{ padding: '20px 16px 110px', maxWidth: 700, margin: '0 auto' }}>
@@ -156,7 +156,7 @@ function Wrap({ children, onNext, onPrev, canNext = true, nextLabel = lang === '
         <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '12px 16px 22px', background: 'white', borderTop: '1px solid #E5E5E5', zIndex: 10 }}>
           <div style={{ maxWidth: 700, margin: '0 auto', display: 'flex', gap: 10 }}>
             {onPrev && <button onClick={onPrev} style={{ padding: '15px 18px', borderRadius: 16, border: '2px solid #E5E5E5', background: 'white', color: '#888', fontWeight: 700, fontSize: 18, cursor: 'pointer', flexShrink: 0 }}>←</button>}
-            {onNext && <button onClick={onNext} disabled={!canNext} style={{ flex: 1, padding: '15px', borderRadius: 16, border: 'none', background: canNext ? '#58CC02' : '#E5E5E5', color: canNext ? 'white' : '#AFAFAF', fontWeight: 800, fontSize: 15, cursor: canNext ? 'pointer' : 'default', boxShadow: canNext ? '0 4px 0 #3D8A00' : 'none' }}>{nextLabel}</button>}
+            {onNext && <button onClick={onNext} disabled={!canNext} style={{ flex: 1, padding: '15px', borderRadius: 16, border: 'none', background: canNext ? '#58CC02' : '#E5E5E5', color: canNext ? 'white' : '#AFAFAF', fontWeight: 800, fontSize: 15, cursor: canNext ? 'pointer' : 'default', boxShadow: canNext ? '0 4px 0 #3D8A00' : 'none' }}>{nextLabel || 'Continuer →'}</button>}
           </div>
         </div>
       )}
