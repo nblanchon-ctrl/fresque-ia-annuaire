@@ -1,6 +1,5 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { useLanguage, LanguageSwitch } from '@/lib/i18n'
 
@@ -130,10 +129,10 @@ function Tag({ children, color }: { children: React.ReactNode, color: string }) 
 }
 
 export default function ModulePage() {
-  const { id } = useParams<{ id: string }>()
   const { lang } = useLanguage()
   const [userId, setUserId] = useState<string | null>(null)
-  const [moduleTitle, setModuleTitle] = useState('')
+  const [moduleId, setModuleId] = useState<string | null>(null)
+  const [moduleTitle, setModuleTitle] = useState('IA & Droit')
   const [loading, setLoading] = useState(true)
   const [step, setStep] = useState(0)
   const [celebration, setCelebration] = useState<typeof PHASE_CELEBRATIONS[0] | null>(null)
@@ -148,12 +147,13 @@ export default function ModulePage() {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) { window.location.href = '/'; return }
       setUserId(user.id)
-      supabase.from('modules').select('titre').eq('id', id as string).single().then(({ data }) => {
-        if (data) setModuleTitle(data.titre)
+      // Fetch module by title since this page has a static route
+      supabase.from('modules').select('id, titre').eq('titre', 'IA & Droit').single().then(({ data }) => {
+        if (data) { setModuleId(data.id); setModuleTitle(data.titre) }
         setLoading(false)
       })
     })
-  }, [id])
+  }, [])
 
   const next = () => {
     const nextStep = step + 1
@@ -180,7 +180,7 @@ export default function ModulePage() {
       setSaved(true)
       const finalScore = score + (correct ? 1 : 0)
       await supabase.from('progressions').upsert({
-        animateur_id: userId!, module_id: id,
+        animateur_id: userId!, module_id: moduleId,
         completed: finalScore === QUIZ.length,
         completed_at: finalScore === QUIZ.length ? new Date().toISOString() : null,
         attempts: 1,
