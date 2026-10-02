@@ -11,6 +11,7 @@ interface Module {
   description_en?: string
   ordre: number
   actif: boolean
+  slug?: string
 }
 
 interface Progression {
@@ -23,7 +24,6 @@ export default function ModulesPage() {
   const { lang } = useLanguage()
   const [modules, setModules] = useState<Module[]>([])
   const [progressions, setProgressions] = useState<Progression[]>([])
-  const [userId, setUserId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
 
@@ -31,7 +31,6 @@ export default function ModulesPage() {
     const load = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { window.location.href = '/'; return }
-      setUserId(user.id)
       const [{ data: mods }, { data: progs }] = await Promise.all([
         supabase.from('modules').select('*').eq('actif', true).order('ordre'),
         supabase.from('progressions').select('*').eq('animateur_id', user.id)
@@ -69,7 +68,7 @@ export default function ModulesPage() {
 
       {modules.length === 0 ? (
         <div className="empty">
-          <p>{lang === 'en' ? 'No module available yet.' : 'Aucun module disponible pour l\'instant.'}</p>
+          <p>{lang === 'en' ? 'No module available yet.' : "Aucun module disponible pour l'instant."}</p>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -78,9 +77,11 @@ export default function ModulesPage() {
             const completed = prog?.completed || false
             const titre = lang === 'en' && m.titre_en ? m.titre_en : m.titre
             const description = lang === 'en' && m.description_en ? m.description_en : m.description
+            // Use slug if available (e.g. 'droit' → /formation/modules/droit)
+            const href = `/formation/modules/${m.slug || m.id}`
 
             return (
-              <a key={m.id} href={`/formation/modules/${m.id}`}
+              <a key={m.id} href={href}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 16,
                   padding: '1.25rem 1.5rem',
@@ -102,7 +103,6 @@ export default function ModulesPage() {
                   el.style.boxShadow = 'none'
                 }}>
 
-                {/* Numéro du module */}
                 <div style={{
                   width: 48, height: 48, borderRadius: 12, flexShrink: 0,
                   background: completed ? '#E1F5EE' : 'var(--bg2)',
@@ -138,7 +138,6 @@ export default function ModulesPage() {
                   </div>
                 </div>
 
-                {/* Macaron si validé */}
                 {completed && (
                   <div style={{
                     width: 44, height: 44, borderRadius: '50%', flexShrink: 0,
