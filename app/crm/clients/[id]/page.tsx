@@ -24,8 +24,8 @@ const SIZES = [
   {key:'grand_groupe',label:'> 2000 salariés',short:'Grand groupe'},
 ]
 const STATUS_COLORS: Record<string,{bg:string;color:string;border:string;labelFr:string;labelEn:string}> = {
-  client:         {bg:'#D7FFB8',color:'#2B7400',border:'#58CC02',label:'Client ✓'},
-  prospect_chaud: {bg:'#FFDFE0',color:'#CC0000',border:'#FF4B4B',label:'Prospect chaud 🔥'},
+  client:         {bg:'#D7FFB8',color:'#2B7400',border:'#58CC02',labelFr:'Client ✓',labelEn:'Client ✓'},
+  prospect_chaud: {bg:'#FFDFE0',color:'#CC0000',border:'#FF4B4B',labelFr:'Prospect chaud 🔥',labelEn:'Hot prospect 🔥'},
 }
 
 type Animateur = {id:string;prenom:string;nom:string;photo_url:string|null;email:string}
