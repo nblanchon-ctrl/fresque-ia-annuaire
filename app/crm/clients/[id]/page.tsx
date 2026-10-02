@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import { useLanguage } from '@/lib/i18n'
 import { createClient } from '@/lib/supabase'
 import Link from 'next/link'
 
@@ -22,7 +23,7 @@ const SIZES = [
   {key:'eti',label:'500 – 2000 salariés',short:'ETI'},
   {key:'grand_groupe',label:'> 2000 salariés',short:'Grand groupe'},
 ]
-const STATUS_COLORS: Record<string,{bg:string;color:string;border:string;label:string}> = {
+const STATUS_COLORS: Record<string,{bg:string;color:string;border:string;labelFr:string;labelEn:string}> = {
   client:         {bg:'#D7FFB8',color:'#2B7400',border:'#58CC02',label:'Client ✓'},
   prospect_chaud: {bg:'#FFDFE0',color:'#CC0000',border:'#FF4B4B',label:'Prospect chaud 🔥'},
 }
@@ -38,6 +39,8 @@ type CRMClient = {
 export default function CRMClientDetailPage() {
   const {id} = useParams()
   const router = useRouter()
+  const { lang } = useLanguage()
+  const t2 = (fr: string, en: string) => lang === 'en' ? en : fr
   const supabase = createClient()
   const [client, setClient] = useState<CRMClient|null>(null)
   const [commentaires, setCommentaires] = useState<Commentaire[]>([])
@@ -171,7 +174,7 @@ export default function CRMClientDetailPage() {
                 </div>
                 <div style={{flex:1}}>
                   <h1 style={{fontSize:22,fontWeight:900,margin:'0 0 8px',color:'#1a1a2e'}}>{client.name}</h1>
-                  <div style={{display:'inline-block',padding:'4px 12px',borderRadius:20,background:s.bg,color:s.color,border:`1.5px solid ${s.border}`,fontSize:13,fontWeight:700}}>{s.label}</div>
+                  <div style={{display:'inline-block',padding:'4px 12px',borderRadius:20,background:s.bg,color:s.color,border:`1.5px solid ${s.border}`,fontSize:13,fontWeight:700}}>{lang==='en'?s.labelEn:s.labelFr}</div>
                 </div>
               </div>
 
@@ -192,7 +195,7 @@ export default function CRMClientDetailPage() {
               {/* Note initiale du créateur */}
               {client.notes&&(
                 <div style={{background:'#F8F9FF',borderRadius:12,padding:'14px 16px',marginBottom:16,border:'1.5px solid #E5E5E5'}}>
-                  <div style={{fontSize:11,fontWeight:700,color:'#888',marginBottom:6,textTransform:'uppercase',letterSpacing:0.5}}>Note du créateur</div>
+                  <div style={{fontSize:11,fontWeight:700,color:'#888',marginBottom:6,textTransform:'uppercase',letterSpacing:0.5}}>{t2('Note du créateur','Creator\'s note')}</div>
                   <div style={{fontSize:14,color:'#1a1a2e',lineHeight:1.65}}>{client.notes}</div>
                 </div>
               )}
@@ -205,7 +208,7 @@ export default function CRMClientDetailPage() {
                       {ref.photo_url?<img src={ref.photo_url} style={{width:'100%',height:'100%',objectFit:'cover'}}/>:<span style={{display:'flex',alignItems:'center',justifyContent:'center',width:'100%',height:'100%',fontSize:16}}>👤</span>}
                     </div>
                     <div style={{flex:1}}>
-                      <div style={{fontSize:11,fontWeight:600,color:'#0C447C',marginBottom:2}}>Référent</div>
+                      <div style={{fontSize:11,fontWeight:600,color:'#0C447C',marginBottom:2}}>{t2('Référent','Contact person')}</div>
                       <div style={{fontSize:14,fontWeight:800,color:'#1a1a2e'}}>{ref.prenom} {ref.nom}</div>
                     </div>
                     <a href={`mailto:${ref.email}`} style={{padding:'7px 14px',borderRadius:10,background:'white',border:'1.5px solid #85B7EB',color:'#0C447C',textDecoration:'none',fontSize:13,fontWeight:600}}>✉️ Contacter</a>
@@ -273,7 +276,7 @@ export default function CRMClientDetailPage() {
                   <select value={editForm.size} onChange={e=>setEditForm({...editForm,size:e.target.value})}
                     style={{width:'100%',padding:'10px',borderRadius:10,border:'1.5px solid #E5E5E5',fontSize:13,boxSizing:'border-box'}}>
                     <option value="">Sélectionner</option>
-                    {SIZES.map(s=><option key={s.key} value={s.key}>{s.label}</option>)}
+                    {SIZES.map(s=><option key={s.key} value={s.key}>{lang==='en'?s.labelEn:s.labelFr}</option>)}
                   </select>
                 </div>
                 <div>
@@ -311,7 +314,7 @@ export default function CRMClientDetailPage() {
                   style={{width:'100%',padding:'10px 12px',borderRadius:10,border:'1.5px solid #E5E5E5',fontSize:13,boxSizing:'border-box',resize:'vertical',fontFamily:'inherit',outline:'none'}}/>
               </div>
               <div>
-                <label style={{fontSize:13,fontWeight:600,display:'block',marginBottom:5}}>Référent</label>
+                <label style={{fontSize:13,fontWeight:600,display:'block',marginBottom:5}}>{t2('Référent','Contact person')}</label>
                 <select value={editForm.referent_id} onChange={e=>setEditForm({...editForm,referent_id:e.target.value})}
                   style={{width:'100%',padding:'10px 12px',borderRadius:10,border:'1.5px solid #E5E5E5',fontSize:13,boxSizing:'border-box'}}>
                   {animateurs.map(a=>(
@@ -323,7 +326,7 @@ export default function CRMClientDetailPage() {
                 <button onClick={()=>setEditMode(false)} style={{flex:1,padding:'12px',borderRadius:12,border:'1.5px solid #E5E5E5',background:'white',fontWeight:600,fontSize:14,cursor:'pointer'}}>Annuler</button>
                 <button onClick={saveEdit} disabled={!editForm.name.trim()||saving}
                   style={{flex:2,padding:'12px',borderRadius:12,border:'none',background:'#1a1a2e',color:'white',fontWeight:800,fontSize:14,cursor:'pointer'}}>
-                  {saving?'Enregistrement…':'Sauvegarder'}
+                  {saving?'Enregistrement…':t2(t2('Sauvegarder','Save'),'Save')}
                 </button>
               </div>
             </div>
@@ -341,7 +344,7 @@ export default function CRMClientDetailPage() {
             {commentaires.length===0&&(
               <div style={{textAlign:'center',padding:'24px 0',color:'#888'}}>
                 <div style={{fontSize:32,marginBottom:8}}>💬</div>
-                <div style={{fontSize:13}}>Soyez le premier à commenter cette fiche.</div>
+                <div style={{fontSize:13}}>{t2('Soyez le premier à commenter cette fiche.','Be the first to comment on this record.')}</div>
               </div>
             )}
             {commentaires.map(c=>(
@@ -372,13 +375,13 @@ export default function CRMClientDetailPage() {
                 </div>
                 <div style={{flex:1}}>
                   <textarea value={newComment} onChange={e=>setNewComment(e.target.value)}
-                    placeholder="Ajouter un commentaire sur ce client : contexte, avancement, informations utiles…"
+                    placeholder={t2('Ajouter un commentaire sur ce client : contexte, avancement, informations utiles…','Add a comment about this client: context, progress, useful information…')}
                     rows={3} style={{width:'100%',padding:'10px 12px',borderRadius:12,border:'1.5px solid #E5E5E5',fontSize:13,boxSizing:'border-box',resize:'none',fontFamily:'inherit',outline:'none'}}
                     onKeyDown={e=>{if(e.key==='Enter'&&e.metaKey)postComment()}}/>
                   <div style={{display:'flex',justifyContent:'flex-end',marginTop:6}}>
                     <button onClick={postComment} disabled={!newComment.trim()||postingComment}
                       style={{padding:'8px 20px',borderRadius:10,border:'none',background:newComment.trim()?'#1a1a2e':'#E5E5E5',color:newComment.trim()?'white':'#888',fontWeight:700,fontSize:13,cursor:newComment.trim()?'pointer':'default'}}>
-                      {postingComment?'Publication…':'Publier'}
+                      {postingComment?t2('Publication…','Posting…'):t2('Publier','Post')}
                     </button>
                   </div>
                 </div>
