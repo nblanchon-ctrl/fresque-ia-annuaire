@@ -18,7 +18,7 @@ const REGIONS = [
   'Occitanie','Pays de la Loire',"Provence-Alpes-Côte d'Azur",'Europe','International','Autre',
 ]
 const SIZES = [
-  { key:'micro',        label:'< 50 salariés',        labelFr:'< 50 salariés',       labelEn:'< 50 employees',     short:'< 50' },
+  { key:'micro',        labelFr:'< 50 salariés',       labelEn:'< 50 employees',     short:'< 50' },
   { key:'pme',          labelFr:'50 – 500 salariés',   labelEn:'50 – 500 employees', short:'SME' },
   { key:'eti',          labelFr:'500 – 2000 salariés', labelEn:'500 – 2000 empl.',   short:'Mid' },
   { key:'grand_groupe', labelFr:'> 2000 salariés',     labelEn:'> 2000 employees',   short:'Large' },
@@ -307,7 +307,7 @@ export default function CRMPage() {
                   <select value={form.size} onChange={e=>setForm({...form,size:e.target.value})}
                     style={{width:'100%',padding:'10px',borderRadius:10,border:'1.5px solid #E5E5E5',fontSize:13,boxSizing:'border-box'}}>
                     <option value="">Sélectionner</option>
-                    {SIZES.map(s=><option key={s.key} value={s.key}>{lang==='en'?s.labelEn:s.labelFr}</option>)}
+                    {SIZES.map(s=><option key={s.key} value={s.key}>{(lang==='en'?s.labelEn:s.labelFr)||s.short}</option>)}
                   </select>
                 </div>
                 <div>
