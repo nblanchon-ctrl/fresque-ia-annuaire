@@ -590,7 +590,7 @@ export default function CRMEvenementPage() {
                         <div style={{display:'flex',gap:4,flexWrap:'wrap',justifyContent:'flex-end',maxWidth:200}}>
                           {STATUT_ORDER.filter(ns=>ns!==p.statut).map(ns=>(
                             <button key={ns} onClick={()=>updateStatut(p.id,ns)} style={{padding:'3px 8px',borderRadius:20,border:`1px solid ${STATUTS[ns as keyof typeof STATUTS].border}`,background:STATUTS[ns as keyof typeof STATUTS].bg,color:STATUTS[ns as keyof typeof STATUTS].color,fontSize:10,cursor:'pointer',fontWeight:700}}>
-                              {(lang==='en'?(lang==='en'?STATUTS[ns as keyof typeof STATUTS].labelEn:STATUTS[ns as keyof typeof STATUTS].labelFr)En:(lang==='en'?STATUTS[ns as keyof typeof STATUTS].labelEn:STATUTS[ns as keyof typeof STATUTS].labelFr)Fr)}
+                              {lang==='en'?STATUTS[ns as keyof typeof STATUTS].labelEn:STATUTS[ns as keyof typeof STATUTS].labelFr}
                             </button>
                           ))}
                         </div>
