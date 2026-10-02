@@ -176,7 +176,7 @@ export default function ModulePage() {
   const [loading, setLoading] = useState(true)
   const [step, setStep] = useState(0)
   const [celebration, setCelebration] = useState<typeof PHASE_CELEBRATIONS[0] | null>(null)
-  const [answers, setAnswers] = useState<(number | null)[]>(Array(activeQuiz.length).fill(null))
+  const [answers, setAnswers] = useState<(number | null)[]>(Array(QUIZ.length).fill(null))
   const [feedback, setFeedback] = useState<boolean | null>(null)
   const [showFb, setShowFb] = useState(false)
   const [score, setScore] = useState(0)
@@ -279,7 +279,7 @@ export default function ModulePage() {
     const total = answers.filter((a, i) => a === QUIZ[i].correct).length
     const pct = Math.round((total / activeQuiz.length) * 100)
     const wrongs = answers.map((a, i) => a !== QUIZ[i].correct ? i : -1).filter(x => x >= 0)
-    const restart = () => { setStep(TOTAL_LEARNING); setAnswers(Array(activeQuiz.length).fill(null)); setScore(0); setShowFb(false); setFeedback(null); setSaved(false) }
+    const restart = () => { setStep(TOTAL_LEARNING); setAnswers(Array(QUIZ.length).fill(null)); setScore(0); setShowFb(false); setFeedback(null); setSaved(false) }
     return (
       <div style={{ minHeight: '100vh', background: '#F7F7F7' }}>
         {header}
