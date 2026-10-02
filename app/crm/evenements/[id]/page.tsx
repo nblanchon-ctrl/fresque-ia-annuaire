@@ -431,7 +431,14 @@ export default function CRMEvenementPage() {
   const nonMembres=animateurs.filter(a=>!membres.find(m=>m.animateur_id===a.id))
   const filteredProspects=prospects.filter(p=>sgFilter==='global'?!p.sous_groupe_id:p.sous_groupe_id===sgFilter)
 
-  const TABS=lang==='en'?[{k:'organisation',label:'Members & Planning'},{k:'prospection',label:'Prospection'},{k:'sousgroupes',label:'Sub-groups'},{k:'jourj',label:'Day J'},{k:'documents',label:'Documents'}]:[{k:'organisation',label:'Membres & Planning'},{k:'prospection',label:'Prospection'},{k:'sousgroupes',label:'Sous-groupes'},{k:'jourj',label:'Jour J'},{k:'documents',label:'Documents'}]
+  const TAB_KEYS = ['organisation','prospection','sousgroupes','jourj','documents'] as const
+  const TAB_LABELS: Record<string,{fr:string,en:string}> = {
+    organisation:{fr:'Membres & Planning',en:'Members & Planning'},
+    prospection:{fr:'Prospection',en:'Prospection'},
+    sousgroupes:{fr:'Sous-groupes',en:'Sub-groups'},
+    jourj:{fr:'Jour J',en:'Day J'},
+    documents:{fr:'Documents',en:'Documents'},
+  }
 
   return (
     <div style={{minHeight:'100vh',background:'#F7F7F7'}}>
@@ -467,8 +474,8 @@ export default function CRMEvenementPage() {
           </div>
         </div>
         <div style={{maxWidth:900,margin:'0 auto',display:'flex',gap:0,overflowX:'auto',borderTop:'1px solid #F0F0F0'}}>
-          {TABS.map(t=>(
-            <button key={t.k} className={`ev-tab${tab===t.k?' active':''}`} onClick={()=>setTab(t.k)}>{t.label}</button>
+          {TAB_KEYS.map(k=>(
+            <button key={k} className={`ev-tab${tab===k?' active':''}`} onClick={()=>setTab(k as typeof tab)}>{lang==='en'?TAB_LABELS[k].en:TAB_LABELS[k].fr}</button>
           ))}
         </div>
       </div>
