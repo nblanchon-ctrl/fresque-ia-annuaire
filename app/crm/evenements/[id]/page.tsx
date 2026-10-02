@@ -567,7 +567,7 @@ export default function CRMEvenementPage() {
             <button onClick={()=>{setShowProspectModal(true);setProspectForm(f=>({...f,sous_groupe_id:sgFilter==='global'?'':sgFilter}))}} style={{marginLeft:'auto',padding:'7px 16px',borderRadius:10,background:'#1a1a2e',color:'white',border:'none',fontWeight:700,fontSize:12,cursor:'pointer'}}>+ {t2('Organisation','Organisation')}</button>
           </div>
           {STATUT_ORDER.map(statut=>{
-            const s=STATUTS[statut]
+            const s=STATUTS[statut as keyof typeof STATUTS]
             const groupe=filteredProspects.filter(p=>p.statut===statut)
             if(groupe.length===0) return null
             return (
@@ -589,8 +589,8 @@ export default function CRMEvenementPage() {
                         </div>
                         <div style={{display:'flex',gap:4,flexWrap:'wrap',justifyContent:'flex-end',maxWidth:200}}>
                           {STATUT_ORDER.filter(ns=>ns!==p.statut).map(ns=>(
-                            <button key={ns} onClick={()=>updateStatut(p.id,ns)} style={{padding:'3px 8px',borderRadius:20,border:`1px solid ${STATUTS[ns].border}`,background:STATUTS[ns].bg,color:STATUTS[ns].color,fontSize:10,cursor:'pointer',fontWeight:700}}>
-                              {(lang==='en'?STATUTS[ns].labelEn:STATUTS[ns].labelFr)}
+                            <button key={ns} onClick={()=>updateStatut(p.id,ns)} style={{padding:'3px 8px',borderRadius:20,border:`1px solid ${STATUTS[ns as keyof typeof STATUTS].border}`,background:STATUTS[ns as keyof typeof STATUTS].bg,color:STATUTS[ns as keyof typeof STATUTS].color,fontSize:10,cursor:'pointer',fontWeight:700}}>
+                              {(lang==='en'?STATUTS[ns as keyof typeof STATUTS].labelEn:STATUTS[ns as keyof typeof STATUTS].labelFr)}
                             </button>
                           ))}
                         </div>
