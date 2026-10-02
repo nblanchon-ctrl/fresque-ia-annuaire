@@ -23,6 +23,25 @@ const QUIZ = [
   { q: "Le RGPD est-il un texte specifiquement consacre a l'IA ?", opts: ["Oui, concu pour les IA generatives","Oui, mais uniquement pour les IA de sante","Non, mais il s'applique des qu'une IA traite des donnees personnelles","Non, le RGPD n'a aucun lien avec l'IA"], correct: 2, expl: "Le RGPD n'est pas un texte sur l'IA. Il date d'avant l'explosion de l'IA generative. Mais des qu'un systeme d'IA traite des donnees personnelles, le RGPD s'applique, notamment via l'article 22." },
 ]
 
+const QUIZ_EN = [
+  { q: "Why is an AI not legally responsible today?", opts: ["It has no legal personality recognised by law","Its creators signed contracts protecting it from prosecution","Technology evolves too fast for courts to keep up","AI systems are software and cannot be physically seized"], correct: 0, expl: "Legal personality is the key. It allows an entity to hold rights and obligations. Natural persons (humans) and legal persons (companies) have it. AIs do not. Without legal personality, they cannot be sued or convicted." },
+  { q: "What does legal personality fundamentally allow?", opts: ["To practise a regulated profession without a specific degree","To hold rights and obligations recognised by law","To automatically benefit from all available social benefits","To sign an employment contract without an intermediary"], correct: 1, expl: "Legal personality allows the law to address an entity: recognise its rights and impose obligations on it. Without it, an entity is legally invisible." },
+  { q: "In law, are responsibility and consciousness synonymous?", opts: ["Yes, one can only be responsible if one was aware of one's acts","No, one can have to repair damage without having consciously intended it","Yes, but only in criminal law for serious crimes","No, but only in civil law countries"], correct: 1, expl: "Responsibility and consciousness are distinct. Our law knows many cases of liability without intent: liability for things, parents' liability, etc. Intent mainly matters in criminal law, not for all liability." },
+  { q: "What did the European Parliament consider in its 2017 robotics resolution?", opts: ["Banning all autonomous AI development in Europe","Creating a special tax on robots replacing human jobs","Examining a specific legal status for certain autonomous robots","Transferring AI regulation to the United Nations"], correct: 2, expl: "In 2017, the European Parliament raised the possibility of a legal status for highly autonomous robots. This did not become positive law, but shows the question is taken seriously." },
+  { q: "If an AI contributes to a wrong medical decision, who does the law hold responsible?", opts: ["Only the patient who agreed to be treated by an AI","No one: medical AIs have total immunity","Potentially the designer, publisher, hospital or doctor depending on the case","Only the engineer who coded the last update"], correct: 2, expl: "Since the AI is not responsible, the law looks among the humans involved: designer, publisher, healthcare institution, professional. Several actors can be simultaneously responsible." },
+  { q: "The European Convention on Human Rights dates from:", opts: ["1789, after the French Revolution","1945, after World War II","1950, after the atrocities of World War II","2000, with the EU Charter of Fundamental Rights"], correct: 2, expl: "The ECHR dates from 1950. These old texts must today apply to technological realities — generative AI, recommendation algorithms, mass profiling — that their authors never imagined." },
+  { q: "What is the main contribution of Article 22 of the GDPR?", opts: ["It requires all companies to appoint a Data Protection Officer","It completely prohibits any automated processing of personal data","It governs decisions based solely on automated processing","It creates an independent European AI regulatory authority"], correct: 2, expl: "Article 22 of the GDPR governs decisions taken exclusively by algorithm (without significant human intervention) that produce legal effects or significantly affect a person — a tool existing before the AI Act." },
+  { q: "What is the central logic of the European AI Act?", opts: ["Prohibiting any system that cannot explain its decisions","Classifying AI systems by risk level and adapting obligations accordingly","Imposing a tax on companies developing AI in Europe","Creating a trust label awarded by member states"], correct: 1, expl: "The AI Act classifies by risk level: some practices are prohibited, high-risk systems have reinforced obligations, others have transparency obligations. It is a risk-based approach." },
+  { q: "What key principle guides the stated objective of the AI Act?", opts: ["Ensuring European technological supremacy","Promoting human-centred AI that protects fundamental rights","Simplifying rules to support startups","Transferring AI governance to the UN"], correct: 1, expl: "The AI Act states it aims to promote AI that is 'human-centred and trustworthy', while ensuring a high level of protection of fundamental rights. AI as a tool serving humans, not the reverse." },
+  { q: "What is the 'Digital Omnibus'?", opts: ["An autonomous bus deployed in European cities","An EU-US agreement on AI","Simplification measures for the European digital framework including the AI Act","A consortium funding AI research"], correct: 2, expl: "The Digital Omnibus refers to simplification measures for the European digital framework. It illustrates the tension: protecting citizens without hampering innovation against US and Chinese competitors." },
+  { q: "Historically, fundamental rights protection aimed primarily to protect individuals against:", opts: ["Wealthier or better-educated citizens","Foreign companies on the national market","Public authorities likely to abuse their power","Religious movements influencing politics"], correct: 2, expl: "The great fundamental rights texts aimed to protect individuals against the State: arbitrary imprisonment, censorship, discrimination. Digitalisation created a second challenge: individuals vs. large private companies." },
+  { q: "What kind of power do large digital platforms now exercise?", opts: ["Military and diplomatic power comparable to states","The power to select information, profile individuals and influence decisions","Direct fiscal power over their users","Legislative power to create their own laws"], correct: 1, expl: "Platforms can make content visible or invisible, collect and exploit data, profile individuals and influence decisions. With generative AI, they directly participate in knowledge production and decision-making." },
+  { q: "How do we distinguish consciousness from its simulation in an AI?", opts: ["By measuring the speed of its emotional responses","By checking whether it uses biological neurons","That is precisely the problem: we have no established criterion","By applying the Turing test for 48 hours"], correct: 2, expl: "We do not even have a stable definition of human consciousness. How then to determine that a machine is conscious rather than simulating conscious behaviours? An AI can produce phrases evoking emotions without having subjective experience." },
+  { q: "What fundamental question does AI law ultimately seek to answer?", opts: ["How to patent a machine learning algorithm?","What minimum computing power makes an AI subject to regulation?","What role do we want to give machines in decisions affecting human beings?","How to tax profits generated by AI systems?"], correct: 2, expl: "Behind all the technical rules lies a fundamental question: what role do we want to give machines in decisions affecting human beings? A legal, ethical, political and philosophical question." },
+  { q: "Is the GDPR a text specifically devoted to artificial intelligence?", opts: ["Yes, designed specifically for generative AI","Yes, but only for health-related AI","No, but it applies whenever AI processes personal data","No, the GDPR has no connection to AI"], correct: 2, expl: "The GDPR is not an AI text. It predates the explosion of generative AI. But whenever an AI system processes personal data, the GDPR applies — especially via Article 22 on automated decisions." },
+]
+
+
 const PHASE_CELEBRATIONS = [
   { atStep: 4, icon: "⚖️", title: "Bonne base juridique !", sub: "Tu comprends pourquoi les IA ne repondent pas de leurs actes. Passons a la conscience.", color: "#0C447C", bg: "#E6F1FB" },
   { atStep: 8, icon: "🎯", title: "Question centrale atteinte !", sub: "Si la machine ne repond pas, qui repond ? On explore maintenant les droits fondamentaux.", color: "#2B7400", bg: "#D7FFB8" },
@@ -81,7 +100,7 @@ function CelebrationModal({ data, onContinue }: { data: typeof PHASE_CELEBRATION
           <h2 style={{ fontSize: 22, fontWeight: 900, color: '#1a1a2e', marginBottom: 10, lineHeight: 1.3 }}>{data.title}</h2>
           <p style={{ fontSize: 14, color: '#666', lineHeight: 1.65, marginBottom: 28 }}>{data.sub}</p>
           <button onClick={onContinue} style={{ width: '100%', padding: '16px', borderRadius: 16, background: '#58CC02', color: 'white', border: 'none', fontWeight: 800, fontSize: 16, cursor: 'pointer', boxShadow: '0 4px 0 #3D8A00' }}>
-            Continuer →
+            {lang === 'en' ? 'Continue →' : 'Continuer →'}
           </button>
         </div>
       </div>
@@ -120,14 +139,14 @@ function FeedbackBar({ correct, expl, onNext, last }: { correct: boolean, expl: 
         </div>
         <p style={{ fontSize: 13, color: correct ? '#2B7400' : '#990000', lineHeight: 1.6, marginBottom: 12 }}>{expl}</p>
         <button onClick={onNext} style={{ width: '100%', padding: '14px', borderRadius: 14, border: 'none', background: correct ? '#58CC02' : '#FF4B4B', color: 'white', fontWeight: 800, fontSize: 15, cursor: 'pointer', boxShadow: correct ? '0 4px 0 #3D8A00' : '0 4px 0 #CC0000' }}>
-          {last ? 'Voir mes resultats →' : 'Continuer →'}
+          {last ? (lang==='en'?'See my results →':'Voir mes resultats →') : (lang==='en'?'Continue →':'Continuer →')}
         </button>
       </div>
     </div>
   )
 }
 
-function Wrap({ children, onNext, onPrev, canNext = true, nextLabel = 'Continuer →' }: {
+function Wrap({ children, onNext, onPrev, canNext = true, nextLabel = lang === 'en' ? 'Continue →' : 'Continuer →' }: {
   children: React.ReactNode, onNext?: () => void, onPrev?: () => void, canNext?: boolean, nextLabel?: string
 }) {
   return (
@@ -164,6 +183,9 @@ export default function ModulePage() {
   const [saved, setSaved] = useState(false)
   const supabase = createClient()
 
+  const t2 = (fr: string, en: string) => lang === 'en' ? en : fr
+  const activeQuiz = lang === 'en' ? QUIZ_EN : QUIZ
+
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) { window.location.href = '/'; return }
@@ -187,8 +209,8 @@ export default function ModulePage() {
   }
 
   const qIdx = step - TOTAL_LEARNING
-  const isQuiz = step >= TOTAL_LEARNING && step < TOTAL_LEARNING + QUIZ.length
-  const isResult = step >= TOTAL_LEARNING + QUIZ.length
+  const isQuiz = step >= TOTAL_LEARNING && step < TOTAL_LEARNING + activeQuiz.length
+  const isResult = step >= TOTAL_LEARNING + activeQuiz.length
   const phase = step < 4 ? 0 : step < 8 ? 1 : step < 12 ? 2 : step < 16 ? 3 : 4
 
   const pickAnswer = async (optIdx: number) => {
@@ -197,12 +219,12 @@ export default function ModulePage() {
     const na = [...answers]; na[qIdx] = optIdx; setAnswers(na)
     setFeedback(correct); setShowFb(true)
     if (correct) setScore(s => s + 1)
-    if (step === TOTAL_LEARNING + QUIZ.length - 1 && !saved) {
+    if (step === TOTAL_LEARNING + activeQuiz.length - 1 && !saved) {
       setSaved(true)
       const finalScore = score + (correct ? 1 : 0)
       await supabase.from('progressions').upsert({
         animateur_id: userId!, module_id: moduleId,
-        completed: finalScore === QUIZ.length,
+        completed: finalScore === activeQuiz.length,
         completed_at: finalScore === QUIZ.length ? new Date().toISOString() : null,
         attempts: 1,
       }, { onConflict: 'animateur_id,module_id' })
@@ -225,7 +247,7 @@ export default function ModulePage() {
   )
 
   if (isQuiz) {
-    const q = QUIZ[qIdx]
+    const q = activeQuiz[qIdx]
     const ua = answers[qIdx]
     const labels = ['A','B','C','D']
     return (
@@ -234,7 +256,7 @@ export default function ModulePage() {
         {celebration && <CelebrationModal data={celebration} onContinue={closeCelebration}/>}
         {header}
         <div style={{ padding: '20px 16px 120px', maxWidth: 700, margin: '0 auto' }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: '#534AB7', marginBottom: 12 }}>Question {qIdx + 1} / {QUIZ.length}&nbsp;·&nbsp;Score {score}</div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#534AB7', marginBottom: 12 }}>{t2('Question','Question')} {qIdx + 1} / {activeQuiz.length}&nbsp;·&nbsp;{t2('Score','Score')} {score}</div>
           <h3 style={{ fontSize: 18, fontWeight: 700, lineHeight: 1.5, marginBottom: 20 }}>{q.q}</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {q.opts.map((opt, i) => {
@@ -257,7 +279,7 @@ export default function ModulePage() {
     const total = answers.filter((a, i) => a === QUIZ[i].correct).length
     const pct = Math.round((total / QUIZ.length) * 100)
     const wrongs = answers.map((a, i) => a !== QUIZ[i].correct ? i : -1).filter(x => x >= 0)
-    const restart = () => { setStep(TOTAL_LEARNING); setAnswers(Array(QUIZ.length).fill(null)); setScore(0); setShowFb(false); setFeedback(null); setSaved(false) }
+    const restart = () => { setStep(TOTAL_LEARNING); setAnswers(Array(activeQuiz.length).fill(null)); setScore(0); setShowFb(false); setFeedback(null); setSaved(false) }
     return (
       <div style={{ minHeight: '100vh', background: '#F7F7F7' }}>
         {header}
@@ -267,15 +289,15 @@ export default function ModulePage() {
               <div style={{ animation: 'fadeIn .5s ease' }}>
                 <div style={{ marginBottom: 12 }}><JusticeBadge size={96} /></div>
                 <div style={{ display: 'inline-block', background: '#FEF3D0', color: '#8B6914', fontSize: 11, fontWeight: 700, padding: '4px 14px', borderRadius: 20, marginBottom: 8, letterSpacing: 1 }}>BADGE DÉBLOQUÉ ✦</div>
-                <h2 style={{ fontSize: 24, fontWeight: 900, marginBottom: 4 }}>MAITRISE DROIT & IA</h2>
+                <h2 style={{ fontSize: 24, fontWeight: 900, marginBottom: 4 }}>{t2('MAITRISE DROIT & IA','MASTERY: AI & LAW')}</h2>
                 <div style={{ fontSize: 32, fontWeight: 900, color: '#C9A84C', marginBottom: 8 }}>{QUIZ.length} / {QUIZ.length} : 100 %</div>
-                <p style={{ fontSize: 14, color: '#555', lineHeight: 1.6 }}>Parfait ! Tu maitrises les fondamentaux du droit de l'IA.</p>
+                <p style={{ fontSize: 14, color: '#555', lineHeight: 1.6 }}>{t2("Parfait ! Tu maitrises les fondamentaux du droit de l'IA.","Perfect! You have mastered the fundamentals of AI law.")}</p>
               </div>
             ) : (
               <div>
                 <div style={{ fontSize: 52, marginBottom: 12 }}>{pct >= 80 ? '🎯' : '💪'}</div>
                 <div style={{ fontSize: 32, fontWeight: 900, color: '#534AB7', marginBottom: 8 }}>{total} / {QUIZ.length}</div>
-                <p style={{ fontSize: 14, color: '#555', lineHeight: 1.6 }}>{pct >= 80 ? "Beau parcours !" : "Continue a apprendre !"}</p>
+                <p style={{ fontSize: 14, color: '#555', lineHeight: 1.6 }}>{pct >= 80 ? t2('Beau parcours !','Great work!') : t2('Continue a apprendre !','Keep learning!')}</p>
               </div>
             )}
           </div>
@@ -291,7 +313,7 @@ export default function ModulePage() {
             </div>
           )}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <button onClick={restart} style={{ width: '100%', padding: '15px', borderRadius: 16, border: 'none', background: '#58CC02', color: 'white', fontWeight: 800, fontSize: 15, cursor: 'pointer', boxShadow: '0 4px 0 #3D8A00' }}>Refaire le quiz</button>
+            <button onClick={restart} style={{ width: '100%', padding: '15px', borderRadius: 16, border: 'none', background: '#58CC02', color: 'white', fontWeight: 800, fontSize: 15, cursor: 'pointer', boxShadow: '0 4px 0 #3D8A00' }}>{t2('Refaire le quiz','Retake quiz')}</button>
             <button onClick={() => { window.location.href = '/formation/modules' }} style={{ width: '100%', padding: '15px', borderRadius: 16, border: '2px solid #E5E5E5', background: 'white', color: '#555', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>← Retour aux modules</button>
           </div>
         </div>
@@ -306,13 +328,13 @@ export default function ModulePage() {
       {celebration && <CelebrationModal data={celebration} onContinue={closeCelebration}/>}
       {header}
 
-      {s === 0 && <Wrap onNext={next} nextLabel="Commencer →">
+      {s === 0 && <Wrap onNext={next} {...(lang==='en'?{nextLabel:'Start →'}:{nextLabel:'Commencer →'})}>
         <div style={{ textAlign: 'center', padding: '12px 0', animation: 'fadeIn .4s ease' }}>
           <div style={{ fontSize: 56, marginBottom: 14 }}>⚖️</div>
-          <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 10, lineHeight: 1.3 }}>IA & Droit</h1>
-          <p style={{ fontSize: 14, color: '#555', lineHeight: 1.7, marginBottom: 20 }}>Qui repond quand une IA provoque un dommage ? Ce module explore les fondements juridiques qui encadrent l'IA en Europe.</p>
+          <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 10, lineHeight: 1.3 }}>{t2('IA & Droit','AI & Law')}</h1>
+          <p style={{ fontSize: 14, color: '#555', lineHeight: 1.7, marginBottom: 20 }}>{t2("Qui repond quand une IA provoque un dommage ? Ce module explore les fondements juridiques qui encadrent l'IA en Europe.","Who is responsible when an AI causes harm? This module explores the legal foundations governing AI in Europe.")}</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center' }}>
-            {[['⚖️','Responsabilite & personnalite juridique'],['🧠','La question de la conscience'],['🛡️','Les droits fondamentaux'],['📋','RGPD & AI Act'],['🌍','Geopolitique du droit de l\'IA']].map(([icon,label],i) => (
+            {lang==='en'?[['⚖️','Liability & legal personality'],['🧠','The question of consciousness'],['🛡️','Fundamental rights'],['📋','GDPR & AI Act'],['🌍','Geopolitics of AI law']]:[['⚖️','Responsabilite & personnalite juridique'],['🧠','La question de la conscience'],['🛡️','Les droits fondamentaux'],['📋','RGPD & AI Act'],['🌍','Geopolitique du droit de l\'IA']].map(([icon,label],i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 20px', background: 'white', borderRadius: 12, width: '100%', maxWidth: 300, border: '0.5px solid #E5E5E5' }}>
                 <span style={{ fontSize: 18 }}>{icon}</span><span style={{ fontSize: 14, fontWeight: 500 }}>{label}</span>
               </div>
@@ -323,12 +345,12 @@ export default function ModulePage() {
 
       {s === 1 && <Wrap onNext={next} onPrev={prev}>
         <Tag color="#E6F1FB"><span style={{ color: '#0C447C' }}>⚖️ PARTIE 1 — Responsabilite</span></Tag>
-        <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 12, lineHeight: 1.3 }}>Une IA peut agir…<br/>mais peut-elle repondre de ses actes ?</h2>
-        <p style={{ fontSize: 14, color: '#444', lineHeight: 1.7, marginBottom: 16 }}>Lorsqu'on parle d'IA et de droit, une question surgit immediatement : <strong>celle de la responsabilite.</strong></p>
+        <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 12, lineHeight: 1.3 }}>{t2('Une IA peut agir…','An AI can act…')}<br/>{t2('mais peut-elle repondre de ses actes ?','but can it be held accountable?')}</h2>
+        <p style={{ fontSize: 14, color: '#444', lineHeight: 1.7, marginBottom: 16 }}>{t2("Lorsqu'on parle d'IA et de droit, une question surgit immediatement : ","When discussing AI and law, one question immediately arises: ")}<strong>{t2('celle de la responsabilite.','that of liability.')}</strong></p>
         <div style={{ background: '#1a1a2e', borderRadius: 16, padding: '18px 20px', marginBottom: 16 }}>
-          <div style={{ fontWeight: 800, fontSize: 17, color: 'white', textAlign: 'center', lineHeight: 1.5 }}>Aujourd'hui, une IA n'est pas juridiquement responsable.</div>
+          <div style={{ fontWeight: 800, fontSize: 17, color: 'white', textAlign: 'center', lineHeight: 1.5 }}>{t2("Aujourd'hui, une IA n'est pas juridiquement responsable.","Today, an AI system is not legally responsible.")}</div>
         </div>
-        <p style={{ fontSize: 14, color: '#444', lineHeight: 1.7 }}>Pourquoi ? Parce qu'une IA n'a pas de <strong>personnalite juridique</strong>. En droit, cette personnalite appartient aux <strong>personnes physiques</strong> (etres humains) et <strong>morales</strong> (entreprises, associations). Une IA n'entre dans aucune de ces categories.</p>
+        <p style={{ fontSize: 14, color: '#444', lineHeight: 1.7 }}>{t2("Pourquoi ? Parce qu'une IA n'a pas de ","Why? Because an AI has no ")}<strong>{t2('personnalite juridique','legal personality')}</strong>{t2(". En droit, cette personnalite appartient aux ",". In law, this personality belongs to ")}<strong>{t2('personnes physiques','natural persons')}</strong>{t2(' (etres humains) et ',' (human beings) and ')}<strong>{t2('morales','legal persons')}</strong>{t2(" (entreprises, associations). Une IA n'entre dans aucune de ces categories."," (companies, organisations). An AI falls into neither category.")}</p>
       </Wrap>}
 
       {s === 2 && <Wrap onNext={next} onPrev={prev}>
@@ -363,7 +385,7 @@ export default function ModulePage() {
         </div>
       </Wrap>}
 
-      {s === 4 && <Wrap onNext={next} onPrev={prev} nextLabel="Phase suivante →">
+      {s === 4 && <Wrap onNext={next} onPrev={prev} {...(lang==='en'?{nextLabel:'Next phase →'}:{nextLabel:'Phase suivante →'})}>
         <h3 style={{ fontSize: 18, fontWeight: 800, marginBottom: 14, color: '#1a1a2e' }}>La question de la conscience</h3>
         <p style={{ fontSize: 13, color: '#555', lineHeight: 1.65, marginBottom: 14 }}>La conscience des machines pose une difficulte fondamentale : nous ne disposons meme pas d'une definition universelle de ce qu'est la conscience humaine.</p>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
@@ -413,7 +435,7 @@ export default function ModulePage() {
         </div>
       </Wrap>}
 
-      {s === 7 && <Wrap onNext={next} onPrev={prev} nextLabel="Phase suivante →">
+      {s === 7 && <Wrap onNext={next} onPrev={prev} {...(lang==='en'?{nextLabel:'Next phase →'}:{nextLabel:'Phase suivante →'})}>
         <h3 style={{ fontSize: 18, fontWeight: 800, marginBottom: 14, color: '#1a1a2e' }}>Avant les regles sur l'IA : les droits fondamentaux</h3>
         <p style={{ fontSize: 13, color: '#555', lineHeight: 1.65, marginBottom: 14 }}>Notre parcours remonte d'abord a la hierarchie des normes :</p>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 14 }}>
@@ -430,7 +452,7 @@ export default function ModulePage() {
         </div>
       </Wrap>}
 
-      {s === 8 && <Wrap onNext={next} onPrev={prev} nextLabel="Phase suivante →">
+      {s === 8 && <Wrap onNext={next} onPrev={prev} {...(lang==='en'?{nextLabel:'Next phase →'}:{nextLabel:'Phase suivante →'})}>
         <Tag color="#FAEEDA"><span style={{ color: '#633806' }}>PARTIE 3 — Contexte historique</span></Tag>
         <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 12, lineHeight: 1.3 }}>Des droits anciens confrontes a un monde nouveau</h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 }}>
@@ -499,7 +521,7 @@ export default function ModulePage() {
         </div>
       </Wrap>}
 
-      {s === 12 && <Wrap onNext={next} onPrev={prev} nextLabel="Phase suivante →">
+      {s === 12 && <Wrap onNext={next} onPrev={prev} {...(lang==='en'?{nextLabel:'Next phase →'}:{nextLabel:'Phase suivante →'})}>
         <Tag color="#EEEDFE"><span style={{ color: '#3C3489' }}>PARTIE 4 — AI Act & geopolitique</span></Tag>
         <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 12, lineHeight: 1.3 }}>Puis arrive l'AI Act</h2>
         <p style={{ fontSize: 13, color: '#555', lineHeight: 1.65, marginBottom: 14 }}>Sa logique est differente du RGPD. Il construit un cadre autour des <strong>systemes d'IA, de leurs usages et des risques qu'ils generent.</strong></p>
@@ -545,7 +567,7 @@ export default function ModulePage() {
         </div>
       </Wrap>}
 
-      {s === 15 && <Wrap onNext={next} onPrev={prev} nextLabel="Passer au quiz →">
+      {s === 15 && <Wrap onNext={next} onPrev={prev} {...(lang==='en'?{nextLabel:'Take the quiz →'}:{nextLabel:'Passer au quiz →'})}>
         <h3 style={{ fontSize: 18, fontWeight: 800, marginBottom: 14, color: '#1a1a2e' }}>Le voyage que nous allons faire</h3>
         <div style={{ background: '#1a1a2e', borderRadius: 14, padding: '16px 18px', marginBottom: 16, textAlign: 'center' }}>
           <div style={{ fontWeight: 800, fontSize: 16, color: 'white', lineHeight: 1.5 }}>Qui est responsable lorsqu'une IA produit un dommage ?</div>
