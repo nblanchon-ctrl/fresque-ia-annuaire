@@ -33,28 +33,20 @@ const PHASE_CELEBRATIONS = [
 
 function JusticeBadge({ size = 100 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="200" rx="20" fill="#0C1A2E"/>
-      {/* Base et tige */}
-      <rect x="97" y="60" width="6" height="100" fill="#C9A84C"/>
-      <rect x="70" y="155" width="60" height="8" rx="4" fill="#C9A84C"/>
-      {/* Barre horizontale */}
-      <rect x="40" y="62" width="120" height="6" rx="3" fill="#C9A84C"/>
-      {/* Chaine gauche */}
-      <line x1="55" y1="68" x2="55" y2="95" stroke="#C9A84C" strokeWidth="2.5"/>
-      {/* Plateau gauche */}
-      <ellipse cx="55" cy="100" rx="22" ry="6" fill="none" stroke="#C9A84C" strokeWidth="2.5"/>
-      <path d="M33 98 Q55 112 77 98" fill="none" stroke="#C9A84C" strokeWidth="2.5"/>
-      {/* Chaine droite */}
-      <line x1="145" y1="68" x2="145" y2="88" stroke="#C9A84C" strokeWidth="2.5"/>
-      {/* Plateau droit (penché - déséquilibre symbolique) */}
-      <ellipse cx="145" cy="93" rx="22" ry="6" fill="none" stroke="#C9A84C" strokeWidth="2.5"/>
-      <path d="M123 91 Q145 105 167 91" fill="none" stroke="#C9A84C" strokeWidth="2.5"/>
-      {/* Étoiles */}
-      <circle cx="55" cy="100" r="3" fill="#F0D080" opacity="0.7"/>
-      <circle cx="145" cy="93" r="3" fill="#F0D080" opacity="0.7"/>
-      {/* Texte */}
-      <text x="100" y="180" textAnchor="middle" fontSize="8" fill="#C9A84C" fontWeight="800" fontFamily="monospace" letterSpacing="1.5">DROIT & IA</text>
+    <svg width={size} height={size} viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="200" height="200" rx="100" fill="#FEF3D0"/>
+      <rect x="97" y="45" width="6" height="110" fill="#C9A84C"/>
+      <rect x="65" y="152" width="70" height="9" rx="4" fill="#C9A84C"/>
+      <rect x="35" y="55" width="130" height="7" rx="3" fill="#C9A84C"/>
+      <line x1="53" y1="62" x2="53" y2="95" stroke="#C9A84C" strokeWidth="3.5"/>
+      <ellipse cx="53" cy="101" rx="26" ry="8" fill="#FEE8A0" stroke="#C9A84C" strokeWidth="3"/>
+      <path d="M27 99 Q53 116 79 99" fill="none" stroke="#C9A84C" strokeWidth="3.5"/>
+      <line x1="147" y1="62" x2="147" y2="85" stroke="#C9A84C" strokeWidth="3.5"/>
+      <ellipse cx="147" cy="91" rx="26" ry="8" fill="#FEE8A0" stroke="#C9A84C" strokeWidth="3"/>
+      <path d="M121 89 Q147 106 173 89" fill="none" stroke="#C9A84C" strokeWidth="3.5"/>
+      <circle cx="53" cy="101" r="4" fill="#C9A84C" opacity="0.6"/>
+      <circle cx="147" cy="91" r="4" fill="#C9A84C" opacity="0.6"/>
+      <text x="100" y="183" textAnchor="middle" fontSize="11" fill="#8B6914" fontWeight="800" fontFamily="monospace" letterSpacing="1">DROIT & IA</text>
     </svg>
   )
 }
@@ -274,7 +266,7 @@ export default function ModulePage() {
             {pct === 100 ? (
               <div style={{ animation: 'fadeIn .5s ease' }}>
                 <div style={{ marginBottom: 12 }}><JusticeBadge size={96} /></div>
-                <div style={{ display: 'inline-block', background: '#0C1A2E', color: '#C9A84C', fontSize: 11, fontWeight: 700, padding: '4px 14px', borderRadius: 20, marginBottom: 8, letterSpacing: 1 }}>BADGE DÉBLOQUÉ ✦</div>
+                <div style={{ display: 'inline-block', background: '#FEF3D0', color: '#8B6914', fontSize: 11, fontWeight: 700, padding: '4px 14px', borderRadius: 20, marginBottom: 8, letterSpacing: 1 }}>BADGE DÉBLOQUÉ ✦</div>
                 <h2 style={{ fontSize: 24, fontWeight: 900, marginBottom: 4 }}>MAITRISE DROIT & IA</h2>
                 <div style={{ fontSize: 32, fontWeight: 900, color: '#C9A84C', marginBottom: 8 }}>{QUIZ.length} / {QUIZ.length} : 100 %</div>
                 <p style={{ fontSize: 14, color: '#555', lineHeight: 1.6 }}>Parfait ! Tu maitrises les fondamentaux du droit de l'IA.</p>
