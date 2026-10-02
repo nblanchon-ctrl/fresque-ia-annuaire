@@ -206,7 +206,7 @@ export default function CRMPage() {
 
         <div style={{fontSize:12,color:'#888',marginBottom:14}}>
           {filtered.length} client{filtered.length!==1?'s':''}
-          {(search||filterSize||filterSecteur||filterStatus)?lang==='en'?' (filtered)':' (filtrés)')+'':(lang==='en'?' total':' au total'}
+          {(search||filterSize||filterSecteur||filterStatus)?(lang==='en'?' (filtered)':' (filtrés)'):(lang==='en'?' total':' au total')}
         </div>
 
         {/* GRID */}
