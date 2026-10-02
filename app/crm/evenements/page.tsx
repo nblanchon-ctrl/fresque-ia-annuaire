@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import Link from 'next/link'
+import { useLanguage } from '@/lib/i18n'
 
 type Animateur = { id: string, prenom: string, nom: string, photo_url: string | null, email: string }
 type Evenement = {
@@ -15,6 +16,8 @@ type Evenement = {
 export default function CRMEvenementsPage() {
   const supabase = createClient()
   const router = useRouter()
+  const { lang } = useLanguage()
+  const t2 = (fr: string, en: string) => lang === 'en' ? en : fr
   const [events, setEvents] = useState<Evenement[]>([])
   const [animateurs, setAnimateurs] = useState<Animateur[]>([])
   const [me, setMe] = useState<Animateur | null>(null)
@@ -129,7 +132,7 @@ export default function CRMEvenementsPage() {
         {events.length === 0 && (
           <div style={{ textAlign: 'center', padding: '60px 20px', color: '#888' }}>
             <div style={{ fontSize: 48, marginBottom: 12 }}>🗓</div>
-            <div style={{ fontWeight: 700, marginBottom: 6 }}>Aucun espace événement</div>
+            <div style={{ fontWeight: 700, marginBottom: 6 }}>{t2('Aucun espace événement','No event spaces')}</div>
             <div style={{ fontSize: 13 }}>Créez votre premier espace pour coordonner la prospection lors d'un événement.</div>
           </div>
         )}
@@ -154,7 +157,7 @@ export default function CRMEvenementsPage() {
                     <button onClick={e => { e.stopPropagation(); e.preventDefault(); deleteEvenement(ev.id) }}
                       disabled={deletingId === ev.id}
                       style={{ padding: '3px 10px', borderRadius: 8, border: 'none', background: '#FFDFE0', color: '#CC0000', fontSize: 11, cursor: 'pointer', fontWeight: 600 }}>
-                      {deletingId === ev.id ? '...' : 'Supprimer'}
+                      {deletingId === ev.id ? '...' : t2('Supprimer','Delete')}
                     </button>
                   )}
                 </div>
@@ -188,13 +191,13 @@ export default function CRMEvenementsPage() {
             </div>
             <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
-                <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Nom de l'événement *</label>
+                <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>{t2("Nom de l'événement *",'Event name *')}</label>
                 <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Ex : Forum IA Paris 2025, Salon de l'Industrie…" style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: '1.5px solid #E5E5E5', fontSize: 14, boxSizing: 'border-box', outline: 'none' }} />
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 <div>
-                  <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>Date de début *</label>
+                  <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>{t2('Date de début *','Start date *')}</label>
                   <input type="date" value={form.date_debut} onChange={e => setForm({ ...form, date_debut: e.target.value })} style={{ width: '100%', padding: '10px 10px', borderRadius: 10, border: '1.5px solid #E5E5E5', fontSize: 13, boxSizing: 'border-box' }} />
                 </div>
                 <div>
