@@ -88,7 +88,7 @@ function Confetti() {
   )
 }
 
-function CelebrationModal({ data, onContinue }: { data: typeof PHASE_CELEBRATIONS[0], onContinue: () => void }) {
+function CelebrationModal({ data, onContinue, lang }: { data: typeof PHASE_CELEBRATIONS[0], onContinue: () => void, lang: string }) {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.72)', padding: '20px' }}>
       <style>{`@keyframes popIn{0%{transform:scale(0.4);opacity:0}65%{transform:scale(1.06)}100%{transform:scale(1);opacity:1}} @keyframes bounceIcon{0%,100%{transform:translateY(0)}45%{transform:translateY(-14px)}}`}</style>
@@ -253,7 +253,7 @@ export default function ModulePage() {
     return (
       <div style={{ minHeight: '100vh', background: '#F7F7F7' }}>
         <style>{`@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}`}</style>
-        {celebration && <CelebrationModal data={celebration} onContinue={closeCelebration}/>}
+        {celebration && <CelebrationModal data={celebration} onContinue={closeCelebration} lang={lang}/>}
         {header}
         <div style={{ padding: '20px 16px 120px', maxWidth: 700, margin: '0 auto' }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: '#534AB7', marginBottom: 12 }}>{t2('Question','Question')} {qIdx + 1} / {activeQuiz.length}&nbsp;·&nbsp;{t2('Score','Score')} {score}</div>
@@ -325,7 +325,7 @@ export default function ModulePage() {
   return (
     <div style={{ minHeight: '100vh', background: '#F7F7F7' }}>
       <style>{`@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}`}</style>
-      {celebration && <CelebrationModal data={celebration} onContinue={closeCelebration}/>}
+      {celebration && <CelebrationModal data={celebration} onContinue={closeCelebration} lang={lang}/>}
       {header}
 
       {s === 0 && <Wrap onNext={next} {...(lang==='en'?{nextLabel:'Start →'}:{nextLabel:'Commencer →'})}>
