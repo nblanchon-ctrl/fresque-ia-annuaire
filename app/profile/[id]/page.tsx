@@ -115,18 +115,14 @@ export default function ProfilePage() {
             <div className="avatar avatar-lg" style={{ background: c.bg, color: c.text }}>
               {animateur.photo_url ? <img src={animateur.photo_url} alt={animateur.nom} /> : initials(animateur.nom)}
             </div>
-            {(hasPCB || hasDroit) && (
-              <div style={{ position: 'absolute', bottom: -2, right: -6, display: 'flex', gap: 3 }}>
-                {hasPCB && (
-                  <div style={{ borderRadius: '50%', boxShadow: '0 2px 8px rgba(0,168,94,0.4)', border: '1.5px solid #00A85E' }} title="Maîtrise IA — 4 âges de l'IA">
-                    <PCBBadge size={32}/>
-                  </div>
-                )}
-                {hasDroit && (
-                  <div style={{ borderRadius: '50%', boxShadow: '0 2px 8px rgba(201,168,76,0.4)', border: '1.5px solid #C9A84C' }} title="Maîtrise Droit & IA">
-                    <JusticeBadge size={32}/>
-                  </div>
-                )}
+            {hasPCB && (
+              <div style={{ position: 'absolute', bottom: 0, right: -4, width: 28, height: 28, borderRadius: '50%', boxShadow: '0 2px 8px rgba(0,168,94,0.5)', border: '2px solid white', background: 'white' }} title="Maîtrise IA — 4 âges de l'IA">
+                <PCBBadge size={28}/>
+              </div>
+            )}
+            {hasDroit && (
+              <div style={{ position: 'absolute', bottom: 0, left: hasPCB ? -4 : undefined, right: hasPCB ? undefined : -4, width: 28, height: 28, borderRadius: '50%', boxShadow: '0 2px 8px rgba(201,168,76,0.5)', border: '2px solid white', background: 'white' }} title="Maîtrise Droit & IA">
+                <JusticeBadge size={28}/>
               </div>
             )}
           </div>
