@@ -108,8 +108,8 @@ function CelebrationModal({ data, onContinue, lang }: { data: typeof PHASE_CELEB
   )
 }
 
-function ProgressBar({ step, phase }: { step: number, phase: number }) {
-  const pct = Math.round((step / (TOTAL_LEARNING + activeQuiz.length)) * 100)
+function ProgressBar({ step, phase, quizLength }: { step: number, phase: number, quizLength: number }) {
+  const pct = Math.round((step / (TOTAL_LEARNING + quizLength)) * 100)
   const phases = ['⚖️', '🎯', '🏛️', '📋', '🌍']
   return (
     <div style={{ padding: '10px 16px', background: 'var(--bg)', borderBottom: '0.5px solid var(--border)' }}>
@@ -242,7 +242,7 @@ export default function ModulePage() {
         <span style={{ fontSize: 12, fontWeight: 500, color: '#555', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{moduleTitle}</span>
         <LanguageSwitch />
       </div>
-      {!isResult && <ProgressBar step={step} phase={phase} />}
+      {!isResult && <ProgressBar step={step} phase={phase} quizLength={activeQuiz.length} />}
     </div>
   )
 
