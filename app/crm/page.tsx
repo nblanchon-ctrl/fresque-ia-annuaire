@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { useLanguage } from '@/lib/i18n'
 import { createClient } from '@/lib/supabase'
 import Link from 'next/link'
 
@@ -17,14 +18,14 @@ const REGIONS = [
   'Occitanie','Pays de la Loire',"Provence-Alpes-Côte d'Azur",'Europe','International','Autre',
 ]
 const SIZES = [
-  { key:'micro',        label:'< 50 salariés',       short:'< 50' },
-  { key:'pme',          label:'50 – 500 salariés',   short:'PME' },
-  { key:'eti',          label:'500 – 2000 salariés', short:'ETI' },
-  { key:'grand_groupe', label:'> 2000 salariés',     short:'Grand gr.' },
+  { key:'micro',        label:'< 50 salariés',        labelFr:'< 50 salariés',       labelEn:'< 50 employees',     short:'< 50' },
+  { key:'pme',          labelFr:'50 – 500 salariés',   labelEn:'50 – 500 employees', short:'SME' },
+  { key:'eti',          labelFr:'500 – 2000 salariés', labelEn:'500 – 2000 empl.',   short:'Mid' },
+  { key:'grand_groupe', labelFr:'> 2000 salariés',     labelEn:'> 2000 employees',   short:'Large' },
 ]
-const STATUS_COLORS: Record<string,{bg:string;color:string;label:string}> = {
-  client:         {bg:'#D7FFB8',color:'#2B7400',label:'Client ✓'},
-  prospect_chaud: {bg:'#FFDFE0',color:'#CC0000',label:'Prospect chaud 🔥'},
+const STATUS_COLORS: Record<string,{bg:string;color:string;labelFr:string;labelEn:string}> = {
+  client:         {bg:'#D7FFB8',color:'#2B7400',labelFr:'Client ✓',labelEn:'Client ✓'},
+  prospect_chaud: {bg:'#FFDFE0',color:'#CC0000',labelFr:'Prospect chaud 🔥',labelEn:'Hot prospect 🔥'},
 }
 
 type Animateur = {id:string;prenom:string;nom:string;photo_url:string|null;email:string}
@@ -38,6 +39,8 @@ type CRMClient = {
 export default function CRMPage() {
   const supabase = createClient()
   const router = useRouter()
+  const { lang } = useLanguage()
+  const t2 = (fr: string, en: string) => lang === 'en' ? en : fr
   const [clients, setClients] = useState<CRMClient[]>([])
   const [loading, setLoading] = useState(true)
   const [me, setMe] = useState<Animateur|null>(null)
@@ -174,7 +177,7 @@ export default function CRMPage() {
         {/* SEARCH */}
         <div style={{position:'relative',marginBottom:14}}>
           <span style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:'#888'}}>🔍</span>
-          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Rechercher par nom, secteur, tags…"
+          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder={t2('Rechercher par nom, secteur, tags…','Search by name, sector, tags…')}
             style={{width:'100%',padding:'11px 14px 11px 38px',borderRadius:12,border:'1.5px solid #E5E5E5',fontSize:14,background:'white',boxSizing:'border-box',outline:'none'}}/>
         </div>
 
@@ -203,7 +206,7 @@ export default function CRMPage() {
 
         <div style={{fontSize:12,color:'#888',marginBottom:14}}>
           {filtered.length} client{filtered.length!==1?'s':''}
-          {(search||filterSize||filterSecteur||filterStatus)?' (filtrés)':' au total'}
+          {(search||filterSize||filterSecteur||filterStatus)?lang==='en'?' (filtered)':' (filtrés)')+'':(lang==='en'?' total':' au total'}
         </div>
 
         {/* GRID */}
@@ -229,12 +232,12 @@ export default function CRMPage() {
                     </div>
                     <div style={{flex:1,minWidth:0}}>
                       <div style={{fontWeight:800,fontSize:14,color:'#1a1a2e',marginBottom:4,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{client.name}</div>
-                      <div style={{display:'inline-block',padding:'2px 9px',borderRadius:20,background:s.bg,color:s.color,fontSize:11,fontWeight:700}}>{s.label}</div>
+                      <div style={{display:'inline-block',padding:'2px 9px',borderRadius:20,background:s.bg,color:s.color,fontSize:11,fontWeight:700}}>{lang==='en'?s.labelEn:s.labelFr}</div>
                     </div>
                   </div>
                   {/* Badges */}
                   <div style={{display:'flex',flexWrap:'wrap',gap:4,marginBottom:10}}>
-                    {sz&&<span style={{padding:'2px 8px',borderRadius:20,background:'#E6F1FB',color:'#0C447C',fontSize:11,fontWeight:600}}>{sz.short}</span>}
+                    {sz&&<span style={{padding:'2px 8px',borderRadius:20,background:'#E6F1FB',color:'#0C447C',fontSize:11,fontWeight:600}}>{lang==='en'?(sz.short==='SME'?sz.short:sz.short):sz.short}</span>}
                     {client.secteur&&<span style={{padding:'2px 8px',borderRadius:20,background:'#EEEDFE',color:'#3C3489',fontSize:11,fontWeight:600,maxWidth:130,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{client.secteur}</span>}
                     {client.region&&<span style={{padding:'2px 8px',borderRadius:20,background:'#F0F0F4',color:'#555',fontSize:11}}>{client.region}</span>}
                     {(client.tags||[]).slice(0,2).map(t=><span key={t} style={{padding:'2px 8px',borderRadius:20,background:'#FFF9E6',color:'#8B5E00',fontSize:11}}>#{t}</span>)}
@@ -254,8 +257,8 @@ export default function CRMPage() {
                   )})()}
                 </div>
                 <div style={{borderTop:'1px solid #F0F0F0',padding:'7px 14px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-                  <span style={{fontSize:11,color:'#888'}}>Voir détails & commentaires →</span>
-                  {canEdit&&<button onClick={e=>deleteClient(e,client.id)} style={{padding:'3px 9px',borderRadius:8,border:'none',background:'#FFDFE0',color:'#CC0000',fontSize:11,cursor:'pointer',fontWeight:600}}>Supprimer</button>}
+                  <span style={{fontSize:11,color:'#888'}}>{t2('Voir détails & commentaires →','View details & comments →')}</span>
+                  {canEdit&&<button onClick={e=>deleteClient(e,client.id)} style={{padding:'3px 9px',borderRadius:8,border:'none',background:'#FFDFE0',color:'#CC0000',fontSize:11,cursor:'pointer',fontWeight:600}}>{t2('Supprimer','Delete')}</button>}
                 </div>
               </div>
             )
@@ -276,7 +279,7 @@ export default function CRMPage() {
         <div style={{position:'fixed',inset:0,zIndex:100,background:'rgba(0,0,0,0.6)',display:'flex',alignItems:'center',justifyContent:'center',padding:16}}>
           <div style={{background:'white',borderRadius:20,width:'100%',maxWidth:480,maxHeight:'92vh',overflowY:'auto',animation:'popIn .25s ease'}}>
             <div style={{padding:'18px 20px 0',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-              <h2 style={{fontSize:17,fontWeight:900,margin:0}}>Nouveau client</h2>
+              <h2 style={{fontSize:17,fontWeight:900,margin:0}}>{t2('Nouveau client','New client')}</h2>
               <button onClick={()=>setShowModal(false)} style={{background:'none',border:'none',fontSize:22,cursor:'pointer',color:'#888'}}>✕</button>
             </div>
             <div style={{padding:20,display:'flex',flexDirection:'column',gap:13}}>
@@ -286,16 +289,16 @@ export default function CRMPage() {
                   {logoPreview?<img src={logoPreview} style={{width:'100%',height:'100%',objectFit:'contain',padding:4}}/>:<span style={{fontSize:26}}>🏢</span>}
                 </div>
                 <div>
-                  <div style={{fontSize:13,fontWeight:600,marginBottom:4}}>Logo <span style={{fontWeight:400,color:'#888'}}>(optionnel)</span></div>
+                  <div style={{fontSize:13,fontWeight:600,marginBottom:4}}>{t2('Logo','Logo')}<span style={{fontWeight:400,color:'#888'}}>{t2('(optionnel)','(optional)')}</span></div>
                   <button onClick={()=>fileRef.current?.click()} style={{padding:'6px 14px',borderRadius:8,border:'1.5px solid #E5E5E5',background:'white',fontSize:12,cursor:'pointer'}}>
-                    {logoFile?'✓ '+logoFile.name.slice(0,18)+'…':'Choisir une image'}
+                    {logoFile?'✓ '+logoFile.name.slice(0,18)+'…':t2('Choisir une image','Choose an image')}
                   </button>
                   <input ref={fileRef} type="file" accept="image/*" style={{display:'none'}} onChange={handleLogoChange}/>
                 </div>
               </div>
               <div>
                 <label style={{fontSize:13,fontWeight:600,display:'block',marginBottom:5}}>Nom *</label>
-                <input value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="Ex : Renault, AXA, CHU Lyon…"
+                <input value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder={t2('Ex : Renault, AXA, CHU Lyon…','E.g. Renault, AXA, Lyon Hospital…')}
                   style={{width:'100%',padding:'10px 12px',borderRadius:10,border:'1.5px solid #E5E5E5',fontSize:14,boxSizing:'border-box',outline:'none'}}/>
               </div>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
@@ -304,7 +307,7 @@ export default function CRMPage() {
                   <select value={form.size} onChange={e=>setForm({...form,size:e.target.value})}
                     style={{width:'100%',padding:'10px',borderRadius:10,border:'1.5px solid #E5E5E5',fontSize:13,boxSizing:'border-box'}}>
                     <option value="">Sélectionner</option>
-                    {SIZES.map(s=><option key={s.key} value={s.key}>{s.label}</option>)}
+                    {SIZES.map(s=><option key={s.key} value={s.key}>{lang==='en'?s.labelEn:s.labelFr}</option>)}
                   </select>
                 </div>
                 <div>
@@ -318,8 +321,8 @@ export default function CRMPage() {
               </div>
               {form.secteur==='Autre'&&(
                 <div>
-                  <label style={{fontSize:13,fontWeight:600,display:'block',marginBottom:5}}>Précisez le secteur</label>
-                  <input value={form.secteurAutre} onChange={e=>setForm({...form,secteurAutre:e.target.value})} placeholder="Ex : Culture, Sports, ONG…"
+                  <label style={{fontSize:13,fontWeight:600,display:'block',marginBottom:5}}>{t2('Précisez le secteur','Specify the sector')}</label>
+                  <input value={form.secteurAutre} onChange={e=>setForm({...form,secteurAutre:e.target.value})} placeholder={t2('Ex : Culture, Sports, ONG…','E.g. Culture, Sports, NGO…')}
                     style={{width:'100%',padding:'10px 12px',borderRadius:10,border:'1.5px solid #E5E5E5',fontSize:13,boxSizing:'border-box',outline:'none'}}/>
                 </div>
               )}
@@ -333,23 +336,23 @@ export default function CRMPage() {
               </div>
               {form.region==='Autre'&&(
                 <div>
-                  <label style={{fontSize:13,fontWeight:600,display:'block',marginBottom:5}}>Précisez la région</label>
-                  <input value={form.regionAutre} onChange={e=>setForm({...form,regionAutre:e.target.value})} placeholder="Ex : DOM-TOM, Maroc, Italie…"
+                  <label style={{fontSize:13,fontWeight:600,display:'block',marginBottom:5}}>{t2('Précisez la région','Specify the region')}</label>
+                  <input value={form.regionAutre} onChange={e=>setForm({...form,regionAutre:e.target.value})} placeholder={t2('Ex : DOM-TOM, Maroc, Italie…','E.g. Overseas, Morocco, Italy…')}
                     style={{width:'100%',padding:'10px 12px',borderRadius:10,border:'1.5px solid #E5E5E5',fontSize:13,boxSizing:'border-box',outline:'none'}}/>
                 </div>
               )}
               <div>
-                <label style={{fontSize:13,fontWeight:600,display:'block',marginBottom:4}}>Tags <span style={{fontWeight:400,color:'#888'}}>(séparés par des virgules)</span></label>
-                <input value={form.tags} onChange={e=>setForm({...form,tags:e.target.value})} placeholder="Ex : innovation, RH, durabilité…"
+                <label style={{fontSize:13,fontWeight:600,display:'block',marginBottom:4}}>Tags <span style={{fontWeight:400,color:'#888'}}>{t2('(séparés par des virgules)','(comma-separated)')}</span></label>
+                <input value={form.tags} onChange={e=>setForm({...form,tags:e.target.value})} placeholder={t2('Ex : innovation, RH, durabilité…','E.g. innovation, HR, sustainability…')}
                   style={{width:'100%',padding:'10px 12px',borderRadius:10,border:'1.5px solid #E5E5E5',fontSize:13,boxSizing:'border-box',outline:'none'}}/>
               </div>
               <div>
-                <label style={{fontSize:13,fontWeight:600,display:'block',marginBottom:4}}>Note initiale <span style={{fontWeight:400,color:'#888'}}>(visible par tous)</span></label>
-                <textarea value={form.notes} onChange={e=>setForm({...form,notes:e.target.value})} placeholder="Contexte, historique, prochain contact…" rows={3}
+                <label style={{fontSize:13,fontWeight:600,display:'block',marginBottom:4}}>{t2('Note initiale','Initial note')}<span style={{fontWeight:400,color:'#888'}}>{t2('(visible par tous)','(visible to all)')}</span></label>
+                <textarea value={form.notes} onChange={e=>setForm({...form,notes:e.target.value})} placeholder={t2('Contexte, historique, prochain contact…','Context, history, next contact…')} rows={3}
                   style={{width:'100%',padding:'10px 12px',borderRadius:10,border:'1.5px solid #E5E5E5',fontSize:13,boxSizing:'border-box',resize:'vertical',fontFamily:'inherit',outline:'none'}}/>
               </div>
               <div>
-                <label style={{fontSize:13,fontWeight:600,display:'block',marginBottom:5}}>Référent <span style={{fontWeight:400,color:'#888'}}>(par défaut : vous)</span></label>
+                <label style={{fontSize:13,fontWeight:600,display:'block',marginBottom:5}}>{t2('Référent','Contact person')}<span style={{fontWeight:400,color:'#888'}}>{t2('(par défaut : vous)','(default: you)')}</span></label>
                 <select value={referentId} onChange={e=>setReferentId(e.target.value)}
                   style={{width:'100%',padding:'10px 12px',borderRadius:10,border:'1.5px solid #E5E5E5',fontSize:13,boxSizing:'border-box'}}>
                   <option value="">Moi — {me?.nom}</option>
@@ -360,7 +363,7 @@ export default function CRMPage() {
               </div>
               <button onClick={handleCreate} disabled={!form.name.trim()||saving}
                 style={{padding:'14px',borderRadius:14,background:form.name.trim()?'#1a1a2e':'#E5E5E5',color:form.name.trim()?'white':'#888',border:'none',fontWeight:800,fontSize:15,cursor:form.name.trim()?'pointer':'default'}}>
-                {saving?'Enregistrement…':'Créer le client'}
+                {saving?t2('Enregistrement…','Saving…'):t2('Créer le client','Create client')}
               </button>
             </div>
           </div>
@@ -372,8 +375,8 @@ export default function CRMPage() {
         <div style={{position:'fixed',inset:0,zIndex:200,background:'rgba(0,0,0,0.7)',display:'flex',alignItems:'center',justifyContent:'center',padding:16}}>
           <div style={{background:'white',borderRadius:24,padding:'32px 24px',maxWidth:380,width:'100%',textAlign:'center',animation:'popIn .3s ease'}}>
             <div style={{fontSize:48,marginBottom:12}}>🤝</div>
-            <h3 style={{fontSize:18,fontWeight:900,marginBottom:8}}>Quel est le statut de ce client ?</h3>
-            <p style={{fontSize:13,color:'#666',lineHeight:1.6,marginBottom:24}}>Cette information est visible par toute la communauté.</p>
+            <h3 style={{fontSize:18,fontWeight:900,marginBottom:8}}>{t2('Quel est le statut de ce client ?','What is the status of this client?')}</h3>
+            <p style={{fontSize:13,color:'#666',lineHeight:1.6,marginBottom:24}}>{t2('Cette information est visible par toute la communauté.','This information is visible to the whole community.')}</p>
             <div style={{display:'flex',flexDirection:'column',gap:10}}>
               <button onClick={()=>setClientStatus('client')} style={{padding:'15px',borderRadius:14,background:'#D7FFB8',border:'2px solid #58CC02',color:'#2B7400',fontWeight:800,fontSize:15,cursor:'pointer'}}>
                 Fresque déjà réalisée — Client
