@@ -248,18 +248,14 @@ export default function FresqueursPage() {
                     <div className="avatar" style={{ background: c.bg, color: c.text, marginBottom: 0 }}>
                       {a.photo_url ? <img src={a.photo_url} alt={a.nom} /> : initials(a.nom)}
                     </div>
-                    {(pcbSet.has(a.id) || droitSet.has(a.id)) && (
-                      <div style={{ position: 'absolute', bottom: -3, right: -5, display: 'flex', gap: 2 }}>
-                        {pcbSet.has(a.id) && (
-                          <div style={{ width: 24, height: 24, borderRadius: '50%', boxShadow: '0 1px 4px rgba(0,168,94,0.4)', border: '1.5px solid #00A85E' }} title="Maîtrise IA — 4 âges">
-                            <PCBBadge size={24}/>
-                          </div>
-                        )}
-                        {droitSet.has(a.id) && (
-                          <div style={{ width: 24, height: 24, borderRadius: '50%', boxShadow: '0 1px 4px rgba(201,168,76,0.4)', border: '1.5px solid #C9A84C' }} title="Maîtrise Droit & IA">
-                            <JusticeBadge size={24}/>
-                          </div>
-                        )}
+                    {pcbSet.has(a.id) && (
+                      <div style={{ position: 'absolute', bottom: -2, right: -4, width: 20, height: 20, borderRadius: '50%', boxShadow: '0 1px 4px rgba(0,168,94,0.5)', border: '1.5px solid #00A85E', background: 'white' }} title="Maîtrise IA — 4 âges de l'IA">
+                        <PCBBadge size={20}/>
+                      </div>
+                    )}
+                    {droitSet.has(a.id) && (
+                      <div style={{ position: 'absolute', bottom: -2, left: pcbSet.has(a.id) ? -4 : undefined, right: pcbSet.has(a.id) ? undefined : -4, width: 20, height: 20, borderRadius: '50%', boxShadow: '0 1px 4px rgba(201,168,76,0.5)', border: '1.5px solid #C9A84C', background: 'white' }} title="Maîtrise Droit & IA">
+                        <JusticeBadge size={20}/>
                       </div>
                     )}
                   </div>
