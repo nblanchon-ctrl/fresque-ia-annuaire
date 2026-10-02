@@ -21,6 +21,41 @@ function colorFor(id: string) {
   return COLORS[n % COLORS.length]
 }
 
+function PCBBadge({ size = 24 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="200" height="200" rx="100" fill="#DFFBEE"/>
+      <path d="M20 100 L58 100 L58 58 L100 58" stroke="#00A85E" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M180 100 L142 100 L142 58 L100 58" stroke="#00A85E" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M100 180 L100 142 L142 142 L142 100" stroke="#00A85E" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M100 20 L100 58 L58 58 L58 100" stroke="#00A85E" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round"/>
+      <rect x="60" y="60" width="80" height="80" rx="8" fill="#C6F0DA" stroke="#00A85E" strokeWidth="5"/>
+      <rect x="74" y="74" width="52" height="52" rx="4" fill="#E8FBF2"/>
+      {([[85,85],[100,85],[115,85],[85,100],[115,100],[85,115],[100,115],[115,115]] as [number,number][]).map(([cx,cy],i)=>(<circle key={i} cx={cx} cy={cy} r="5" fill="#00A85E"/>))}
+      <rect x="90" y="90" width="20" height="20" rx="3" fill="#007A44" stroke="#00A85E" strokeWidth="3"/>
+      <text x="100" y="103" textAnchor="middle" fontSize="9" fill="white" fontWeight="900" fontFamily="monospace">AI</text>
+    </svg>
+  )
+}
+
+function JusticeBadge({ size = 24 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="200" height="200" rx="100" fill="#FEF3D0"/>
+      <rect x="97" y="55" width="6" height="100" fill="#C9A84C"/>
+      <rect x="68" y="152" width="64" height="8" rx="4" fill="#C9A84C"/>
+      <rect x="38" y="58" width="124" height="6" rx="3" fill="#C9A84C"/>
+      <line x1="55" y1="64" x2="55" y2="92" stroke="#C9A84C" strokeWidth="3"/>
+      <ellipse cx="55" cy="97" rx="23" ry="6" fill="none" stroke="#C9A84C" strokeWidth="3"/>
+      <path d="M32 95 Q55 110 78 95" fill="none" stroke="#C9A84C" strokeWidth="3"/>
+      <line x1="145" y1="64" x2="145" y2="84" stroke="#C9A84C" strokeWidth="3"/>
+      <ellipse cx="145" cy="89" rx="23" ry="6" fill="none" stroke="#C9A84C" strokeWidth="3"/>
+      <path d="M122 87 Q145 102 168 87" fill="none" stroke="#C9A84C" strokeWidth="3"/>
+    </svg>
+  )
+}
+
+
 export default function FresqueursPage() {
   const { t } = useLanguage()
   const [animateurs, setAnimateurs] = useState<Animateur[]>([])
@@ -38,7 +73,8 @@ export default function FresqueursPage() {
   const [newCompetences, setNewCompetences] = useState('')
   const [newBio, setNewBio] = useState('')
   const [saving, setSaving] = useState(false)
-  const [formés, setFormés] = useState<Set<string>>(new Set())
+  const [pcbSet, setPcbSet] = useState<Set<string>>(new Set())
+  const [droitSet, setDroitSet] = useState<Set<string>>(new Set())
   const supabase = createClient()
 
   useEffect(() => {
@@ -51,13 +87,22 @@ export default function FresqueursPage() {
       ])
       setMe(meData)
       setAnimateurs(list || [])
-      // Charger les animateurs ayant validé au moins un module
+      // Charger les progressions avec info module pour distinguer les badges
       const { data: progs } = await supabase
         .from('progressions')
-        .select('animateur_id')
+        .select('animateur_id, modules(slug, titre)')
         .eq('completed', true)
-      const formésSet = new Set((progs || []).map((p: { animateur_id: string }) => p.animateur_id))
-      setFormés(formésSet)
+      const newPcb = new Set<string>()
+      const newDroit = new Set<string>()
+      ;(progs || []).forEach((p: { animateur_id: string, modules: { slug?: string, titre?: string } | null }) => {
+        if (p.modules?.slug === 'droit') {
+          newDroit.add(p.animateur_id)
+        } else {
+          newPcb.add(p.animateur_id)
+        }
+      })
+      setPcbSet(newPcb)
+      setDroitSet(newDroit)
       setLoading(false)
     }
     load()
@@ -202,26 +247,18 @@ export default function FresqueursPage() {
                     <div className="avatar" style={{ background: c.bg, color: c.text, marginBottom: 0 }}>
                       {a.photo_url ? <img src={a.photo_url} alt={a.nom} /> : initials(a.nom)}
                     </div>
-                    {formés.has(a.id) && (
-                      <div style={{
-                        position: 'absolute', bottom: -3, right: -5,
-                        width: 24, height: 24, borderRadius: '50%',
-                        background: '#040F1D',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        boxShadow: '0 1px 6px rgba(0,184,107,0.6)',
-                        border: '2px solid #00B86B',
-                      }} title="Module(s) de formation validé(s) — MAÎTRISE IA">
-                        <svg width="16" height="16" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <rect width="200" height="200" rx="20" fill="#040F1D"/>
-                          <path d="M20 100 L58 100 L58 58 L100 58" stroke="#00B86B" strokeWidth="14" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-                          <path d="M180 100 L142 100 L142 58 L100 58" stroke="#00B86B" strokeWidth="14" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-                          <path d="M100 180 L100 142 L142 142 L142 100" stroke="#00B86B" strokeWidth="14" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-                          <path d="M100 20 L100 58 L58 58 L58 100" stroke="#00B86B" strokeWidth="14" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-                          <rect x="60" y="60" width="80" height="80" rx="8" fill="#0D1F3C" stroke="#2D5AA8" strokeWidth="6"/>
-                          <rect x="74" y="74" width="52" height="52" rx="4" fill="#060E1A"/>
-                          {([[85,85],[100,85],[115,85],[85,100],[115,100],[85,115],[100,115],[115,115]] as [number,number][]).map(([cx,cy],i)=>(<circle key={i} cx={cx} cy={cy} r="5.5" fill="#1A6AC8"/>))}
-                          <rect x="90" y="90" width="20" height="20" rx="3" fill="#0A2050" stroke="#2D6AC8" strokeWidth="4"/>
-                        </svg>
+                    {(pcbSet.has(a.id) || droitSet.has(a.id)) && (
+                      <div style={{ position: 'absolute', bottom: -3, right: -5, display: 'flex', gap: 2 }}>
+                        {pcbSet.has(a.id) && (
+                          <div style={{ width: 24, height: 24, borderRadius: '50%', boxShadow: '0 1px 4px rgba(0,168,94,0.4)', border: '1.5px solid #00A85E' }} title="Maîtrise IA — 4 âges">
+                            <PCBBadge size={24}/>
+                          </div>
+                        )}
+                        {droitSet.has(a.id) && (
+                          <div style={{ width: 24, height: 24, borderRadius: '50%', boxShadow: '0 1px 4px rgba(201,168,76,0.4)', border: '1.5px solid #C9A84C' }} title="Maîtrise Droit & IA">
+                            <JusticeBadge size={24}/>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
