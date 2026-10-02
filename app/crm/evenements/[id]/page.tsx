@@ -24,7 +24,8 @@ const STATUTS: Record<string,{labelFr:string;labelEn:string;bg:string;color:stri
   en_attente: {labelFr:'En attente',  labelEn:'Pending',      bg:'#F0F0F4',color:'#555',   border:'#CCC'},
 }
 const STATUT_ORDER = ['contacte','rdv_fait','accepte','refuse','en_attente']
-const SG_TYPES = lang==='en'?['Regional','Thematic','Sector','Other']:['Regional','Thematique','Secteur','Autre']
+const SG_TYPES_FR = ['Regional','Thematique','Secteur','Autre']
+const SG_TYPES_EN = ['Regional','Thematic','Sector','Other']
 
 function Avatar({ani,size=28}:{ani?:Ani|null;size?:number}) {
   return (
@@ -240,6 +241,7 @@ export default function CRMEvenementPage() {
   const {id} = useParams()
   const { lang } = useLanguage()
   const t2 = (fr: string, en: string) => lang === 'en' ? en : fr
+  const SG_TYPES = lang === 'en' ? SG_TYPES_EN : SG_TYPES_FR
   const supabase = createClient()
   const [event, setEvent] = useState<Evenement|null>(null)
   const [animateurs, setAnimateurs] = useState<Ani[]>([])
