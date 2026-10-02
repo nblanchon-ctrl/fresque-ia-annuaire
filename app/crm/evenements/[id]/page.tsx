@@ -429,7 +429,7 @@ export default function CRMEvenementPage() {
   const nonMembres=animateurs.filter(a=>!membres.find(m=>m.animateur_id===a.id))
   const filteredProspects=prospects.filter(p=>sgFilter==='global'?!p.sous_groupe_id:p.sous_groupe_id===sgFilter)
 
-  const TABS=lang==='en'?[{k:'organisation',label:'Members & Planning'},{k:'prospection',label:'Prospection'},{k:'sousgroupes',label:'Sub-groups'},{k:'jourj',label:'Day J'},{k:'documents',label:'Documents'}]:[{k:'organisation',label:'Membres & Planning'},{k:'prospection',label:'Prospection'},{k:'sousgroupes',label:'Sous-groupes'},{k:'jourj',label:'Jour J'},{k:'documents',label:'Documents'}] as const
+  const TABS=lang==='en'?[{k:'organisation',label:'Members & Planning'},{k:'prospection',label:'Prospection'},{k:'sousgroupes',label:'Sub-groups'},{k:'jourj',label:'Day J'},{k:'documents',label:'Documents'}]:[{k:'organisation',label:'Membres & Planning'},{k:'prospection',label:'Prospection'},{k:'sousgroupes',label:'Sous-groupes'},{k:'jourj',label:'Jour J'},{k:'documents',label:'Documents'}]
 
   return (
     <div style={{minHeight:'100vh',background:'#F7F7F7'}}>
