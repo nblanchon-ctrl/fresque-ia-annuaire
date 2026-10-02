@@ -270,7 +270,7 @@ export default function ModulePage() {
             })}
           </div>
         </div>
-        {showFb && <FeedbackBar correct={feedback!} expl={q.expl} onNext={nextQuiz} last={qIdx === QUIZ.length - 1} />}
+        {showFb && <FeedbackBar correct={feedback!} expl={q.expl} onNext={nextQuiz} last={qIdx === activeQuiz.length - 1} lang={lang} />}
       </div>
     )
   }
