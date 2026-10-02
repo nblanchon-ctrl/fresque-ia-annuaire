@@ -109,7 +109,7 @@ function CelebrationModal({ data, onContinue, lang }: { data: typeof PHASE_CELEB
 }
 
 function ProgressBar({ step, phase }: { step: number, phase: number }) {
-  const pct = Math.round((step / (TOTAL_LEARNING + QUIZ.length)) * 100)
+  const pct = Math.round((step / (TOTAL_LEARNING + activeQuiz.length)) * 100)
   const phases = ['⚖️', '🎯', '🏛️', '📋', '🌍']
   return (
     <div style={{ padding: '10px 16px', background: 'var(--bg)', borderBottom: '0.5px solid var(--border)' }}>
@@ -176,7 +176,7 @@ export default function ModulePage() {
   const [loading, setLoading] = useState(true)
   const [step, setStep] = useState(0)
   const [celebration, setCelebration] = useState<typeof PHASE_CELEBRATIONS[0] | null>(null)
-  const [answers, setAnswers] = useState<(number | null)[]>(Array(QUIZ.length).fill(null))
+  const [answers, setAnswers] = useState<(number | null)[]>(Array(activeQuiz.length).fill(null))
   const [feedback, setFeedback] = useState<boolean | null>(null)
   const [showFb, setShowFb] = useState(false)
   const [score, setScore] = useState(0)
@@ -225,7 +225,7 @@ export default function ModulePage() {
       await supabase.from('progressions').upsert({
         animateur_id: userId!, module_id: moduleId,
         completed: finalScore === activeQuiz.length,
-        completed_at: finalScore === QUIZ.length ? new Date().toISOString() : null,
+        completed_at: finalScore === activeQuiz.length ? new Date().toISOString() : null,
         attempts: 1,
       }, { onConflict: 'animateur_id,module_id' })
     }
@@ -277,7 +277,7 @@ export default function ModulePage() {
 
   if (isResult) {
     const total = answers.filter((a, i) => a === QUIZ[i].correct).length
-    const pct = Math.round((total / QUIZ.length) * 100)
+    const pct = Math.round((total / activeQuiz.length) * 100)
     const wrongs = answers.map((a, i) => a !== QUIZ[i].correct ? i : -1).filter(x => x >= 0)
     const restart = () => { setStep(TOTAL_LEARNING); setAnswers(Array(activeQuiz.length).fill(null)); setScore(0); setShowFb(false); setFeedback(null); setSaved(false) }
     return (
@@ -290,13 +290,13 @@ export default function ModulePage() {
                 <div style={{ marginBottom: 12 }}><JusticeBadge size={96} /></div>
                 <div style={{ display: 'inline-block', background: '#FEF3D0', color: '#8B6914', fontSize: 11, fontWeight: 700, padding: '4px 14px', borderRadius: 20, marginBottom: 8, letterSpacing: 1 }}>BADGE DÉBLOQUÉ ✦</div>
                 <h2 style={{ fontSize: 24, fontWeight: 900, marginBottom: 4 }}>{t2('MAITRISE DROIT & IA','MASTERY: AI & LAW')}</h2>
-                <div style={{ fontSize: 32, fontWeight: 900, color: '#C9A84C', marginBottom: 8 }}>{QUIZ.length} / {QUIZ.length} : 100 %</div>
+                <div style={{ fontSize: 32, fontWeight: 900, color: '#C9A84C', marginBottom: 8 }}>{activeQuiz.length} / {activeQuiz.length} : 100 %</div>
                 <p style={{ fontSize: 14, color: '#555', lineHeight: 1.6 }}>{t2("Parfait ! Tu maitrises les fondamentaux du droit de l'IA.","Perfect! You have mastered the fundamentals of AI law.")}</p>
               </div>
             ) : (
               <div>
                 <div style={{ fontSize: 52, marginBottom: 12 }}>{pct >= 80 ? '🎯' : '💪'}</div>
-                <div style={{ fontSize: 32, fontWeight: 900, color: '#534AB7', marginBottom: 8 }}>{total} / {QUIZ.length}</div>
+                <div style={{ fontSize: 32, fontWeight: 900, color: '#534AB7', marginBottom: 8 }}>{total} / {activeQuiz.length}</div>
                 <p style={{ fontSize: 14, color: '#555', lineHeight: 1.6 }}>{pct >= 80 ? t2('Beau parcours !','Great work!') : t2('Continue a apprendre !','Keep learning!')}</p>
               </div>
             )}
@@ -328,7 +328,7 @@ export default function ModulePage() {
       {celebration && <CelebrationModal data={celebration} onContinue={closeCelebration} lang={lang}/>}
       {header}
 
-      {s === 0 && <Wrap onNext={next} {...(lang==='en'?{nextLabel:'Start →'}:{nextLabel:'Commencer →'})}>
+      {s === 0 && <Wrap onNext={next} nextLabel={lang==='en'?'Start →':'Commencer →'}>
         <div style={{ textAlign: 'center', padding: '12px 0', animation: 'fadeIn .4s ease' }}>
           <div style={{ fontSize: 56, marginBottom: 14 }}>⚖️</div>
           <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 10, lineHeight: 1.3 }}>{t2('IA & Droit','AI & Law')}</h1>
@@ -385,7 +385,7 @@ export default function ModulePage() {
         </div>
       </Wrap>}
 
-      {s === 4 && <Wrap onNext={next} onPrev={prev} {...(lang==='en'?{nextLabel:'Next phase →'}:{nextLabel:'Phase suivante →'})}>
+      {s === 4 && <Wrap onNext={next} onPrev={prev} nextLabel={lang==='en'?'Next phase →':'Phase suivante →'}>
         <h3 style={{ fontSize: 18, fontWeight: 800, marginBottom: 14, color: '#1a1a2e' }}>La question de la conscience</h3>
         <p style={{ fontSize: 13, color: '#555', lineHeight: 1.65, marginBottom: 14 }}>La conscience des machines pose une difficulte fondamentale : nous ne disposons meme pas d'une definition universelle de ce qu'est la conscience humaine.</p>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
@@ -435,7 +435,7 @@ export default function ModulePage() {
         </div>
       </Wrap>}
 
-      {s === 7 && <Wrap onNext={next} onPrev={prev} {...(lang==='en'?{nextLabel:'Next phase →'}:{nextLabel:'Phase suivante →'})}>
+      {s === 7 && <Wrap onNext={next} onPrev={prev} nextLabel={lang==='en'?'Next phase →':'Phase suivante →'}>
         <h3 style={{ fontSize: 18, fontWeight: 800, marginBottom: 14, color: '#1a1a2e' }}>Avant les regles sur l'IA : les droits fondamentaux</h3>
         <p style={{ fontSize: 13, color: '#555', lineHeight: 1.65, marginBottom: 14 }}>Notre parcours remonte d'abord a la hierarchie des normes :</p>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 14 }}>
@@ -452,7 +452,7 @@ export default function ModulePage() {
         </div>
       </Wrap>}
 
-      {s === 8 && <Wrap onNext={next} onPrev={prev} {...(lang==='en'?{nextLabel:'Next phase →'}:{nextLabel:'Phase suivante →'})}>
+      {s === 8 && <Wrap onNext={next} onPrev={prev} nextLabel={lang==='en'?'Next phase →':'Phase suivante →'}>
         <Tag color="#FAEEDA"><span style={{ color: '#633806' }}>PARTIE 3 — Contexte historique</span></Tag>
         <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 12, lineHeight: 1.3 }}>Des droits anciens confrontes a un monde nouveau</h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 }}>
@@ -521,7 +521,7 @@ export default function ModulePage() {
         </div>
       </Wrap>}
 
-      {s === 12 && <Wrap onNext={next} onPrev={prev} {...(lang==='en'?{nextLabel:'Next phase →'}:{nextLabel:'Phase suivante →'})}>
+      {s === 12 && <Wrap onNext={next} onPrev={prev} nextLabel={lang==='en'?'Next phase →':'Phase suivante →'}>
         <Tag color="#EEEDFE"><span style={{ color: '#3C3489' }}>PARTIE 4 — AI Act & geopolitique</span></Tag>
         <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 12, lineHeight: 1.3 }}>Puis arrive l'AI Act</h2>
         <p style={{ fontSize: 13, color: '#555', lineHeight: 1.65, marginBottom: 14 }}>Sa logique est differente du RGPD. Il construit un cadre autour des <strong>systemes d'IA, de leurs usages et des risques qu'ils generent.</strong></p>
@@ -567,7 +567,7 @@ export default function ModulePage() {
         </div>
       </Wrap>}
 
-      {s === 15 && <Wrap onNext={next} onPrev={prev} {...(lang==='en'?{nextLabel:'Take the quiz →'}:{nextLabel:'Passer au quiz →'})}>
+      {s === 15 && <Wrap onNext={next} onPrev={prev} nextLabel={lang==='en'?'Take the quiz →':'Passer au quiz →'}>
         <h3 style={{ fontSize: 18, fontWeight: 800, marginBottom: 14, color: '#1a1a2e' }}>Le voyage que nous allons faire</h3>
         <div style={{ background: '#1a1a2e', borderRadius: 14, padding: '16px 18px', marginBottom: 16, textAlign: 'center' }}>
           <div style={{ fontWeight: 800, fontSize: 16, color: 'white', lineHeight: 1.5 }}>Qui est responsable lorsqu'une IA produit un dommage ?</div>
