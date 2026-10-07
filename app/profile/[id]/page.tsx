@@ -31,6 +31,25 @@ function colorFor(id: string) {
   return COLORS[n % COLORS.length]
 }
 
+
+function CritiqueIABadge({ size = 28 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="100" cy="100" r="96" fill="#FEF9EC" stroke="#C9A84C" strokeWidth="4"/>
+      <ellipse cx="108" cy="68" rx="24" ry="26" fill="#1a1a2e"/>
+      <rect x="97" y="90" width="14" height="12" rx="3" fill="#1a1a2e"/>
+      <path d="M62 104 Q78 98 97 104 L111 104 Q130 106 140 115 L140 144 L62 144 Z" fill="#1a1a2e"/>
+      <path d="M74 112 Q65 116 61 124 Q58 132 65 138 Q70 142 77 138" stroke="#1a1a2e" strokeWidth="8" strokeLinecap="round" fill="none"/>
+      <ellipse cx="80" cy="84" rx="8" ry="6" fill="#1a1a2e"/>
+      <circle cx="148" cy="70" r="6" fill="#C9A84C" opacity="0.9"/>
+      <text x="148" y="74" textAnchor="middle" fontSize="7" fill="white" fontWeight="900">I</text>
+      <ellipse cx="154" cy="91" rx="7" ry="4" fill="none" stroke="#C9A84C" strokeWidth="1.8"/>
+      <circle cx="154" cy="91" r="2" fill="#C9A84C"/>
+      <path d="M147 107 L160 107" stroke="#C9A84C" strokeWidth="2" strokeLinecap="round"/>
+      <path d="M157 103 L162 107 L157 111" stroke="#C9A84C" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+    </svg>
+  )
+}
 function PCBBadge({ size = 32 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -73,6 +92,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true)
   const [hasPCB, setHasPCB] = useState(false)
   const [hasDroit, setHasDroit] = useState(false)
+  const [hasCritique, setHasCritique] = useState(false)
   const supabase = createClient()
 
   useEffect(() => {
@@ -85,8 +105,10 @@ export default function ProfilePage() {
       setCurrentUserId(user?.id || null)
       const completions = (progs || []) as { modules: { slug?: string }[] | { slug?: string } | null }[]
       const getSlug = (m: { slug?: string }[] | { slug?: string } | null) => Array.isArray(m) ? m[0]?.slug : m?.slug
-      setHasDroit(completions.some(p => getSlug(p.modules) === 'droit'))
-      setHasPCB(completions.some(p => getSlug(p.modules) !== 'droit' && p.modules != null))
+      const slugs = completions.map(p => getSlug(p.modules)).filter(Boolean)
+      setHasDroit(slugs.some(s => s === 'droit'))
+      setHasPCB(completions.some(p => { const s = getSlug(p.modules); return !s && p.modules != null }))
+      setHasCritique(['intelligence','conscience','decision'].every(slug => slugs.includes(slug)))
       setLoading(false)
     })
   }, [id])
@@ -115,16 +137,18 @@ export default function ProfilePage() {
             <div className="avatar avatar-lg" style={{ background: c.bg, color: c.text }}>
               {animateur.photo_url ? <img src={animateur.photo_url} alt={animateur.nom} /> : initials(animateur.nom)}
             </div>
-            {hasPCB && (
-              <div style={{ position: 'absolute', bottom: 0, right: -4, width: 28, height: 28, borderRadius: '50%', boxShadow: '0 2px 8px rgba(0,168,94,0.5)', border: '2px solid white', background: 'white' }} title="Maîtrise IA — 4 âges de l'IA">
-                <PCBBadge size={28}/>
-              </div>
-            )}
-            {hasDroit && (
-              <div style={{ position: 'absolute', bottom: 0, left: hasPCB ? -4 : undefined, right: hasPCB ? undefined : -4, width: 28, height: 28, borderRadius: '50%', boxShadow: '0 2px 8px rgba(201,168,76,0.5)', border: '2px solid white', background: 'white' }} title="Maîtrise Droit & IA">
-                <JusticeBadge size={28}/>
-              </div>
-            )}
+            {(() => {
+              const badges = []
+              if (hasPCB) badges.push({ C: PCBBadge, col: '#00A85E', t: "Maîtrise IA — 4 âges" })
+              if (hasDroit) badges.push({ C: JusticeBadge, col: '#C9A84C', t: "Maîtrise Droit & IA" })
+              if (hasCritique) badges.push({ C: CritiqueIABadge, col: '#C9A84C', t: "Esprit Critique IA" })
+              const pos = badges.length === 1 ? [{ bottom: 0, right: -4 }] : badges.length === 2 ? [{ bottom: 0, right: -4 }, { bottom: 0, left: -4 }] : [{ bottom: 0, right: -4 }, { bottom: -14, right: 8 }, { bottom: 0, left: -4 }]
+              return badges.map(({ C, col, t }, i) => (
+                <div key={i} style={{ position: 'absolute', ...pos[i], width: 28, height: 28, borderRadius: '50%', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', border: '2px solid white', background: 'white' }} title={t}>
+                  <C size={28}/>
+                </div>
+              ))
+            })()}
           </div>
           <div className="profile-info" style={{ flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', flexWrap: 'wrap' }}>
