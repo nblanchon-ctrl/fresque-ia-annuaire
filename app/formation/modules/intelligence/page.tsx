@@ -146,7 +146,7 @@ function Confetti() {
   )
 }
 
-function CelebrationModal({ data, onContinue, lang }: { data: typeof PHASE_CELEBRATIONS[0], onContinue: () => void, lang: string }) {
+function CelebrationModal({ data, onContinue, lang }: { data: {atStep:number,icon:string,title:string,sub:string,color:string,bg:string}, onContinue: () => void, lang: string }) {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.72)', padding: '20px' }}>
       <style>{`@keyframes popIn{0%{transform:scale(0.4);opacity:0}65%{transform:scale(1.06)}100%{transform:scale(1);opacity:1}} @keyframes bounceIcon{0%,100%{transform:translateY(0)}45%{transform:translateY(-14px)}}`}</style>
@@ -262,7 +262,7 @@ export default function ModulePage() {
   const [moduleTitle, setModuleTitle] = useState('Intelligence')
   const [loading, setLoading] = useState(true)
   const [step, setStep] = useState(0)
-  const [celebration, setCelebration] = useState<typeof PHASE_CELEBRATIONS[0] | null>(null)
+  const [celebration, setCelebration] = useState<{atStep:number,icon:string,title:string,sub:string,color:string,bg:string}|null>(null)
   const [answers, setAnswers] = useState<(number | null)[]>(Array(QUIZ.length).fill(null))
   const [feedback, setFeedback] = useState<boolean | null>(null)
   const [showFb, setShowFb] = useState(false)
