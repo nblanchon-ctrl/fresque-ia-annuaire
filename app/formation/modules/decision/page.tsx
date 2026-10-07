@@ -624,19 +624,23 @@ export default function ModulePage() {
           <div style={{ background: '#1a1a2e', borderRadius: 14, padding: '16px', marginBottom: 14 }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)', letterSpacing: 2, marginBottom: 8 }}>Vision AI</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {[t("Identifier : nuage",'Identify: cloud'), t("Decrire : formation cumulus, blanc",'Describe: cumulus formation, white'), t("Reconnaitre : ressemble a une vache",'Recognise: resembles a cow'), t("Generer une histoire autour de l'image",'Generate a story around the image')].map((item, i) => (
+              {[t("Identifier : nuage",'Identify: cloud'), t("Decrire : formation cumulus, blanc",'Describe: cumulus formation, white'), t("Sur demande : ressemble a une vache",'When asked: looks like a cow'), t("Generer une histoire autour de l'image",'Generate a story around the image')].map((item, i) => (
                 <div key={i} style={{ padding: '6px 10px', background: 'rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 12, color: 'rgba(255,255,255,0.85)' }}>✓ {item}</div>
               ))}
             </div>
           </div>
+          <KBox>
+            <p style={{ marginBottom: 8 }}>{t("Si vous montrez cette photo a une IA et demandez simplement : qu'est-ce que c'est ? — elle repondra probablement : un nuage. Elle repond a la question posee.","If you show this photo to an AI and simply ask: what is this? — it will probably answer: a cloud. It answers the question asked.")}</p>
+            <p style={{ margin: 0 }}>{t("L'etre humain, lui, peut percevoir spontanement les deux a la fois sans qu'on le lui demande : c'est un nuage, et ca ressemble a une vache. C'est la difference entre repondre a une requete et construire spontanement une representation.","A human, by contrast, can spontaneously perceive both at once without being asked: it is a cloud, and it looks like a cow. That is the difference between responding to a query and spontaneously constructing a representation.")}</p>
+          </KBox>
           <WBox>
-            <span>{t("Ne pas dire 'une IA dira seulement que c'est un nuage'. Les modeles multimodaux contemporains sont parfaitement capables de reconnaitre des ressemblances et d'en parler. Si vous le dites, corrigez immediatement : la vraie question n'est pas 'peut-elle le dire' mais 'que comprend-elle reellement ?'",'Do not say "an AI will only say it is a cloud". Contemporary multimodal models are perfectly capable of recognising resemblances and talking about them. If you say this, correct it immediately: the real question is not "can it say it" but "what does it really understand?"')}</span>
+            <span>{t("Si vous demandez explicitement a l'IA 'ce nuage ressemble-t-il a un animal ?', elle pourra repondre 'oui, a une vache'. Elle peut reconnaitre des ressemblances quand on l'y invite. Mais la vraie question pedagogique n'est pas 'peut-elle le dire quand on le demande', c'est : percoit-elle spontanement, comme nous ? C'est ce qui rend la question du sens reellement interessante.","If you explicitly ask the AI 'does this cloud look like an animal?', it may well answer 'yes, like a cow'. It can recognise resemblances when invited to. But the real pedagogical question is not 'can it say it when asked' — it is: does it perceive spontaneously, as we do? That is what makes the question of meaning genuinely interesting.")}</span>
           </WBox>
           <div style={{ background: '#534AB7', borderRadius: 14, padding: '16px 18px', textAlign: 'center' }}>
             <div style={{ fontWeight: 800, fontSize: 15, color: 'white', lineHeight: 1.5 }}>
-              {t("Une IA peut dire : ce nuage ressemble a une vache.","An AI can say: this cloud looks like a cow.")}<br/>
-              <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, fontWeight: 400 }}>{t("Mais qu'est-ce que cela nous permet de conclure sur le sens qu'elle donne a cette representation ?","But what does this allow us to conclude about the meaning it gives to this representation?")}</span>
+              {t("Repondre a une question ≠ percevoir spontanement","Answering a question ≠ spontaneous perception")}
             </div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 6 }}>{t("Que comprend-elle reellement de ce qu'elle decrit ?","What does it really understand of what it describes?")}</div>
           </div>
         </Wrap>
       )}
@@ -644,25 +648,25 @@ export default function ModulePage() {
       {s === 10 && (
         <Wrap onNext={next} onPrev={prev} nextLabel={t('Continuer','Continue') + ' →'}>
           <STag label={t("LE PROBLEME DU SENS","THE PROBLEM OF MEANING")} bg="#FAEEDA" color="#633806" />
+          <p style={{ fontSize: 14, color: '#555', lineHeight: 1.7, marginBottom: 14 }}>{t("Reprenons ce que nous venons de voir avec le nuage.","Let us revisit what we just saw with the cloud.")}</p>
+          <div style={{ background: '#E6F1FB', borderRadius: 14, padding: '14px 16px', marginBottom: 14, border: '1.5px solid #85B7EB' }}>
+            <p style={{ fontWeight: 700, fontSize: 13, color: '#0C447C', marginBottom: 6 }}>{t("Pour un humain qui voit ce nuage :","For a human who sees this cloud:")}</p>
+            <p style={{ fontSize: 13, color: '#0C447C', margin: 0 }}>{t("Sa perception de 'vache' est ancree dans sa vie : il a vu des vraies vaches, les a touchees, en a mange, les a peut-etre cotoye. Le mot 'vache' est lie a toute une experience vecue, incarnee, situee dans une histoire personnelle et culturelle.","Their perception of 'cow' is grounded in their life: they have seen real cows, touched them, eaten them, perhaps lived alongside them. The word 'cow' is linked to a whole lived, embodied experience, situated in a personal and cultural history.")}</p>
+          </div>
           <KBox>
-            <div style={{ fontWeight: 800, fontSize: 14, marginBottom: 6 }}>{t("PROBLEME DE L'ANCRAGE DES SYMBOLES","SYMBOL GROUNDING PROBLEM")}</div>
-            <p style={{ margin: 0 }}>{t("Comment les symboles manipules par un systeme acquierent-ils leur signification ? Chez un humain, nos concepts sont lies a nos perceptions, notre corps, notre histoire, nos experiences, nos objectifs, notre culture.",'How do the symbols manipulated by a system acquire their meaning? For a human, our concepts are linked to our perceptions, our body, our history, our experiences, our goals, our culture.')}</p>
+            <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 6 }}>{t("Et pour une IA qui reconnait la meme ressemblance ?","And for an AI that recognises the same resemblance?")}</div>
+            <p style={{ margin: 0 }}>{t("C'est la question de l'ancrage des symboles : comment les mots et representations manipules par un systeme acquerent-ils leur signification ? Les concepts humains sont lies a nos perceptions, notre corps, nos experiences, nos objectifs, notre culture. Pour une IA, c'est beaucoup moins clair.","This is the symbol grounding question: how do the words and representations manipulated by a system acquire their meaning? Human concepts are linked to our perceptions, our body, our experiences, our goals, our culture. For an AI, this is much less clear.")}</p>
           </KBox>
           <WBox>
-            <p style={{ margin: 0 }}>{t("Si vous dites 'une IA ne donne aucun sens a ce qu'elle produit', c'est une affirmation qui suppose deja une definition particuliere du sens et de la comprehension. Preferez : le fait qu'un systeme produise une reponse pertinente ne suffit pas, a lui seul, a demontrer qu'il attribue a cette reponse le meme type de sens qu'un humain. La nature de la comprehension des systemes d'IA fait l'objet d'un debat.",'If you say "an AI gives no meaning to what it produces", that already assumes a particular definition of meaning and understanding. Prefer: the fact that a system produces a relevant response does not alone demonstrate that it attributes to that response the same kind of meaning as a human. The nature of AI understanding is subject to debate.')}</p>
+            <span>{t("Si vous dites 'une IA ne donne aucun sens a ce qu'elle produit', vous supposez deja une definition particuliere du sens. Preferez : le fait qu'un systeme produise une reponse pertinente ne suffit pas a demontrer qu'il attribue a cette reponse le meme type de sens qu'un humain dont les concepts sont ancres dans une vie et un corps. C'est une question ouverte.","If you say 'an AI gives no meaning to what it produces', you already assume a particular definition of meaning. Prefer: the fact that a system produces a relevant response does not demonstrate that it attributes to that response the same type of meaning as a human whose concepts are grounded in a life and a body. This is an open question.")}</span>
           </WBox>
-          <div style={{ background: '#1a1a2e', borderRadius: 14, padding: '14px 18px', textAlign: 'center' }}>
-            <div style={{ fontWeight: 800, fontSize: 14, color: '#C9A84C', lineHeight: 1.5 }}>
-              {t("LE SYSTEME COMPREND-IL / DONNE-T-IL DU SENS COMME NOUS ?","DOES THE SYSTEM UNDERSTAND / GIVE MEANING AS WE DO?")}
-            </div>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', marginTop: 6 }}>{t("Debat ouvert.","Open debate.")}</div>
-          </div>
         </Wrap>
       )}
 
       {s === 11 && (
         <Wrap onNext={s11ans >= 0 ? next : undefined} onPrev={prev} nextLabel={t('Phase suivante','Next phase') + ' →'}>
-          <STag label={t("QUI DONNE LE SENS A LA DECISION ?","WHO GIVES MEANING TO THE DECISION?")} bg="#E1F5EE" color="#085041" />
+          <STag label={t("UN SCORE EST-IL UNE DECISION ?","IS A SCORE A DECISION?")} bg="#E1F5EE" color="#085041" />
+          <p style={{ fontSize: 14, color: '#555', lineHeight: 1.7, marginBottom: 14 }}>{t("Un systeme de recrutement affiche :","A recruitment system displays:")}</p>
           <div style={{ background: '#1a1a2e', borderRadius: 16, padding: '20px', marginBottom: 16, textAlign: 'center' }}>
             <div style={{ fontWeight: 800, fontSize: 28, color: 'white', marginBottom: 4 }}>CANDIDAT B</div>
             <div style={{ fontWeight: 900, fontSize: 44, color: '#C9A84C' }}>87 %</div>
@@ -677,21 +681,30 @@ export default function ModulePage() {
             <div style={{ animation: 'appear .3s ease' }}>
               <div style={{ background: '#C9A84C', borderRadius: 14, padding: '14px 18px', textAlign: 'center', marginBottom: 14 }}>
                 <div style={{ fontWeight: 900, fontSize: 20, color: 'white' }}>CA DEPEND.</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', marginTop: 4 }}>{t("Et voici pourquoi ce 'ca depend' est au coeur du sujet :","And here is why this 'it depends' is at the heart of the matter:")}</div>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 }}>
-                <div style={{ padding: '10px 14px', background: '#E6F1FB', borderRadius: 10, fontSize: 13, color: '#0C447C' }}>{t("Si le score est une information → il participe a une decision","If the score is information → it participates in a decision")}</div>
-                <div style={{ padding: '10px 14px', background: '#FAEEDA', borderRadius: 10, fontSize: 13, color: '#633806' }}>{t("Si > 80% → accepte automatiquement → processus automatise aboutissant a une consequence","If > 80% → automatically accepted → automated process leading to a consequence")}</div>
-              </div>
-              <KBox>
-                <div style={{ fontWeight: 800, marginBottom: 6 }}>{t("Mais il reste des questions humaines :","But there remain human questions:")}</div>
-                {[t("Pourquoi 80% ?","Why 80%?"), t("Quels criteres ont ete choisis ?","What criteria were chosen?"), t("Quel objectif cherche-t-on a optimiser ?","What objective are we trying to optimise?"), t("Qui assume les consequences ?","Who bears the consequences?")].map((q, i) => (
-                  <div key={i} style={{ fontSize: 12, color: '#085041', paddingTop: i > 0 ? 4 : 0, borderTop: i > 0 ? '1px solid rgba(8,80,65,0.1)' : 'none' }}>&rarr; {q}</div>
+              <p style={{ fontSize: 13, color: '#555', lineHeight: 1.65, marginBottom: 12 }}>{t("Ce chiffre de 87% ne dit rien par lui-meme. Pour qu'il signifie quelque chose, il faut que des humains aient pris des decisions avant lui :","This figure of 87% says nothing by itself. For it to mean anything, humans must have made decisions before it:")}</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 14 }}>
+                {[
+                  t("Quelqu'un a choisi les criteres qui composent ce score","Someone chose the criteria that make up this score"),
+                  t("Quelqu'un a fixe le seuil (80% ? 75% ? 90% ?) et decide ce qu'il declenche","Someone set the threshold (80%? 75%? 90%?) and decided what it triggers"),
+                  t("Quelqu'un a defini l'objectif a optimiser — et peut-etre accepte un certain taux d'erreur","Someone defined the objective to optimise — and perhaps accepted a certain error rate"),
+                  t("Quelqu'un doit assumer les consequences si le candidat retenu se revele mauvais — ou si le candidat rejete etait le meilleur","Someone must bear the consequences if the hired candidate proves poor — or if the rejected one was the best"),
+                ].map((item, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', padding: '8px 12px', background: '#FEF3D0', borderRadius: 10 }}>
+                    <span style={{ color: '#8B6914', fontWeight: 800, flexShrink: 0 }}>→</span>
+                    <span style={{ fontSize: 12, color: '#8B6914', lineHeight: 1.5 }}>{item}</span>
+                  </div>
                 ))}
-              </KBox>
+              </div>
+              <div style={{ background: '#1a1a2e', borderRadius: 14, padding: '14px 18px', textAlign: 'center' }}>
+                <div style={{ fontWeight: 800, fontSize: 15, color: 'white' }}>{t("Le score existe. Mais le sens de ce score est construit par des choix humains.","The score exists. But the meaning of this score is built by human choices.")}</div>
+              </div>
             </div>
           )}
         </Wrap>
       )}
+
 
       {s === 12 && (
         <Wrap onNext={next} onPrev={prev} nextLabel={t('Phase suivante','Next phase') + ' →'}>
