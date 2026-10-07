@@ -21,6 +21,25 @@ function colorFor(id: string) {
   return COLORS[n % COLORS.length]
 }
 
+
+function CritiqueIABadge({ size = 24 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="100" cy="100" r="96" fill="#FEF9EC" stroke="#C9A84C" strokeWidth="4"/>
+      <ellipse cx="108" cy="68" rx="24" ry="26" fill="#1a1a2e"/>
+      <rect x="97" y="90" width="14" height="12" rx="3" fill="#1a1a2e"/>
+      <path d="M62 104 Q78 98 97 104 L111 104 Q130 106 140 115 L140 144 L62 144 Z" fill="#1a1a2e"/>
+      <path d="M74 112 Q65 116 61 124 Q58 132 65 138 Q70 142 77 138" stroke="#1a1a2e" strokeWidth="8" strokeLinecap="round" fill="none"/>
+      <ellipse cx="80" cy="84" rx="8" ry="6" fill="#1a1a2e"/>
+      <circle cx="148" cy="70" r="6" fill="#C9A84C" opacity="0.9"/>
+      <text x="148" y="74" textAnchor="middle" fontSize="7" fill="white" fontWeight="900">I</text>
+      <ellipse cx="154" cy="91" rx="7" ry="4" fill="none" stroke="#C9A84C" strokeWidth="1.8"/>
+      <circle cx="154" cy="91" r="2" fill="#C9A84C"/>
+      <path d="M147 107 L160 107" stroke="#C9A84C" strokeWidth="2" strokeLinecap="round"/>
+      <path d="M157 103 L162 107 L157 111" stroke="#C9A84C" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+    </svg>
+  )
+}
 function PCBBadge({ size = 24 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -75,6 +94,7 @@ export default function FresqueursPage() {
   const [saving, setSaving] = useState(false)
   const [pcbSet, setPcbSet] = useState<Set<string>>(new Set())
   const [droitSet, setDroitSet] = useState<Set<string>>(new Set())
+  const [critiqueSet, setCritiqueSet] = useState<Set<string>>(new Set())
   const supabase = createClient()
 
   useEffect(() => {
@@ -94,16 +114,29 @@ export default function FresqueursPage() {
         .eq('completed', true)
       const newPcb = new Set<string>()
       const newDroit = new Set<string>()
+      const critiqueMap = new Map<string, Set<string>>()
       ;(progs || []).forEach((p: { animateur_id: string, modules: { slug?: string, titre?: string }[] | null }) => {
         const mod = Array.isArray(p.modules) ? p.modules[0] : p.modules
-        if (mod?.slug === 'droit') {
+        const slug = mod?.slug
+        if (slug === 'droit') {
           newDroit.add(p.animateur_id)
+        } else if (slug === 'intelligence' || slug === 'conscience' || slug === 'decision') {
+          if (!critiqueMap.has(p.animateur_id)) critiqueMap.set(p.animateur_id, new Set())
+          critiqueMap.get(p.animateur_id)!.add(slug)
         } else {
+          // No slug = module 4 ages de l'IA
           newPcb.add(p.animateur_id)
+        }
+      })
+      const newCritique = new Set<string>()
+      critiqueMap.forEach((slugs, aid) => {
+        if (slugs.has('intelligence') && slugs.has('conscience') && slugs.has('decision')) {
+          newCritique.add(aid)
         }
       })
       setPcbSet(newPcb)
       setDroitSet(newDroit)
+      setCritiqueSet(newCritique)
       setLoading(false)
     }
     load()
@@ -248,16 +281,18 @@ export default function FresqueursPage() {
                     <div className="avatar" style={{ background: c.bg, color: c.text, marginBottom: 0 }}>
                       {a.photo_url ? <img src={a.photo_url} alt={a.nom} /> : initials(a.nom)}
                     </div>
-                    {pcbSet.has(a.id) && (
-                      <div style={{ position: 'absolute', bottom: -2, right: -4, width: 20, height: 20, borderRadius: '50%', boxShadow: '0 1px 4px rgba(0,168,94,0.5)', border: '1.5px solid #00A85E', background: 'white' }} title="Maîtrise IA — 4 âges de l'IA">
-                        <PCBBadge size={20}/>
-                      </div>
-                    )}
-                    {droitSet.has(a.id) && (
-                      <div style={{ position: 'absolute', bottom: -2, left: pcbSet.has(a.id) ? -4 : undefined, right: pcbSet.has(a.id) ? undefined : -4, width: 20, height: 20, borderRadius: '50%', boxShadow: '0 1px 4px rgba(201,168,76,0.5)', border: '1.5px solid #C9A84C', background: 'white' }} title="Maîtrise Droit & IA">
-                        <JusticeBadge size={20}/>
-                      </div>
-                    )}
+                    {(() => {
+                      const badges = []
+                      if (pcbSet.has(a.id)) badges.push({ Badge: PCBBadge, color: '#00A85E', title: "Maîtrise IA — 4 âges" })
+                      if (droitSet.has(a.id)) badges.push({ Badge: JusticeBadge, color: '#C9A84C', title: "Maîtrise Droit & IA" })
+                      if (critiqueSet.has(a.id)) badges.push({ Badge: CritiqueIABadge, color: '#C9A84C', title: "Esprit Critique IA" })
+                      const positions = badges.length === 1 ? [{ bottom: -2, right: -4 }] : badges.length === 2 ? [{ bottom: -2, right: -4 }, { bottom: -2, left: -4 }] : [{ bottom: -2, right: -4 }, { bottom: -14, right: 6 }, { bottom: -2, left: -4 }]
+                      return badges.map(({ Badge, color, title }, i) => (
+                        <div key={i} style={{ position: 'absolute', ...positions[i], width: 20, height: 20, borderRadius: '50%', boxShadow: '0 1px 4px rgba(0,0,0,0.2)', border: '1.5px solid ' + color, background: 'white' }} title={title}>
+                          <Badge size={20}/>
+                        </div>
+                      ))
+                    })()}
                   </div>
                   <div className="name">{a.nom}</div>
                   {a.titre && <div style={{ fontSize: 12, color: 'var(--text2)', marginBottom: 2 }}>{a.titre}</div>}
