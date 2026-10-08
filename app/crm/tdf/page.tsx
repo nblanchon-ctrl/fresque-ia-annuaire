@@ -105,8 +105,12 @@ export default function TDFPage() {
           supabase.from('tdf_documents').select('*').order('created_at', { ascending: false }),
         ])
 
-        if (e2 || e3) {
-          setError('Les tables Tour de France n\'existent pas encore. Exécutez le SQL_TDF.sql dans Supabase d\'abord.')
+        if (e2) console.error('tdf_animateurs:', e2.message)
+        if (e3) console.error('tdf_organisations:', e3.message)
+        if (e4) console.error('tdf_documents:', e4.message)
+        // Vérification stricte uniquement si relation absente
+        if (e2?.code === '42P01' || e3?.code === '42P01') {
+          setError('Tables manquantes (code 42P01). Exécutez SQL_TDF.sql. Détail : ' + (e2?.message || e3?.message))
           setLoading(false); return
         }
         setMe(meData)
