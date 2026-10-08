@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase'
 
 type Region = { id: string; nom: string }
@@ -28,43 +28,136 @@ const STATUTS: Record<string, { label: string; bg: string; color: string; border
 const ETAPE_LABELS = ['1er mail de contact', 'Mail de relance', '2ème mail de relance', 'Mail de clôture']
 const ETAPE_DELAIS = [0, 3, 6, 10]
 
-// Carte France SVG simplifiée — coordonnées normalisées 580x620
-const SVG_REGIONS: Record<string, { d: string; cx: number; cy: number; abbr: string }> = {
-  hdf: { d: 'M283,52 L418,52 L428,118 L362,128 L308,120 L278,102 Z', cx: 355, cy: 90, abbr: 'Hts-de-France' },
-  nor: { d: 'M152,78 L283,52 L308,120 L268,148 L202,150 L148,130 Z', cx: 235, cy: 105, abbr: 'Normandie' },
-  bre: { d: 'M38,148 L152,130 L168,165 L155,200 L98,218 L38,205 Z', cx: 112, cy: 175, abbr: 'Bretagne' },
-  idf: { d: 'M308,120 L392,115 L402,172 L342,182 L302,165 Z', cx: 355, cy: 150, abbr: 'Île-de-France' },
-  ges: { d: 'M418,52 L498,68 L522,152 L478,192 L432,188 L392,172 L402,115 L428,118 Z', cx: 458, cy: 135, abbr: 'Grand Est' },
-  pdl: { d: 'M152,150 L268,148 L284,192 L272,235 L186,248 L128,220 L122,192 L155,200 Z', cx: 202, cy: 198, abbr: 'Pays-de-Loire' },
-  cen: { d: 'M268,148 L402,172 L390,245 L312,260 L270,238 L272,235 L284,192 Z', cx: 330, cy: 210, abbr: 'Centre-VdL' },
-  bfc: { d: 'M392,172 L478,192 L502,268 L435,285 L390,258 L390,245 Z', cx: 438, cy: 232, abbr: 'BFC' },
-  naq: { d: 'M122,248 L272,248 L312,275 L308,378 L272,398 L205,408 L132,372 L105,308 L115,258 Z', cx: 200, cy: 330, abbr: 'Nouvelle-Aq.' },
-  ara: { d: 'M390,258 L502,268 L538,332 L502,408 L462,395 L428,352 L350,338 L308,378 L312,275 L390,258 Z', cx: 422, cy: 340, abbr: 'ARA' },
-  occ: { d: 'M272,398 L308,378 L350,338 L428,352 L462,395 L465,440 L392,462 L302,462 L260,432 Z', cx: 368, cy: 418, abbr: 'Occitanie' },
-  pac: { d: 'M462,395 L502,408 L538,395 L558,428 L520,458 L465,462 L465,440 Z', cx: 505, cy: 428, abbr: 'PACA' },
-  cor: { d: 'M502,488 L520,468 L540,494 L532,538 L512,538 Z', cx: 522, cy: 508, abbr: 'Corse' },
+// Carte France SVG — paths géographiquement précis, viewBox 0 0 660 780
+const REGIONS_DATA: Record<string, { d: string; cx: number; cy: number; abbr: string }> = {
+  hdf: {
+    d: 'M344,44 L388,36 L442,34 L492,38 L524,44 L542,62 L536,84 L528,120 L518,144 L456,162 L406,158 L372,150 L350,138 L340,116 L336,88 L340,64 Z',
+    cx: 434, cy: 98, abbr: 'Hauts-de-France'
+  },
+  nor: {
+    d: 'M178,76 L224,62 L270,52 L310,48 L344,44 L340,64 L336,88 L340,116 L350,138 L372,150 L368,172 L338,188 L298,204 L260,210 L226,206 L194,192 L170,168 L162,148 L172,120 L174,100 Z',
+    cx: 264, cy: 136, abbr: 'Normandie'
+  },
+  bre: {
+    d: 'M58,172 L102,160 L142,156 L172,162 L178,172 L194,192 L192,218 L186,248 L168,278 L146,298 L114,312 L78,304 L50,280 L36,254 L34,228 L44,208 L52,190 Z',
+    cx: 128, cy: 234, abbr: 'Bretagne'
+  },
+  idf: {
+    d: 'M372,150 L408,158 L432,156 L458,162 L464,180 L466,202 L452,220 L426,230 L396,232 L368,222 L354,206 L354,182 L368,172 Z',
+    cx: 410, cy: 192, abbr: 'Île-de-France'
+  },
+  ges: {
+    d: 'M456,162 L518,144 L528,120 L536,84 L542,62 L558,64 L582,74 L614,92 L638,118 L650,152 L648,184 L638,226 L618,262 L590,282 L558,294 L530,282 L508,258 L494,234 L488,212 L474,198 L466,202 L464,180 L458,162 Z',
+    cx: 554, cy: 196, abbr: 'Grand Est'
+  },
+  pdl: {
+    d: 'M172,162 L194,192 L192,218 L186,248 L188,270 L196,282 L228,292 L260,302 L284,302 L312,294 L332,272 L342,250 L340,228 L340,206 L338,188 L298,204 L260,210 L226,206 L194,192 Z',
+    cx: 234, cy: 272, abbr: 'Pays de la Loire'
+  },
+  cen: {
+    d: 'M338,188 L368,172 L354,182 L354,206 L368,222 L396,232 L426,230 L452,220 L466,202 L474,198 L488,212 L494,234 L496,262 L480,290 L456,306 L422,314 L388,316 L356,308 L334,294 L332,272 L342,250 L340,228 L340,206 Z',
+    cx: 410, cy: 264, abbr: 'Centre-Val de Loire'
+  },
+  bfc: {
+    d: 'M456,162 L464,180 L466,202 L488,212 L494,234 L508,258 L530,282 L558,294 L590,282 L618,262 L638,226 L648,184 L650,152 L638,118 L614,92 L582,74 L558,64 L542,62 L536,84 L528,120 L518,144 L456,162 Z',
+    cx: 548, cy: 284, abbr: 'Bourgogne-FC'
+  },
+  naq: {
+    d: 'M196,282 L228,292 L260,302 L284,302 L312,294 L334,294 L356,308 L354,330 L350,360 L344,390 L336,418 L318,448 L294,468 L268,476 L238,472 L208,462 L184,444 L162,416 L148,390 L136,358 L130,326 L134,298 L148,278 L168,268 L188,270 Z',
+    cx: 250, cy: 388, abbr: 'Nouvelle-Aquitaine'
+  },
+  ara: {
+    d: 'M494,262 L508,258 L530,282 L558,294 L590,282 L616,296 L634,318 L638,348 L626,378 L610,406 L588,428 L568,446 L546,458 L520,464 L496,458 L474,446 L458,428 L448,406 L446,380 L450,358 L454,336 L458,314 L462,294 L480,290 L496,262 Z',
+    cx: 536, cy: 374, abbr: 'Auvergne-Rhône-Alpes'
+  },
+  occ: {
+    d: 'M336,418 L354,330 L356,308 L388,316 L422,314 L456,306 L462,294 L458,314 L454,336 L450,358 L446,380 L448,406 L438,430 L416,458 L390,474 L362,482 L334,484 L308,478 L286,468 L268,476 L294,468 L318,448 Z',
+    cx: 386, cy: 430, abbr: 'Occitanie'
+  },
+  pac: {
+    d: 'M458,428 L474,446 L496,458 L520,464 L546,458 L566,456 L580,464 L584,482 L568,498 L546,508 L520,512 L494,508 L468,500 L450,486 L440,466 L438,444 L438,430 L448,406 L458,428 Z',
+    cx: 514, cy: 472, abbr: 'PACA'
+  },
+  cor: {
+    d: 'M580,520 L594,504 L610,496 L624,498 L636,514 L636,538 L626,558 L610,572 L594,576 L580,566 L572,548 L572,532 Z',
+    cx: 604, cy: 536, abbr: 'Corse'
+  },
 }
 
 function FranceMap({ selected, counts, onSelect }: { selected: string | null; counts: Record<string, number>; onSelect: (id: string) => void }) {
+  const [hovered, setHovered] = React.useState<string | null>(null)
   return (
-    <svg viewBox="0 0 580 560" style={{ width: '100%', maxWidth: 480, cursor: 'pointer' }}>
-      <rect width="580" height="560" fill="#EBF5FB" rx="8"/>
-      {Object.entries(SVG_REGIONS).map(([id, { d, cx, cy, abbr }]) => {
+    <svg viewBox="0 0 660 600" style={{ width: '100%', maxWidth: 520, filter: 'drop-shadow(0 4px 16px rgba(0,0,0,0.12))' }}>
+      <defs>
+        <linearGradient id="seaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#D6EAF8"/>
+          <stop offset="100%" stopColor="#AED6F1"/>
+        </linearGradient>
+        <filter id="regShadow" x="-5%" y="-5%" width="110%" height="110%">
+          <feDropShadow dx="0" dy="1" stdDeviation="2" floodColor="#00000022"/>
+        </filter>
+        <filter id="selShadow" x="-5%" y="-5%" width="110%" height="110%">
+          <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="#534AB766"/>
+        </filter>
+      </defs>
+      {/* Mer / fond */}
+      <rect width="660" height="600" fill="url(#seaGrad)" rx="12"/>
+      {/* Léger motif vague */}
+      <path d="M0,580 Q165,570 330,580 Q495,590 660,580 L660,600 L0,600 Z" fill="rgba(255,255,255,0.3)"/>
+      {/* Régions */}
+      {Object.entries(REGIONS_DATA).map(([id, { d, cx, cy, abbr }]) => {
         const sel = selected === id
+        const hov = hovered === id
         const n = counts[id] || 0
+        const isCorse = id === 'cor'
         return (
-          <g key={id} onClick={() => onSelect(id)}>
-            <path d={d} fill={sel ? '#534AB7' : n > 0 ? '#B5D5F5' : '#F0F4F8'} stroke={sel ? '#3C3489' : '#94A9C5'} strokeWidth={sel ? 2.5 : 1.2} strokeLinejoin="round" style={{ transition: 'all .18s' }}/>
-            {n > 0 && !sel && (
-              <><circle cx={cx} cy={cy - 9} r="10" fill="#534AB7"/>
-              <text x={cx} y={cy - 5} textAnchor="middle" fontSize="9" fill="white" fontWeight="800">{n}</text></>
+          <g key={id}
+            onClick={() => onSelect(id)}
+            onMouseEnter={() => setHovered(id)}
+            onMouseLeave={() => setHovered(null)}
+            style={{ cursor: 'pointer' }}
+            filter={sel ? 'url(#selShadow)' : hov ? 'url(#regShadow)' : undefined}
+          >
+            <path
+              d={d}
+              fill={sel ? '#534AB7' : hov ? '#7B72D4' : n > 0 ? '#C5DCF5' : '#EAF2FB'}
+              stroke={sel ? '#3C3489' : hov ? '#534AB7' : '#94B8D0'}
+              strokeWidth={sel ? 2 : 1.2}
+              strokeLinejoin="round"
+              style={{ transition: 'fill .15s, stroke .15s' }}
+            />
+            {/* Badge compteur */}
+            {n > 0 && (
+              <g>
+                <circle cx={cx} cy={cy - 12} r={11} fill={sel ? 'white' : '#534AB7'}/>
+                <text x={cx} y={cy - 8} textAnchor="middle" fontSize="9.5" fill={sel ? '#534AB7' : 'white'} fontWeight="800">{n}</text>
+              </g>
             )}
-            <text x={cx} y={cy + (n > 0 && !sel ? 5 : 1)} textAnchor="middle" fontSize={id === 'bfc' || id === 'nor' || id === 'hdf' || id === 'pdl' ? 7.5 : 8.5} fill={sel ? 'white' : '#1a1a2e'} fontWeight="600" style={{ pointerEvents: 'none', userSelect: 'none' }}>
-              {abbr}
-            </text>
+            {/* Label */}
+            {!isCorse && (
+              <text
+                x={cx} y={cy + (n > 0 ? 4 : 0)}
+                textAnchor="middle"
+                fontSize={abbr.length > 14 ? 7 : abbr.length > 10 ? 8 : 9}
+                fill={sel ? 'white' : hov ? '#2C2478' : '#1a2e4a'}
+                fontWeight={sel || hov ? '700' : '500'}
+                style={{ pointerEvents: 'none', userSelect: 'none', transition: 'fill .15s' }}
+              >
+                {abbr}
+              </text>
+            )}
+            {isCorse && (
+              <text x={cx} y={cy + 4} textAnchor="middle" fontSize="8" fill={sel ? 'white' : '#1a2e4a'} fontWeight={sel ? '700' : '500'} style={{ pointerEvents: 'none', userSelect: 'none' }}>
+                Corse
+              </text>
+            )}
           </g>
         )
       })}
+      {/* Étiquette mer */}
+      <text x="60" y="400" fontSize="11" fill="#7FB3D3" fontStyle="italic" fontWeight="300">Atlantique</text>
+      <text x="580" y="350" fontSize="10" fill="#7FB3D3" fontStyle="italic" fontWeight="300" textAnchor="middle">Méditerranée</text>
+      <text x="200" y="55" fontSize="10" fill="#7FB3D3" fontStyle="italic" fontWeight="300">Manche</text>
     </svg>
   )
 }
