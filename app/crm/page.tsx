@@ -166,6 +166,9 @@ export default function CRMPage() {
             <Link href="/crm/evenements" style={{padding:'8px 14px',borderRadius:10,background:'#F0F0F4',color:'#1a1a2e',textDecoration:'none',fontWeight:600,fontSize:13}}>
               🗓 Événements
             </Link>
+            <Link href="/crm/tdf" style={{padding:'8px 14px',borderRadius:10,background:'#534AB7',color:'white',textDecoration:'none',fontWeight:700,fontSize:13}}>
+              🗺️ Tour de France
+            </Link>
             <button onClick={()=>setShowModal(true)} style={{padding:'8px 16px',borderRadius:10,background:'#1a1a2e',color:'white',border:'none',fontWeight:700,fontSize:13,cursor:'pointer'}}>
               + Nouveau client
             </button>
