@@ -86,81 +86,214 @@ const REGIONS_DATA: Record<string, { d: string; cx: number; cy: number; abbr: st
 
 function FranceMap({ selected, counts, onSelect }: { selected: string | null; counts: Record<string, number>; onSelect: (id: string) => void }) {
   const [hovered, setHovered] = React.useState<string | null>(null)
+
+  // Contour global France pour clipPath et ombre
+  const FRANCE_OUTLINE = 'M344,44 L388,36 L442,34 L492,38 L524,44 L542,62 L558,64 L582,74 L614,92 L638,118 L650,152 L648,184 L638,226 L618,262 L590,282 L558,294 L530,282 L508,258 L494,234 L496,262 L480,290 L456,306 L458,314 L454,336 L450,358 L446,380 L448,406 L438,430 L416,458 L390,474 L362,482 L334,484 L308,478 L286,468 L268,476 L294,468 L318,448 L336,418 L344,390 L350,360 L354,330 L356,308 L388,316 L422,314 L462,294 L462,294 L432,282 L388,316 L356,308 L334,294 L332,272 L342,250 L340,228 L340,206 L338,188 L298,204 L260,210 L226,206 L194,192 L192,218 L186,248 L188,270 L196,282 L196,282 L168,268 L148,278 L134,298 L130,326 L136,358 L148,390 L162,416 L184,444 L208,462 L238,472 L268,476 L286,468 L268,476 L238,472 L208,462 L184,444 L162,416 L148,390 L136,358 L130,326 L134,298 L148,278 L168,268 L196,282 L228,292 L260,302 L284,302 L312,294 L332,272 L340,228 L340,206 L338,188 L368,172 L354,182 L354,206 L368,222 L396,232 L426,230 L452,220 L466,202 L488,212 L494,234 L508,258 L530,282 L558,294 L590,282 L618,262 L638,226 L648,184 L650,152 L638,118 L614,92 L582,74 L558,64 L542,62 L524,44 L492,38 L442,34 L388,36 L344,44 L340,64 L336,88 L340,116 L350,138 L372,150 L368,172 L338,188 L298,204 L260,210 L226,206 L194,192 L172,162 L172,162 L178,172 L194,192 L192,218 L186,248 L188,270 L168,268 L148,278 L134,298 L130,326 L148,390 L162,416 L208,462 L268,476 L318,448 L336,418 L344,390 L354,330 L388,316 L456,306 L480,290 L496,262 L494,234 L508,258 L530,282 Z'
+
+  // Contour simplifié pour clipPath
+  const CLIP = 'M344,44 L524,44 L558,64 L650,152 L638,226 L590,282 L508,258 L496,262 L456,306 L446,380 L438,430 L390,474 L334,484 L268,476 L130,326 L134,298 L168,268 L188,270 L196,282 L312,294 L332,272 L340,206 L338,188 L298,204 L226,206 L194,192 L172,162 L140,156 L90,174 L52,190 L36,228 L52,278 L114,312 L168,278 L188,270 L130,326 L162,416 L268,476 L334,484 Z M572,520 L592,502 L620,498 L636,516 L634,550 L614,572 L590,574 L572,556 L566,536 Z'
+
+  // Nœuds pour le réseau low-poly (distribués sur France)
+  const NODES: [number, number][] = [
+    [344,44],[442,34],[524,44],[558,64],[582,74],[614,92],[638,118],[650,152],[648,184],[638,226],
+    [618,262],[590,282],[558,294],[530,282],[508,258],[494,234],[480,290],[456,306],[446,380],
+    [438,430],[416,458],[390,474],[362,482],[334,484],[308,478],[268,476],[238,472],[208,462],
+    [184,444],[162,416],[148,390],[136,358],[130,326],[134,298],[148,278],[168,268],[196,282],
+    [228,292],[260,302],[312,294],[332,272],[340,228],[338,188],[298,204],[260,210],[226,206],
+    [194,192],[172,162],[140,156],[90,174],[52,190],[36,228],[52,278],[114,312],
+    // Nœuds intérieurs
+    [404,100],[460,130],[520,180],[580,200],[560,240],[500,210],[450,160],
+    [380,150],[350,140],[310,120],[290,80],[370,80],
+    [280,200],[340,180],[400,200],[440,240],[490,280],[460,250],[400,240],
+    [350,220],[300,240],[260,260],[220,270],[300,300],[360,290],[420,300],
+    [470,330],[440,360],[400,350],[360,340],[320,350],[280,360],[240,350],
+    [200,360],[170,340],[200,300],[240,310],[280,330],[320,310],[360,280],
+    [400,260],[440,280],[470,260],[490,240],[460,200],[420,180],[380,200],
+    [340,260],[300,280],[260,300],[220,320],[190,310],[160,300],[180,270],
+    [380,400],[340,420],[310,440],[360,460],[400,430],[430,400],[450,420],
+    [470,380],[490,350],[500,380],[460,440],[420,456],[380,468],
+    [604,536],[592,504],[618,496],[634,518],[632,548],[612,570],[590,572],[574,554],[568,534]
+  ]
+
+  // Triangles pour le réseau low-poly (arêtes reliant les nœuds)
+  const EDGES: [number,number][] = [
+    [0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11],[11,12],[12,13],[13,14],
+    [14,15],[15,16],[16,17],[17,18],[18,19],[19,20],[20,21],[21,22],[22,23],[23,24],[24,25],[25,26],
+    [26,27],[27,28],[28,29],[29,30],[30,31],[31,32],[32,33],[33,34],[34,35],[35,36],[36,37],[37,38],
+    [38,39],[39,40],[40,41],[41,42],[42,43],[43,44],[44,45],[45,46],[46,47],[47,48],[48,49],[49,50],
+    [50,51],[51,52],[52,53],[0,53],[53,47],[52,36],[51,48],[50,49],
+    // Lignes intérieures vers nœuds centraux
+    [0,54],[54,55],[55,56],[56,57],[57,58],[58,59],[59,60],[60,61],[61,62],[62,63],
+    [54,63],[55,64],[64,65],[65,66],[66,67],[67,68],[68,69],[69,70],[70,71],[71,72],
+    [72,73],[73,74],[74,75],[75,76],[76,77],[77,78],[78,79],[79,80],[80,81],[81,82],
+    [82,83],[83,84],[84,85],[85,86],[86,87],[87,88],[88,89],[89,90],[90,91],[91,92],
+    [92,93],[93,94],[94,95],[95,96],[96,97],[97,98],[98,99],[99,100],[100,101],[101,102],
+    [54,62],[55,60],[56,59],[57,67],[58,66],[60,70],[61,71],[62,72],[63,61],
+    [64,72],[65,73],[66,74],[67,75],[68,76],[69,77],[70,78],[71,79],[72,80],
+    [73,81],[74,82],[75,83],[76,84],[77,85],[78,86],[79,87],[80,88],[81,89],
+    [82,90],[83,91],[84,92],[85,93],[86,94],[87,95],[88,96],[89,97],[90,98],
+    [54,1],[55,2],[56,6],[57,7],[58,8],[59,9],[60,10],[61,11],[54,48],
+    [103,104],[104,105],[105,106],[106,107],[107,108],[108,109],[109,110],[110,103]
+  ]
+
+  const getRegionColor = (id: string) => {
+    if (selected === id) return '#534AB7'
+    if (hovered === id) return 'rgba(100,85,210,0.35)'
+    const n = counts[id] || 0
+    return n > 0 ? 'rgba(59,130,246,0.18)' : 'rgba(220,225,240,0.55)'
+  }
+
   return (
-    <svg viewBox="0 0 660 600" style={{ width: '100%', maxWidth: 520, filter: 'drop-shadow(0 4px 16px rgba(0,0,0,0.12))' }}>
-      <defs>
-        <linearGradient id="seaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#D6EAF8"/>
-          <stop offset="100%" stopColor="#AED6F1"/>
-        </linearGradient>
-        <filter id="regShadow" x="-5%" y="-5%" width="110%" height="110%">
-          <feDropShadow dx="0" dy="1" stdDeviation="2" floodColor="#00000022"/>
-        </filter>
-        <filter id="selShadow" x="-5%" y="-5%" width="110%" height="110%">
-          <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="#534AB766"/>
-        </filter>
-      </defs>
-      {/* Mer / fond */}
-      <rect width="660" height="600" fill="url(#seaGrad)" rx="12"/>
-      {/* Léger motif vague */}
-      <path d="M0,580 Q165,570 330,580 Q495,590 660,580 L660,600 L0,600 Z" fill="rgba(255,255,255,0.3)"/>
-      {/* Régions */}
-      {Object.entries(REGIONS_DATA).map(([id, { d, cx, cy, abbr }]) => {
-        const sel = selected === id
-        const hov = hovered === id
-        const n = counts[id] || 0
-        const isCorse = id === 'cor'
-        return (
-          <g key={id}
-            onClick={() => onSelect(id)}
-            onMouseEnter={() => setHovered(id)}
-            onMouseLeave={() => setHovered(null)}
-            style={{ cursor: 'pointer' }}
-            filter={sel ? 'url(#selShadow)' : hov ? 'url(#regShadow)' : undefined}
-          >
-            <path
-              d={d}
-              fill={sel ? '#534AB7' : hov ? '#7B72D4' : n > 0 ? '#C5DCF5' : '#EAF2FB'}
-              stroke={sel ? '#3C3489' : hov ? '#534AB7' : '#94B8D0'}
-              strokeWidth={sel ? 2 : 1.2}
-              strokeLinejoin="round"
-              style={{ transition: 'fill .15s, stroke .15s' }}
-            />
-            {/* Badge compteur */}
-            {n > 0 && (
-              <g>
-                <circle cx={cx} cy={cy - 12} r={11} fill={sel ? 'white' : '#534AB7'}/>
-                <text x={cx} y={cy - 8} textAnchor="middle" fontSize="9.5" fill={sel ? '#534AB7' : 'white'} fontWeight="800">{n}</text>
-              </g>
-            )}
-            {/* Label */}
-            {!isCorse && (
-              <text
-                x={cx} y={cy + (n > 0 ? 4 : 0)}
-                textAnchor="middle"
+    <div style={{ position: 'relative', width: '100%', maxWidth: 520 }}>
+      <svg viewBox="40 30 650 580" style={{ width: '100%', filter: 'drop-shadow(0 12px 32px rgba(83,74,183,0.18))' }}>
+        <defs>
+          {/* Fond dégradé radial */}
+          <radialGradient id="bgGrad" cx="50%" cy="45%" r="65%">
+            <stop offset="0%" stopColor="#F0F4FF"/>
+            <stop offset="100%" stopColor="#D8E4F0"/>
+          </radialGradient>
+          {/* Dégradé surface carte */}
+          <linearGradient id="mapGrad" x1="0%" y1="0%" x2="60%" y2="100%">
+            <stop offset="0%" stopColor="#F5F7FF"/>
+            <stop offset="100%" stopColor="#E2E8F4"/>
+          </linearGradient>
+          {/* Ombre portée */}
+          <linearGradient id="shadowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#8898C0" stopOpacity="0.35"/>
+            <stop offset="100%" stopColor="#8898C0" stopOpacity="0"/>
+          </linearGradient>
+          {/* clipPath France */}
+          <clipPath id="franceClip">
+            <path d="M344,44 L524,44 L558,64 L614,92 L650,152 L648,184 L638,226 L618,262 L590,282 L558,294 L508,258 L494,234 L480,290 L456,306 L446,380 L438,430 L390,474 L334,484 L268,476 L208,462 L162,416 L130,326 L148,278 L196,282 L312,294 L332,272 L340,206 L298,204 L226,206 L172,162 L140,156 L90,174 L36,228 L52,278 L114,312 L168,278 L196,282 L130,326 L162,416 L268,476 L334,484 Z"/>
+          </clipPath>
+          <clipPath id="corseClip">
+            <path d="M572,520 L592,502 L624,496 L638,516 L636,550 L612,574 L588,574 L568,552 L564,532 Z"/>
+          </clipPath>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="2" result="blur"/>
+            <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+          </filter>
+        </defs>
+
+        {/* Fond global */}
+        <rect x="30" y="20" width="680" height="610" fill="url(#bgGrad)" rx="16"/>
+
+        {/* Ombre portée 3D (décalée vers le bas-droite) */}
+        <path d="M350,58 L530,58 L564,78 L618,106 L656,166 L654,198 L644,240 L624,276 L596,296 L564,308 L514,272 L500,248 L486,304 L462,320 L452,394 L444,444 L396,488 L340,498 L274,490 L214,476 L168,430 L136,340 L154,292 L202,296 L318,308 L338,286 L346,220 L304,218 L232,220 L178,176 L146,170 L96,188 L42,242 L58,292 L120,326 L174,292 L202,296 L136,340 L168,430 L274,490 L340,498 Z"
+          fill="url(#shadowGrad)" transform="translate(8,18)" opacity="0.6"/>
+
+        {/* Surface principale France */}
+        <path d="M344,44 L524,44 L558,64 L614,92 L650,152 L648,184 L638,226 L618,262 L590,282 L558,294 L508,258 L494,234 L480,290 L456,306 L446,380 L438,430 L390,474 L334,484 L268,476 L208,462 L162,416 L130,326 L148,278 L196,282 L312,294 L332,272 L340,206 L298,204 L226,206 L172,162 L140,156 L90,174 L36,228 L52,278 L114,312 L168,278 L196,282 L130,326 L162,416 L268,476 L334,484 Z"
+          fill="url(#mapGrad)" stroke="#C8D4E8" strokeWidth="1.5"/>
+
+        {/* Réseau triangulaire low-poly — lignes bleues */}
+        <g clipPath="url(#franceClip)" opacity="0.7">
+          {EDGES.filter(([a,b]) => a < NODES.length && b < NODES.length && a >= 0 && b >= 0).map(([a,b], i) => {
+            const [x1,y1] = NODES[a] || [0,0]
+            const [x2,y2] = NODES[b] || [0,0]
+            return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#3B82F6" strokeWidth="0.7" opacity="0.55"/>
+          })}
+          {/* Petits points aux nœuds */}
+          {NODES.slice(0,54).map(([cx,cy], i) => (
+            <circle key={i} cx={cx} cy={cy} r="1.8" fill="#3B82F6" opacity="0.6"/>
+          ))}
+        </g>
+
+        {/* Régions cliquables (overlay semi-transparent) */}
+        {Object.entries(REGIONS_DATA).filter(([id]) => id !== 'cor').map(([id, { d, cx, cy, abbr }]) => {
+          const sel = selected === id
+          const hov = hovered === id
+          const n = counts[id] || 0
+          return (
+            <g key={id} onClick={() => onSelect(id)} onMouseEnter={() => setHovered(id)} onMouseLeave={() => setHovered(null)} style={{ cursor: 'pointer' }}>
+              <path d={d} fill={getRegionColor(id)} stroke={sel ? '#534AB7' : hov ? '#7B72D4' : 'rgba(83,74,183,0.25)'} strokeWidth={sel ? 2 : 1} strokeLinejoin="round" style={{ transition: 'all .18s' }}/>
+              {/* Badge nombre d'orgs */}
+              {(n > 0 || sel) && (
+                <g>
+                  <circle cx={cx} cy={cy - 10} r={12} fill={sel ? '#534AB7' : '#3B82F6'} opacity={sel ? 1 : 0.85}/>
+                  {n > 0 && <text x={cx} y={cy - 6} textAnchor="middle" fontSize="10" fill="white" fontWeight="800">{n}</text>}
+                  {sel && n === 0 && <text x={cx} y={cy - 6} textAnchor="middle" fontSize="9" fill="white" fontWeight="800">✓</text>}
+                </g>
+              )}
+              {/* Label région */}
+              <text x={cx} y={cy + (n > 0 || sel ? 6 : 2)} textAnchor="middle"
                 fontSize={abbr.length > 14 ? 7 : abbr.length > 10 ? 8 : 9}
-                fill={sel ? 'white' : hov ? '#2C2478' : '#1a2e4a'}
-                fontWeight={sel || hov ? '700' : '500'}
-                style={{ pointerEvents: 'none', userSelect: 'none', transition: 'fill .15s' }}
-              >
-                {abbr}
-              </text>
-            )}
-            {isCorse && (
-              <text x={cx} y={cy + 4} textAnchor="middle" fontSize="8" fill={sel ? 'white' : '#1a2e4a'} fontWeight={sel ? '700' : '500'} style={{ pointerEvents: 'none', userSelect: 'none' }}>
-                Corse
-              </text>
-            )}
+                fill={sel ? '#3C3489' : '#2C3E6B'}
+                fontWeight={sel ? '800' : '600'}
+                style={{ pointerEvents: 'none', userSelect: 'none', transition: 'all .15s' }}
+              >{abbr}</text>
+            </g>
+          )
+        })}
+
+        {/* Bord extérieur France */}
+        <path d="M344,44 L524,44 L558,64 L614,92 L650,152 L648,184 L638,226 L618,262 L590,282 L558,294 L508,258 L494,234 L480,290 L456,306 L446,380 L438,430 L390,474 L334,484 L268,476 L208,462 L162,416 L130,326 L148,278 L196,282 L312,294 L332,272 L340,206 L298,204 L226,206 L172,162 L140,156 L90,174 L36,228 L52,278 L114,312 L168,278 L196,282 L130,326 L162,416 L268,476 L334,484 Z"
+          fill="none" stroke="#8898C0" strokeWidth="2" strokeLinejoin="round"/>
+
+        {/* Corse */}
+        <g>
+          {/* Ombre Corse */}
+          <path d="M572,520 L592,502 L624,496 L638,516 L636,550 L612,574 L588,574 L568,552 L564,532 Z"
+            fill="url(#shadowGrad)" transform="translate(6,14)" opacity="0.5"/>
+          {/* Surface Corse */}
+          <path d="M572,520 L592,502 L624,496 L638,516 L636,550 L612,574 L588,574 L568,552 L564,532 Z"
+            fill="url(#mapGrad)" stroke="#C8D4E8" strokeWidth="1.5"/>
+          {/* Réseau Corse */}
+          <g clipPath="url(#corseClip)" opacity="0.7">
+            <line x1="572" y1="520" x2="624" y2="496" stroke="#3B82F6" strokeWidth="0.7" opacity="0.55"/>
+            <line x1="624" y1="496" x2="638" y2="516" stroke="#3B82F6" strokeWidth="0.7" opacity="0.55"/>
+            <line x1="572" y1="520" x2="638" y2="516" stroke="#3B82F6" strokeWidth="0.7" opacity="0.55"/>
+            <line x1="572" y1="520" x2="612" y2="574" stroke="#3B82F6" strokeWidth="0.7" opacity="0.55"/>
+            <line x1="638" y1="516" x2="636" y2="550" stroke="#3B82F6" strokeWidth="0.7" opacity="0.55"/>
+            <line x1="636" y1="550" x2="612" y2="574" stroke="#3B82F6" strokeWidth="0.7" opacity="0.55"/>
+            <line x1="612" y1="574" x2="568" y2="552" stroke="#3B82F6" strokeWidth="0.7" opacity="0.55"/>
+            <line x1="572" y1="520" x2="636" y2="550" stroke="#3B82F6" strokeWidth="0.7" opacity="0.55"/>
+            <circle cx="572" cy="520" r="1.8" fill="#3B82F6" opacity="0.6"/>
+            <circle cx="624" cy="496" r="1.8" fill="#3B82F6" opacity="0.6"/>
+            <circle cx="638" cy="516" r="1.8" fill="#3B82F6" opacity="0.6"/>
+            <circle cx="636" cy="550" r="1.8" fill="#3B82F6" opacity="0.6"/>
+            <circle cx="612" cy="574" r="1.8" fill="#3B82F6" opacity="0.6"/>
           </g>
-        )
-      })}
-      {/* Étiquette mer */}
-      <text x="60" y="400" fontSize="11" fill="#7FB3D3" fontStyle="italic" fontWeight="300">Atlantique</text>
-      <text x="580" y="350" fontSize="10" fill="#7FB3D3" fontStyle="italic" fontWeight="300" textAnchor="middle">Méditerranée</text>
-      <text x="200" y="55" fontSize="10" fill="#7FB3D3" fontStyle="italic" fontWeight="300">Manche</text>
-    </svg>
+          {/* Corse cliquable */}
+          <path d="M572,520 L592,502 L624,496 L638,516 L636,550 L612,574 L588,574 L568,552 L564,532 Z"
+            fill={getRegionColor('cor')}
+            stroke={selected === 'cor' ? '#534AB7' : hovered === 'cor' ? '#7B72D4' : 'rgba(83,74,183,0.25)'}
+            strokeWidth={selected === 'cor' ? 2 : 1}
+            onClick={() => onSelect('cor')}
+            onMouseEnter={() => setHovered('cor')}
+            onMouseLeave={() => setHovered(null)}
+            style={{ cursor: 'pointer', transition: 'all .18s' }}/>
+          <text x="604" y="538" textAnchor="middle" fontSize="8" fill={selected === 'cor' ? '#3C3489' : '#2C3E6B'} fontWeight={selected === 'cor' ? '800' : '600'} style={{ pointerEvents: 'none' }}>Corse</text>
+          {counts['cor'] > 0 && (
+            <g>
+              <circle cx="604" cy="522" r="11" fill={selected === 'cor' ? '#534AB7' : '#3B82F6'} opacity="0.85"/>
+              <text x="604" y="526" textAnchor="middle" fontSize="9" fill="white" fontWeight="800">{counts['cor']}</text>
+            </g>
+          )}
+        </g>
+
+        {/* Drapeau FR en bas gauche */}
+        <g transform="translate(52,570)">
+          <rect x="0" y="0" width="36" height="24" rx="3" fill="white" stroke="#ddd" strokeWidth="0.5"/>
+          <rect x="0" y="0" width="12" height="24" rx="3" fill="#002395"/>
+          <rect x="0" y="0" width="12" height="24" fill="#002395"/>
+          <rect x="12" y="0" width="12" height="24" fill="white"/>
+          <rect x="24" y="0" width="12" height="24" rx="3" fill="#ED2939"/>
+          <rect x="24" y="0" width="12" height="24" fill="#ED2939"/>
+          <rect x="0" y="0" width="36" height="24" rx="3" fill="none" stroke="#C8D4E8" strokeWidth="0.8"/>
+        </g>
+        <text x="96" y="587" fontSize="11" fill="#4A5568" fontWeight="700">France</text>
+
+        {/* Légende */}
+        <g transform="translate(52,608)">
+          <circle cx="6" cy="6" r="5" fill="#3B82F6" opacity="0.8"/>
+          <text x="14" y="10" fontSize="9" fill="#6B7A99">Cliquez sur une région</text>
+        </g>
+      </svg>
+    </div>
   )
 }
+
 
 export default function TDFPage() {
   const supabase = createClient()
