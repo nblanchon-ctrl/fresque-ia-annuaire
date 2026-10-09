@@ -16,13 +16,15 @@ const REGIONS: Region[] = [
   {id:'ara',nom:'Auvergne-Rhône-Alpes'},{id:'occ',nom:'Occitanie'},{id:'pac',nom:'Provence-Alpes-Côte d’Azur'},{id:'cor',nom:'Corse'},
 ]
 
-const STATUTS: Record<string,{label:string;bg:string;color:string;border:string}> = {
-  a_contacter:{label:'À contacter',bg:'#F0F0F4',color:'#555',border:'#CCC'},
-  contacte:{label:'Contacté',bg:'#E6F1FB',color:'#0C447C',border:'#85B7EB'},
-  rdv_fait:{label:'RDV fait',bg:'#FAEEDA',color:'#633806',border:'#EF9F27'},
-  accepte:{label:'Accepté ✓',bg:'#D7FFB8',color:'#2B7400',border:'#58CC02'},
-  refuse:{label:'Refusé',bg:'#FFDFE0',color:'#CC0000',border:'#FF4B4B'},
+const STATUTS: Record<string,{label:string;bg:string;color:string;border:string;next?:string}> = {
+  prospect:     {label:'Prospect',      bg:'#F0F0F4',color:'#555',   border:'#CCC',    next:'contacte'},
+  contacte:     {label:'Contacté',      bg:'#E6F1FB',color:'#0C447C',border:'#85B7EB', next:'rdv_planifie'},
+  rdv_planifie: {label:'RDV planifié',  bg:'#EEEDFE',color:'#534AB7',border:'#AFA9EC', next:'rdv_fait'},
+  rdv_fait:     {label:'RDV fait',      bg:'#FAEEDA',color:'#633806',border:'#EF9F27', next:'accepte'},
+  accepte:      {label:'Accepté ✓',    bg:'#D7FFB8',color:'#2B7400',border:'#58CC02'},
+  refuse:       {label:'Refusé',        bg:'#FFDFE0',color:'#CC0000',border:'#FF4B4B'},
 }
+const STATUT_ORDER = ['prospect','contacte','rdv_planifie','rdv_fait','accepte','refuse']
 const ETAPE_LABELS = ['1er mail de contact','Mail de relance','2ème mail de relance','Mail de clôture']
 const ETAPE_DELAIS = [0,3,6,10]
 
@@ -98,6 +100,34 @@ function FranceMap({selected,counts,onSelect}:{selected:string|null;counts:Recor
           {REGIONS.map(r=><option key={r.id} value={r.id}>{r.nom} · {counts[r.id]||0} organisation(s)</option>)}
         </select>
       </div>
+
+      {/* ── Popup Accepté ── */}
+      {acceptePopup&&(
+        <div style={{position:'fixed',inset:0,zIndex:500,background:'rgba(0,0,0,0.55)',display:'flex',alignItems:'center',justifyContent:'center',padding:20}}>
+          <div style={{background:'white',borderRadius:20,padding:'28px 24px',maxWidth:420,width:'100%',boxShadow:'0 20px 60px rgba(0,0,0,0.25)'}}>
+            <div style={{textAlign:'center',marginBottom:16}}>
+              <div style={{fontSize:40,marginBottom:8}}>🎉</div>
+              <h2 style={{fontWeight:800,fontSize:18,color:'#2B7400',marginBottom:4}}>Organisation acceptée !</h2>
+              <p style={{fontSize:13,color:'#888',lineHeight:1.5}}><strong>{acceptePopup.nom}</strong> a accepté. Notez ici ce qui a été accepté pour garder une trace.</p>
+            </div>
+            <div style={{marginBottom:16}}>
+              <div style={{fontSize:12,fontWeight:600,color:'#555',marginBottom:6}}>Qu'est-ce qui a été accepté ? (format, nombre de participants, date prévue…)</div>
+              <textarea
+                value={accepteDetail}
+                onChange={e=>setAccepteDetail(e.target.value)}
+                rows={4}
+                placeholder="Ex : 1 Fresque de l'IA pour 20 personnes, prévue en mars 2025. Contact : Marie Dupont, RH."
+                style={{width:'100%',padding:'10px 12px',borderRadius:10,border:'1.5px solid #5DCAA5',fontSize:13,resize:'none',boxSizing:'border-box' as const,lineHeight:1.6}}
+                autoFocus
+              />
+            </div>
+            <div style={{display:'flex',gap:10}}>
+              <button onClick={()=>setAcceptePopup(null)} style={{flex:1,padding:'12px',borderRadius:12,border:'2px solid #E5E5E5',background:'white',color:'#888',fontWeight:700,fontSize:14,cursor:'pointer'}}>Passer</button>
+              <button onClick={saveAccepteDetail} style={{flex:2,padding:'12px',borderRadius:12,border:'none',background:'#58CC02',color:'white',fontWeight:800,fontSize:14,cursor:'pointer',boxShadow:'0 3px 0 #3D8A00'}}>Sauvegarder →</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -105,6 +135,9 @@ function FranceMap({selected,counts,onSelect}:{selected:string|null;counts:Recor
 export default function TDFPage() {
   const supabase = createClient()
   const [me,setMe]=useState<AnimateurLight|null>(null)
+  const [allAnims,setAllAnims]=useState<AnimateurLight[]>([])
+  const [acceptePopup,setAcceptePopup]=useState<Org|null>(null)
+  const [accepteDetail,setAccepteDetail]=useState('')
   const [tdfAnims,setTdfAnims]=useState<TdfAnim[]>([])
   const [orgs,setOrgs]=useState<Org[]>([])
   const [etapes,setEtapes]=useState<Etape[]>([])
@@ -128,8 +161,9 @@ export default function TDFPage() {
       try{
         const {data:{user}}=await supabase.auth.getUser()
         if(!user){window.location.href='/crm';return}
-        const [{data:meData},{data:tdfData,error:e2},{data:orgData,error:e3},{data:docData}]=await Promise.all([
+        const [{data:meData},{data:allAnimData},{data:tdfData,error:e2},{data:orgData,error:e3},{data:docData}]=await Promise.all([
           supabase.from('animateurs').select('id,nom,photo_url,is_admin').eq('id',user.id).single(),
+          supabase.from('animateurs').select('id,nom,photo_url,is_admin').order('nom'),
           supabase.from('tdf_animateurs').select('*,animateur:animateurs(id,nom,photo_url,is_admin)'),
           supabase.from('tdf_organisations').select('*,referent:animateurs(nom)').order('created_at',{ascending:false}),
           supabase.from('tdf_documents').select('*').order('created_at',{ascending:false}),
@@ -138,6 +172,7 @@ export default function TDFPage() {
         if(e2)console.warn('tdf_animateurs:',e2.message)
         if(e3)console.warn('tdf_organisations:',e3.message)
         setMe(meData)
+        setAllAnims(allAnimData||[])
         setTdfAnims((tdfData as TdfAnim[])||[])
         setOrgs((orgData as Org[])||[])
         setDocs(docData||[])
@@ -166,10 +201,29 @@ export default function TDFPage() {
     setTdfAnims(prev=>prev.filter(a=>!(a.region_id===selected&&a.animateur_id===me.id)))
   }
   const addOrg=async()=>{
-    if(!me||!selected||!orgForm.nom.trim())return;setSaving(true)
-    const {data,error}=await supabase.from('tdf_organisations').insert({...orgForm,region_id:selected,created_by:me.id,secteur:orgForm.secteur||null,taille:orgForm.taille||null,referent_id:orgForm.referent_id||null,commentaire:orgForm.commentaire||null}).select('*,referent:animateurs(nom)').single()
-    if(!error&&data)setOrgs(prev=>[data as Org,...prev])
-    setOrgForm({nom:'',secteur:'',taille:'',referent_id:'',commentaire:''});setShowOrgForm(false);setSaving(false)
+    if(!me||!selected||!orgForm.nom.trim())return
+    setSaving(true)
+    const payload={
+      nom:orgForm.nom.trim(),
+      secteur:orgForm.secteur||null,
+      taille:orgForm.taille||null,
+      referent_id:orgForm.referent_id||null,
+      commentaire:orgForm.commentaire||null,
+      region_id:selected,
+      created_by:me.id,
+      statut:'prospect',
+      prospection_active:false,
+    }
+    const {data,error}=await supabase.from('tdf_organisations').insert(payload).select('*,referent:animateurs(nom)').single()
+    if(error){
+      alert('Erreur lors de l\'ajout : '+error.message)
+      console.error('addOrg error:',error)
+    } else if(data){
+      setOrgs(prev=>[data as Org,...prev])
+      setOrgForm({nom:'',secteur:'',taille:'',referent_id:'',commentaire:''})
+      setShowOrgForm(false)
+    }
+    setSaving(false)
   }
   const startProspection=async(org:Org)=>{
     const now=new Date()
@@ -187,9 +241,20 @@ export default function TDFPage() {
     await supabase.from('tdf_etapes').update(update).eq('id',etape.id)
     setEtapes(prev=>prev.map(e=>e.id===etape.id?{...e,...update}:e))
   }
-  const changeStatut=async(orgId:string,statut:string)=>{
-    await supabase.from('tdf_organisations').update({statut}).eq('id',orgId)
-    setOrgs(prev=>prev.map(o=>o.id===orgId?{...o,statut}:o))
+  const changeStatut=async(org:Org,statut:string)=>{
+    await supabase.from('tdf_organisations').update({statut}).eq('id',org.id)
+    setOrgs(prev=>prev.map(o=>o.id===org.id?{...o,statut}:o))
+    if(statut==='accepte'){
+      setAcceptePopup({...org,statut:'accepte'})
+      setAccepteDetail(org.commentaire||'')
+    }
+  }
+
+  const saveAccepteDetail=async()=>{
+    if(!acceptePopup)return
+    await supabase.from('tdf_organisations').update({commentaire:accepteDetail}).eq('id',acceptePopup.id)
+    setOrgs(prev=>prev.map(o=>o.id===acceptePopup.id?{...o,commentaire:accepteDetail}:o))
+    setAcceptePopup(null)
   }
   const deleteOrg=async(org:Org)=>{
     if(!confirm(`Supprimer "${org.nom}" ?`))return
@@ -360,7 +425,7 @@ export default function TDFPage() {
                         </div>
                         <select value={orgForm.referent_id} onChange={e=>setOrgForm(f=>({...f,referent_id:e.target.value}))} style={{width:'100%',padding:'7px 10px',borderRadius:8,border:'1.5px solid #E5E5E5',fontSize:13}}>
                           <option value="">Référent…</option>
-                          {regAnims.map(ta=><option key={ta.animateur_id} value={ta.animateur_id}>{ta.animateur.nom}</option>)}
+                          {allAnims.map(a=><option key={a.id} value={a.id}>{a.nom}</option>)}
                         </select>
                         <textarea value={orgForm.commentaire} onChange={e=>setOrgForm(f=>({...f,commentaire:e.target.value}))} rows={2} placeholder="Commentaire…" style={{width:'100%',padding:'7px 10px',borderRadius:8,border:'1.5px solid #E5E5E5',fontSize:13,resize:'none' as const,boxSizing:'border-box' as const}}/>
                         <button onClick={addOrg} disabled={saving||!orgForm.nom.trim()} style={{alignSelf:'flex-start' as const,padding:'7px 16px',background:orgForm.nom.trim()?'#4338CA':'#E5E5E5',color:orgForm.nom.trim()?'white':'#aaa',border:'none',borderRadius:8,fontWeight:700,fontSize:13,cursor:orgForm.nom.trim()?'pointer':'default'}}>{saving?'...':'Ajouter →'}</button>
@@ -384,9 +449,17 @@ export default function TDFPage() {
                               </div>
                               {org.commentaire&&<div style={{fontSize:11,color:'#888',marginTop:4}}>{org.commentaire}</div>}
                             </div>
-                            <select value={org.statut} onChange={e=>changeStatut(org.id,e.target.value)} style={{padding:'3px 8px',borderRadius:20,border:`1px solid ${st.border}`,background:st.bg,color:st.color,fontSize:11,fontWeight:700,cursor:'pointer',flexShrink:0}}>
+                            <select value={org.statut} onChange={e=>changeStatut(org,e.target.value)} style={{padding:'3px 8px',borderRadius:20,border:`1px solid ${st.border}`,background:st.bg,color:st.color,fontSize:11,fontWeight:700,cursor:'pointer',flexShrink:0}}>
                               {Object.entries(STATUTS).map(([k,s])=><option key={k} value={k}>{s.label}</option>)}
                             </select>
+                            {STATUTS[org.statut]?.next&&(
+                              <button
+                                onClick={()=>changeStatut(org,STATUTS[org.statut].next!)}
+                                style={{marginTop:4,padding:'3px 10px',borderRadius:20,border:'none',background:'#4338CA',color:'white',fontSize:10,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap' as const}}
+                              >
+                                Avancer →
+                              </button>
+                            )}
                           </div>
                           <div style={{marginTop:10,display:'flex',gap:8}}>
                             {!org.prospection_active?(
