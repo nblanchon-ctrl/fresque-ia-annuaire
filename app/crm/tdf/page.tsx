@@ -139,7 +139,7 @@ export default function TDFPage() {
           supabase.from('animateurs').select('id,nom,photo_url,is_admin').eq('id',user.id).single(),
           supabase.from('animateurs').select('id,nom,photo_url,is_admin').order('nom'),
           supabase.from('tdf_animateurs').select('*,animateur:animateurs(id,nom,photo_url,is_admin)'),
-          supabase.from('tdf_organisations').select('*,referent:animateurs(nom)').order('created_at',{ascending:false}),
+          supabase.from('tdf_organisations').select('*, referent:animateurs!tdf_organisations_referent_id_fkey(nom)').order('created_at',{ascending:false}),
           supabase.from('tdf_documents').select('*').order('created_at',{ascending:false}),
         ])
         if(e2?.code==='42P01'||e3?.code==='42P01'){setError('Tables manquantes. Exécutez SQL_TDF.sql dans Supabase.');setLoading(false);return}
