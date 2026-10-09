@@ -101,33 +101,7 @@ function FranceMap({selected,counts,onSelect}:{selected:string|null;counts:Recor
         </select>
       </div>
 
-      {/* ── Popup Accepté ── */}
-      {acceptePopup&&(
-        <div style={{position:'fixed',inset:0,zIndex:500,background:'rgba(0,0,0,0.55)',display:'flex',alignItems:'center',justifyContent:'center',padding:20}}>
-          <div style={{background:'white',borderRadius:20,padding:'28px 24px',maxWidth:420,width:'100%',boxShadow:'0 20px 60px rgba(0,0,0,0.25)'}}>
-            <div style={{textAlign:'center',marginBottom:16}}>
-              <div style={{fontSize:40,marginBottom:8}}>🎉</div>
-              <h2 style={{fontWeight:800,fontSize:18,color:'#2B7400',marginBottom:4}}>Organisation acceptée !</h2>
-              <p style={{fontSize:13,color:'#888',lineHeight:1.5}}><strong>{acceptePopup.nom}</strong> a accepté. Notez ici ce qui a été accepté pour garder une trace.</p>
-            </div>
-            <div style={{marginBottom:16}}>
-              <div style={{fontSize:12,fontWeight:600,color:'#555',marginBottom:6}}>Qu'est-ce qui a été accepté ? (format, nombre de participants, date prévue…)</div>
-              <textarea
-                value={accepteDetail}
-                onChange={e=>setAccepteDetail(e.target.value)}
-                rows={4}
-                placeholder="Ex : 1 Fresque de l'IA pour 20 personnes, prévue en mars 2025. Contact : Marie Dupont, RH."
-                style={{width:'100%',padding:'10px 12px',borderRadius:10,border:'1.5px solid #5DCAA5',fontSize:13,resize:'none',boxSizing:'border-box' as const,lineHeight:1.6}}
-                autoFocus
-              />
-            </div>
-            <div style={{display:'flex',gap:10}}>
-              <button onClick={()=>setAcceptePopup(null)} style={{flex:1,padding:'12px',borderRadius:12,border:'2px solid #E5E5E5',background:'white',color:'#888',fontWeight:700,fontSize:14,cursor:'pointer'}}>Passer</button>
-              <button onClick={saveAccepteDetail} style={{flex:2,padding:'12px',borderRadius:12,border:'none',background:'#58CC02',color:'white',fontWeight:800,fontSize:14,cursor:'pointer',boxShadow:'0 3px 0 #3D8A00'}}>Sauvegarder →</button>
-            </div>
-          </div>
-        </div>
-      )}
+
     </div>
   )
 }
@@ -535,6 +509,33 @@ export default function TDFPage() {
           </div>
         )}
       </div>
+      {/* ── Popup Accepté ── */}
+      {acceptePopup&&(
+        <div style={{position:'fixed',inset:0,zIndex:500,background:'rgba(0,0,0,0.55)',display:'flex',alignItems:'center',justifyContent:'center',padding:20}}>
+          <div style={{background:'white',borderRadius:20,padding:'28px 24px',maxWidth:420,width:'100%',boxShadow:'0 20px 60px rgba(0,0,0,0.25)'}}>
+            <div style={{textAlign:'center',marginBottom:16}}>
+              <div style={{fontSize:40,marginBottom:8}}>🎉</div>
+              <h2 style={{fontWeight:800,fontSize:18,color:'#2B7400',marginBottom:4}}>Organisation acceptée !</h2>
+              <p style={{fontSize:13,color:'#888',lineHeight:1.5}}><strong>{acceptePopup.nom}</strong> a accepté. Notez ici ce qui a été accepté pour garder une trace.</p>
+            </div>
+            <div style={{marginBottom:16}}>
+              <div style={{fontSize:12,fontWeight:600,color:'#555',marginBottom:6}}>Qu'est-ce qui a été accepté ? (format, nombre de participants, date prévue…)</div>
+              <textarea
+                value={accepteDetail}
+                onChange={e=>setAccepteDetail(e.target.value)}
+                rows={4}
+                placeholder="Ex : 1 Fresque de l'IA pour 20 personnes, prévue en mars 2025. Contact : Marie Dupont, RH."
+                style={{width:'100%',padding:'10px 12px',borderRadius:10,border:'1.5px solid #5DCAA5',fontSize:13,resize:'none',boxSizing:'border-box' as const,lineHeight:1.6}}
+                autoFocus
+              />
+            </div>
+            <div style={{display:'flex',gap:10}}>
+              <button onClick={()=>setAcceptePopup(null)} style={{flex:1,padding:'12px',borderRadius:12,border:'2px solid #E5E5E5',background:'white',color:'#888',fontWeight:700,fontSize:14,cursor:'pointer'}}>Passer</button>
+              <button onClick={saveAccepteDetail} style={{flex:2,padding:'12px',borderRadius:12,border:'none',background:'#58CC02',color:'white',fontWeight:800,fontSize:14,cursor:'pointer',boxShadow:'0 3px 0 #3D8A00'}}>Sauvegarder →</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
