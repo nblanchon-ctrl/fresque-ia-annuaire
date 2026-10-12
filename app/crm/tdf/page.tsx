@@ -382,21 +382,39 @@ export default function TDFPage() {
                     {showOrgForm?'× Fermer':'+ Ajouter une organisation'}
                   </button>
                   {showOrgForm&&(
-                    <div style={{background:'#F8F9FF',borderRadius:14,padding:'14px',border:'1.5px solid #C7D2FE',marginBottom:14}}>
-                      <div style={{display:'flex',flexDirection:'column' as const,gap:8}}>
-                        <input value={orgForm.nom} onChange={e=>setOrgForm(f=>({...f,nom:e.target.value}))} placeholder="Nom de l'organisation *" style={{width:'100%',padding:'7px 10px',borderRadius:8,border:'1.5px solid #E5E5E5',fontSize:13,boxSizing:'border-box' as const}}/>
-                        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-                          <input value={orgForm.secteur} onChange={e=>setOrgForm(f=>({...f,secteur:e.target.value}))} placeholder="Secteur" style={{padding:'7px 10px',borderRadius:8,border:'1.5px solid #E5E5E5',fontSize:13}}/>
-                          <select value={orgForm.taille} onChange={e=>setOrgForm(f=>({...f,taille:e.target.value}))} style={{padding:'7px 10px',borderRadius:8,border:'1.5px solid #E5E5E5',fontSize:13}}>
-                            <option value="">Taille</option><option value="micro">&lt;50</option><option value="pme">50–500</option><option value="eti">500–2000</option><option value="grand">&gt;2000</option>
+                    <div style={{background:'#F8F9FF',borderRadius:14,padding:16,border:'1.5px solid #C7D2FE',marginBottom:14,width:'100%',minWidth:0,boxSizing:'border-box'}}>
+                      <div style={{fontWeight:800,fontSize:14,color:'#1E1B4B',marginBottom:5}}>Nouvelle organisation</div>
+                      <div style={{fontSize:12,color:'#475569',marginBottom:14,lineHeight:1.5}}>Renseignez les informations de l'organisation à prospecter dans cette région.</div>
+                      <div style={{display:'flex',flexDirection:'column',gap:12,minWidth:0}}>
+                        <label style={{display:'flex',flexDirection:'column',gap:5,fontSize:12,fontWeight:700,color:'#334155',minWidth:0}}>
+                          Nom de l'organisation *
+                          <input value={orgForm.nom} onChange={e=>setOrgForm(f=>({...f,nom:e.target.value}))} placeholder="Ex. : CCI de la région" style={{width:'100%',minWidth:0,padding:'11px 12px',borderRadius:9,border:'1px solid #CBD5E1',background:'#FFFFFF',color:'#0F172A',fontSize:14,boxSizing:'border-box'}}/>
+                        </label>
+                        <label style={{display:'flex',flexDirection:'column',gap:5,fontSize:12,fontWeight:700,color:'#334155',minWidth:0}}>
+                          Secteur d'activité
+                          <input value={orgForm.secteur} onChange={e=>setOrgForm(f=>({...f,secteur:e.target.value}))} placeholder="Ex. : Fédération professionnelle" style={{width:'100%',minWidth:0,padding:'11px 12px',borderRadius:9,border:'1px solid #CBD5E1',background:'#FFFFFF',color:'#0F172A',fontSize:14,boxSizing:'border-box'}}/>
+                        </label>
+                        <label style={{display:'flex',flexDirection:'column',gap:5,fontSize:12,fontWeight:700,color:'#334155',minWidth:0}}>
+                          Taille de l'organisation
+                          <select value={orgForm.taille} onChange={e=>setOrgForm(f=>({...f,taille:e.target.value}))} style={{width:'100%',minWidth:0,padding:'11px 12px',borderRadius:9,border:'1px solid #CBD5E1',background:'#FFFFFF',color:'#0F172A',fontSize:14,boxSizing:'border-box'}}>
+                            <option value="">Non renseignée</option><option value="micro">Moins de 50</option><option value="pme">50 à 500</option><option value="eti">500 à 2 000</option><option value="grand">Plus de 2 000</option>
                           </select>
+                        </label>
+                        <label style={{display:'flex',flexDirection:'column',gap:5,fontSize:12,fontWeight:700,color:'#334155',minWidth:0}}>
+                          Animateur référent
+                          <select value={orgForm.referent_id} onChange={e=>setOrgForm(f=>({...f,referent_id:e.target.value}))} style={{width:'100%',minWidth:0,padding:'11px 12px',borderRadius:9,border:'1px solid #CBD5E1',background:'#FFFFFF',color:'#0F172A',fontSize:14,boxSizing:'border-box'}}>
+                            <option value="">À attribuer</option>
+                            {regAnims.map(ta=><option key={ta.animateur_id} value={ta.animateur_id}>{ta.animateur.nom}</option>)}
+                          </select>
+                        </label>
+                        <label style={{display:'flex',flexDirection:'column',gap:5,fontSize:12,fontWeight:700,color:'#334155',minWidth:0}}>
+                          Commentaire
+                          <textarea value={orgForm.commentaire} onChange={e=>setOrgForm(f=>({...f,commentaire:e.target.value}))} rows={3} placeholder="Contexte, contact à privilégier, informations utiles…" style={{width:'100%',minWidth:0,padding:'11px 12px',borderRadius:9,border:'1px solid #CBD5E1',background:'#FFFFFF',color:'#0F172A',fontSize:14,resize:'vertical',boxSizing:'border-box'}}/>
+                        </label>
+                        <div style={{display:'flex',flexWrap:'wrap',gap:8,justifyContent:'flex-end',marginTop:4}}>
+                          <button type="button" onClick={()=>setShowOrgForm(false)} style={{padding:'10px 14px',background:'#FFFFFF',color:'#334155',border:'1px solid #CBD5E1',borderRadius:9,fontWeight:700,fontSize:13,cursor:'pointer'}}>Annuler</button>
+                          <button type="button" onClick={addOrg} disabled={saving||!orgForm.nom.trim()} style={{padding:'10px 16px',background:orgForm.nom.trim()?'#4338CA':'#E5E7EB',color:orgForm.nom.trim()?'white':'#64748B',border:'none',borderRadius:9,fontWeight:700,fontSize:13,cursor:orgForm.nom.trim()?'pointer':'not-allowed'}}>{saving?'Enregistrement…':'Ajouter l’organisation'}</button>
                         </div>
-                        <select value={orgForm.referent_id} onChange={e=>setOrgForm(f=>({...f,referent_id:e.target.value}))} style={{width:'100%',padding:'7px 10px',borderRadius:8,border:'1.5px solid #E5E5E5',fontSize:13}}>
-                          <option value="">Référent…</option>
-                          {regAnims.map(ta=><option key={ta.animateur_id} value={ta.animateur_id}>{ta.animateur.nom}</option>)}
-                        </select>
-                        <textarea value={orgForm.commentaire} onChange={e=>setOrgForm(f=>({...f,commentaire:e.target.value}))} rows={2} placeholder="Commentaire…" style={{width:'100%',padding:'7px 10px',borderRadius:8,border:'1.5px solid #E5E5E5',fontSize:13,resize:'none' as const,boxSizing:'border-box' as const}}/>
-                        <button onClick={addOrg} disabled={saving||!orgForm.nom.trim()} style={{alignSelf:'flex-start' as const,padding:'7px 16px',background:orgForm.nom.trim()?'#4338CA':'#E5E5E5',color:orgForm.nom.trim()?'white':'#aaa',border:'none',borderRadius:8,fontWeight:700,fontSize:13,cursor:orgForm.nom.trim()?'pointer':'default'}}>{saving?'...':'Ajouter →'}</button>
                       </div>
                     </div>
                   )}
