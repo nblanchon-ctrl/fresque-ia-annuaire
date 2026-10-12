@@ -58,7 +58,7 @@ function FranceMap({selected,counts,onSelect}:{selected:string|null;counts:Recor
         <div style={{fontSize:19,fontWeight:800,color:'#1E293B',marginTop:6}}>À chaque région, son équipe</div>
         <div style={{fontSize:12,color:'#64748B',marginTop:7,lineHeight:1.6}}>Explorez les territoires et coordonnez la prospection.</div>
       </div>
-      <svg viewBox="0 0 660 580" preserveAspectRatio="xMidYMid meet" role="group" aria-labelledby={`${uid}-title ${uid}-desc`} style={{display:'block',width:'100%',height:'auto',maxHeight:'min(54dvh, 510px)',objectFit:'contain',margin:'0 auto'}}>
+      <svg viewBox="0 0 660 580" preserveAspectRatio="xMidYMid meet" role="group" aria-labelledby={`${uid}-title ${uid}-desc`} style={{display:'block',width:'100%',height:'auto',maxHeight:'510px',objectFit:'contain',margin:'0 auto'}}>
         <title id={`${uid}-title`}>Carte des 13 régions métropolitaines, avec accès aux 5 régions ultramarines sous la carte</title>
         <desc id={`${uid}-desc`}>Sélectionnez une région au clic ou avec Tab puis Entrée. Les cinq régions d’outre-mer sont accessibles par des boutons sous la carte. Les badges indiquent le nombre d’organisations.</desc>
         <defs>
@@ -94,7 +94,7 @@ function FranceMap({selected,counts,onSelect}:{selected:string|null;counts:Recor
       </svg>
       <div style={{padding:'8px 14px 12px'}}>
         <div style={{fontSize:10,fontWeight:800,color:'#64748B',letterSpacing:1,marginBottom:8}}>OUTRE-MER · 5 RÉGIONS</div>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(5,minmax(0,1fr))',gap:5}}>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(105px,1fr))',gap:5}}>
           {[
             {id:'gua',label:'Guadeloupe'}, {id:'mar',label:'Martinique'},
             {id:'guy',label:'Guyane'}, {id:'reu',label:'La Réunion'}, {id:'may',label:'Mayotte'}
@@ -300,9 +300,9 @@ export default function TDFPage() {
         </div>
       </div>
 
-      <div style={{display:'flex',height:'calc(100vh - 65px)',overflow:'hidden'}}>
+      <div style={{display:'flex',height:selected?'calc(100vh - 65px)':'auto',minHeight:'calc(100vh - 65px)',overflow:selected?'hidden':'visible'}}>
         {/* Colonne carte */}
-        <div style={{width:selected?460:'100%',transition:'width .3s',padding:'20px 24px',overflowY:'auto',display:'flex',flexDirection:'column',alignItems:'center',gap:16}}>
+        <div style={{width:selected?460:'100%',transition:'width .3s',padding:'20px 24px',overflowY:selected?'auto':'visible',minWidth:0,display:'flex',flexDirection:'column',alignItems:'center',gap:16}}>
           <FranceMap selected={selected} counts={orgCounts} onSelect={id=>{ setSelected(s=>s===id?null:id); setTab('equipe'); setExpandedOrg(null) }}/>
           {!selected&&(
             <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10,width:'100%',maxWidth:460}}>
