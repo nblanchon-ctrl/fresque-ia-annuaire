@@ -1,0 +1,29 @@
+/* Formation only: preserves the existing desktop visual identity. */
+.formation-mobile-shell { min-width: 0; width: 100%; }
+.formation-mobile-shell img, .formation-mobile-shell svg, .formation-mobile-shell video { max-width: 100%; }
+.formation-mobile-shell a, .formation-mobile-shell button { overflow-wrap: anywhere; }
+
+@media (max-width: 767px) {
+  .formation-mobile-shell { width: 100%; overflow-x: clip; color: #1a1a2e; }
+  .formation-mobile-shell .container { width: 100%; max-width: 100%; padding-inline: 16px; }
+  .formation-mobile-shell [style*="max-width: 700px"],
+  .formation-mobile-shell [style*="maxWidth: 700"] { max-width: 100% !important; }
+  .formation-mobile-shell [style*="grid-template-columns"] { min-width: 0; }
+  .formation-mobile-shell [style*="display: flex"] > *,
+  .formation-mobile-shell [style*="display: grid"] > * { min-width: 0; }
+  .formation-mobile-shell input, .formation-mobile-shell select,
+  .formation-mobile-shell textarea { max-width: 100%; min-width: 0; font-size: 16px; }
+  .formation-mobile-shell button, .formation-mobile-shell a.btn { min-height: 42px; }
+  .formation-mobile-shell [style*="position: fixed"] { max-width: 100vw; }
+  .formation-mobile-shell [style*="overflow-x: auto"] { -webkit-overflow-scrolling: touch; }
+  .formation-mobile-shell [style*="background: rgb(255, 255, 255)"],
+  .formation-mobile-shell [style*="background: white"] { color: #1a1a2e; }
+  .formation-mobile-shell [style*="background: rgb(26, 26, 46)"] { color: #fff; }
+  .formation-mobile-shell [style*="color: rgb(160, 159, 152)"] { color: #57556b !important; }
+  .formation-mobile-shell [style*="color: rgb(156, 155, 147)"] { color: #57556b !important; }
+}
+@media (max-width: 420px) {
+  .formation-mobile-shell .container { padding-inline: 12px; }
+  .formation-mobile-shell [style*="padding: 20px 16px 120px"] { padding: 16px 12px 110px !important; }
+  .formation-mobile-shell [style*="padding: 16px 18px"] { padding: 14px 12px !important; }
+}
