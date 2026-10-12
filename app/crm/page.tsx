@@ -146,23 +146,32 @@ export default function CRMPage() {
   if(loading) return <div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh',color:'#888'}}>Chargement…</div>
 
   return (
-    <div style={{minHeight:'100vh',background:'#F7F7F7'}}>
+    <div className="crm-responsive-root" style={{minHeight:'100vh',background:'#F7F7F7'}}>
       <style>{`
         @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
         @keyframes popIn{0%{transform:scale(0.85);opacity:0}100%{transform:scale(1);opacity:1}}
+        .crm-responsive-root{min-width:0;overflow-x:clip}
+        .crm-responsive-root *{box-sizing:border-box}
+        @media(max-width:680px){
+          .crm-responsive-header{height:auto!important;min-height:56px;flex-wrap:wrap;gap:10px;padding:10px 0}
+          .crm-responsive-actions{width:100%;flex-wrap:wrap;gap:8px}
+          .crm-responsive-actions>a,.crm-responsive-actions>button{flex:1 1 130px;text-align:center;white-space:normal;min-height:40px}
+          .crm-responsive-grid{grid-template-columns:minmax(0,1fr)!important}
+          .crm-responsive-root input,.crm-responsive-root select,.crm-responsive-root textarea{max-width:100%}
+        }
         .crm-card{transition:all .2s;cursor:pointer}
         .crm-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.12)!important}
       `}</style>
 
       {/* HEADER */}
       <div style={{background:'white',borderBottom:'1px solid #E5E5E5',padding:'0 16px',position:'sticky',top:0,zIndex:30}}>
-        <div style={{maxWidth:900,margin:'0 auto',display:'flex',alignItems:'center',justifyContent:'space-between',height:56}}>
+        <div className="crm-responsive-header" style={{maxWidth:900,margin:'0 auto',display:'flex',alignItems:'center',justifyContent:'space-between',height:56}}>
           <div style={{display:'flex',alignItems:'center',gap:12}}>
             <Link href="/annuaire" style={{color:'#888',textDecoration:'none',fontSize:20}}>←</Link>
             <span style={{fontSize:20}}>🤝</span>
             <span style={{fontWeight:900,fontSize:17,color:'#1a1a2e'}}>CRM</span>
           </div>
-          <div style={{display:'flex',gap:8}}>
+          <div className="crm-responsive-actions" style={{display:'flex',gap:8}}>
             <Link href="/crm/evenements" style={{padding:'8px 14px',borderRadius:10,background:'#F0F0F4',color:'#1a1a2e',textDecoration:'none',fontWeight:600,fontSize:13}}>
               🗓 Événements
             </Link>
@@ -213,7 +222,7 @@ export default function CRMPage() {
         </div>
 
         {/* GRID */}
-        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill, minmax(260px, 1fr))',gap:14}}>
+        <div className="crm-responsive-grid" style={{display:'grid',gridTemplateColumns:'repeat(auto-fill, minmax(260px, 1fr))',gap:14}}>
           {filtered.map(client=>{
             const s=STATUS_COLORS[client.status]||STATUS_COLORS.prospect_chaud
             const sz=SIZES.find(x=>x.key===client.size)
