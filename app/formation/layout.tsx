@@ -1,5 +1,11 @@
-import './responsive.css'
-
+// Responsive styles are embedded to avoid a separate CSS file.
 export default function FormationLayout({ children }: { children: React.ReactNode }) {
-  return <div className="formation-mobile-shell">{children}</div>
+  return (
+    <>
+      <style dangerouslySetInnerHTML={{ __html: FORMATION_CSS }} />
+      <div className="formation-mobile-shell">{children}</div>
+    </>
+  )
 }
+
+const FORMATION_CSS = '/* Formation only: preserves the existing desktop visual identity. */\n.formation-mobile-shell { min-width: 0; width: 100%; }\n.formation-mobile-shell img, .formation-mobile-shell svg, .formation-mobile-shell video { max-width: 100%; }\n.formation-mobile-shell a, .formation-mobile-shell button { overflow-wrap: anywhere; }\n\n@media (max-width: 767px) {\n  .formation-mobile-shell { width: 100%; overflow-x: clip; color: #1a1a2e; }\n  .formation-mobile-shell .container { width: 100%; max-width: 100%; padding-inline: 16px; }\n  .formation-mobile-shell [style*="max-width: 700px"],\n  .formation-mobile-shell [style*="maxWidth: 700"] { max-width: 100% !important; }\n  .formation-mobile-shell [style*="grid-template-columns"] { min-width: 0; }\n  .formation-mobile-shell [style*="display: flex"] > *,\n  .formation-mobile-shell [style*="display: grid"] > * { min-width: 0; }\n  .formation-mobile-shell input, .formation-mobile-shell select,\n  .formation-mobile-shell textarea { max-width: 100%; min-width: 0; font-size: 16px; }\n  .formation-mobile-shell button, .formation-mobile-shell a.btn { min-height: 42px; }\n  .formation-mobile-shell [style*="position: fixed"] { max-width: 100vw; }\n  .formation-mobile-shell [style*="overflow-x: auto"] { -webkit-overflow-scrolling: touch; }\n  .formation-mobile-shell [style*="background: rgb(255, 255, 255)"],\n  .formation-mobile-shell [style*="background: white"] { color: #1a1a2e; }\n  .formation-mobile-shell [style*="background: rgb(26, 26, 46)"] { color: #fff; }\n  .formation-mobile-shell [style*="color: rgb(160, 159, 152)"] { color: #57556b !important; }\n  .formation-mobile-shell [style*="color: rgb(156, 155, 147)"] { color: #57556b !important; }\n}\n@media (max-width: 420px) {\n  .formation-mobile-shell .container { padding-inline: 12px; }\n  .formation-mobile-shell [style*="padding: 20px 16px 120px"] { padding: 16px 12px 110px !important; }\n  .formation-mobile-shell [style*="padding: 16px 18px"] { padding: 14px 12px !important; }\n}\n'
