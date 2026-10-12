@@ -100,8 +100,6 @@ function FranceMap({selected,counts,onSelect}:{selected:string|null;counts:Recor
           {REGIONS.map(r=><option key={r.id} value={r.id}>{r.nom} · {counts[r.id]||0} organisation(s)</option>)}
         </select>
       </div>
-
-
     </div>
   )
 }
@@ -139,7 +137,7 @@ export default function TDFPage() {
           supabase.from('animateurs').select('id,nom,photo_url,is_admin').eq('id',user.id).single(),
           supabase.from('animateurs').select('id,nom,photo_url,is_admin').order('nom'),
           supabase.from('tdf_animateurs').select('*,animateur:animateurs(id,nom,photo_url,is_admin)'),
-          supabase.from('tdf_organisations').select('*, referent:animateurs!tdf_organisations_referent_id_fkey(nom)').order('created_at',{ascending:false}),
+          supabase.from('tdf_organisations').select('*,referent:animateurs!referent_id(nom)').order('created_at',{ascending:false}),
           supabase.from('tdf_documents').select('*').order('created_at',{ascending:false}),
         ])
         if(e2?.code==='42P01'||e3?.code==='42P01'){setError('Tables manquantes. Exécutez SQL_TDF.sql dans Supabase.');setLoading(false);return}
@@ -188,7 +186,7 @@ export default function TDFPage() {
       statut:'prospect',
       prospection_active:false,
     }
-    const {data,error}=await supabase.from('tdf_organisations').insert(payload).select('*,referent:animateurs(nom)').single()
+    const {data,error}=await supabase.from('tdf_organisations').insert(payload).select('*,referent:animateurs!referent_id(nom)').single()
     if(error){
       alert('Erreur lors de l\'ajout : '+error.message)
       console.error('addOrg error:',error)
@@ -508,7 +506,7 @@ export default function TDFPage() {
             </div>
           </div>
         )}
-      </div>
+
       {/* ── Popup Accepté ── */}
       {acceptePopup&&(
         <div style={{position:'fixed',inset:0,zIndex:500,background:'rgba(0,0,0,0.55)',display:'flex',alignItems:'center',justifyContent:'center',padding:20}}>
@@ -536,6 +534,8 @@ export default function TDFPage() {
           </div>
         </div>
       )}
+
+      </div>
     </div>
   )
 }
