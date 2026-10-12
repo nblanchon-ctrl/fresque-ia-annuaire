@@ -38,7 +38,6 @@ const REG: Record<string,{d:string;cx:number;cy:number;lines:string[]}> = {"idf"
   "guy":{"d":"M 138,562 L 185,562 L 185,588 L 138,588 Z","cx":161,"cy":578,"lines":["Guyane"]},
   "reu":{"d":"M 193,562 L 237,562 L 237,588 L 193,588 Z","cx":215,"cy":578,"lines":["La Réunion"]},
   "may":{"d":"M 245,562 L 280,562 L 280,588 L 245,588 Z","cx":262,"cy":578,"lines":["Mayotte"]}}
-
 function FranceMap({selected,counts,onSelect}:{selected:string|null;counts:Record<string,number>;onSelect:(id:string)=>void}) {
   const [hovered,setHovered] = useState<string|null>(null)
   const uid = React.useId().replace(/:/g,'')
