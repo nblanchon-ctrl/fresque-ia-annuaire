@@ -53,14 +53,14 @@ function FranceMap({selected,counts,onSelect}:{selected:string|null;counts:Recor
         .tdf-map select:focus-visible { outline:3px solid #A5B4FC;outline-offset:3px; }
         @media(prefers-reduced-motion:reduce){.tdf-map .region-shape{transition:none;}}
       `}</style>
-      <div style={{padding:'22px 24px 0'}}>
+      <div style={{padding:'14px 20px 0'}}>
         <div style={{fontSize:10,fontWeight:800,letterSpacing:2,color:'#6366F1',textTransform:'uppercase'}}>Le Tour de France · 2027</div>
-        <div style={{fontSize:21,fontWeight:800,color:'#1E293B',marginTop:6}}>À chaque région, son équipe</div>
+        <div style={{fontSize:19,fontWeight:800,color:'#1E293B',marginTop:6}}>À chaque région, son équipe</div>
         <div style={{fontSize:12,color:'#64748B',marginTop:7,lineHeight:1.6}}>Explorez les territoires et coordonnez la prospection.</div>
       </div>
-      <svg viewBox="0 0 660 640" preserveAspectRatio="xMidYMid meet" role="group" aria-labelledby={`${uid}-title ${uid}-desc`} style={{display:'block',width:'100%',height:'auto'}}>
-        <title id={`${uid}-title`}>Carte des 13 régions métropolitaines et des 5 régions ultramarines</title>
-        <desc id={`${uid}-desc`}>Sélectionnez une région au clic ou avec Tab puis Entrée. Les cinq régions d’outre-mer sont accessibles dans un encart en bas de carte. Les badges indiquent le nombre d’organisations.</desc>
+      <svg viewBox="0 0 660 580" preserveAspectRatio="xMidYMid meet" role="group" aria-labelledby={`${uid}-title ${uid}-desc`} style={{display:'block',width:'100%',height:'auto',maxHeight:'min(54dvh, 510px)',objectFit:'contain',margin:'0 auto'}}>
+        <title id={`${uid}-title`}>Carte des 13 régions métropolitaines, avec accès aux 5 régions ultramarines sous la carte</title>
+        <desc id={`${uid}-desc`}>Sélectionnez une région au clic ou avec Tab puis Entrée. Les cinq régions d’outre-mer sont accessibles par des boutons sous la carte. Les badges indiquent le nombre d’organisations.</desc>
         <defs>
           <radialGradient id={`${uid}-sea`}><stop stopColor="#F1F5FC"/><stop offset="1" stopColor="#FFFFFF"/></radialGradient>
           <linearGradient id={`${uid}-selected`} x1="0" y1="0" x2="1" y2="1"><stop stopColor="#6366F1"/><stop offset="1" stopColor="#4338CA"/></linearGradient>
@@ -91,32 +91,25 @@ function FranceMap({selected,counts,onSelect}:{selected:string|null;counts:Recor
           </g>
         })}
 
-        {/* ── DOM-TOM insets ── */}
-        <g>
-          <rect x="10" y="555" width="310" height="70" rx="8" fill="rgba(240,244,252,0.95)" stroke="#C5D0E8" strokeWidth="1"/>
-          <text x="22" y="570" fontSize="8" fill="#7B93C5" fontWeight="700" letterSpacing="1.2">OUTRE-MER</text>
-          <line x1="10" y1="576" x2="320" y2="576" stroke="#C5D0E8" strokeWidth="0.6"/>
-          {[
-            {id:'gua',label:'Guadeloupe',x:14},
-            {id:'mar',label:'Martinique', x:70},
-            {id:'guy',label:'Guyane',     x:128},
-            {id:'reu',label:'Réunion',    x:178},
-            {id:'may',label:'Mayotte',    x:234},
-          ].map(({id,label,x})=>{
-            const sel=selected===id; const hov=hovered===id; const n=counts[id]||0
-            return (
-              <g key={id} onClick={()=>onSelect(id)} onMouseEnter={()=>setHovered(id)} onMouseLeave={()=>setHovered(null)} style={{cursor:'pointer'}}>
-                <rect x={x} y={583} width={54} height={30} rx="5"
-                  fill={sel?'#4338CA':hov?'#818CF8':'white'}
-                  stroke={sel?'#312E81':hov?'#4338CA':'#C5D0E8'}
-                  strokeWidth={sel?1.8:1} style={{transition:'all .15s'}}/>
-                {n>0&&<g><circle cx={x+46} cy={586} r="6" fill={sel?'white':'#4338CA'}/><text x={x+46} y={589} textAnchor="middle" fontSize="7" fill={sel?'#4338CA':'white'} fontWeight="800">{n}</text></g>}
-                <text x={x+27} y={601} textAnchor="middle" fontSize="7.5" fill={sel?'white':hov?'white':'#1E3356'} fontWeight={sel||hov?700:500} style={{pointerEvents:'none',userSelect:'none'}}>{label}</text>
-              </g>
-            )
-          })}
-        </g>
       </svg>
+      <div style={{padding:'8px 14px 12px'}}>
+        <div style={{fontSize:10,fontWeight:800,color:'#64748B',letterSpacing:1,marginBottom:8}}>OUTRE-MER · 5 RÉGIONS</div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(5,minmax(0,1fr))',gap:5}}>
+          {[
+            {id:'gua',label:'Guadeloupe'}, {id:'mar',label:'Martinique'},
+            {id:'guy',label:'Guyane'}, {id:'reu',label:'La Réunion'}, {id:'may',label:'Mayotte'}
+          ].map(({id,label})=><button key={id} type="button" onClick={()=>onSelect(id)}
+            onMouseEnter={()=>setHovered(id)} onMouseLeave={()=>setHovered(null)}
+            onFocus={()=>setHovered(id)} onBlur={()=>setHovered(null)}
+            aria-pressed={selected===id} title={`${label} · ${countText(id)}`}
+            style={{minWidth:0,minHeight:48,padding:'7px 2px',borderRadius:9,cursor:'pointer',
+              border:`1px solid ${selected===id?'#4338CA':'#C5D0E8'}`,
+              background:selected===id?'#4338CA':hovered===id?'#E0E7FF':'#F8FAFC',
+              color:selected===id?'white':'#334155',fontSize:9,fontWeight:700,overflowWrap:'anywhere'}}>
+            {label}<span style={{display:'block',fontSize:10,marginTop:3}}>{counts[id]||0}</span>
+          </button>)}
+        </div>
+      </div>
       <div style={{margin:'0 20px',padding:'12px 14px',background:'#F8FAFC',border:'1px solid #E8EDF4',borderRadius:12,display:'flex',justifyContent:'space-between',alignItems:'center',gap:10,minHeight:44}} aria-live="polite" aria-atomic="true">
         <span style={{fontSize:12,fontWeight:700,color:'#334155'}}>{active?name(active):'Choisissez votre région'}</span>
         <span style={{fontSize:11,color:'#64748B',whiteSpace:'nowrap'}}>{active?countText(active):'18 régions'}</span>
