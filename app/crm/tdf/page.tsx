@@ -276,7 +276,15 @@ export default function TDFPage() {
 
   return(
     <div style={{minHeight:'100vh',background:'#F1F5FB'}}>
-      <style>{`.ttab{padding:9px 14px;border:none;background:none;cursor:pointer;font-weight:600;font-size:13px;border-bottom:2.5px solid transparent;color:#888;transition:all .15s}.ttab.act{border-bottom-color:#4338CA;color:#4338CA}@keyframes slIn{from{transform:translateX(30px);opacity:0}to{transform:translateX(0);opacity:1}}`}</style>
+      <style>{`
+      @media(max-width:760px){
+        .tdf-responsive-layout{display:flex!important;flex-direction:column!important;height:auto!important;min-height:0!important;overflow:visible!important}
+        .tdf-responsive-map-pane{width:100%!important;max-width:100%!important;padding:14px 12px!important;overflow:visible!important;box-sizing:border-box!important}
+        .tdf-responsive-detail-pane{width:100%!important;min-width:0!important;border-left:0!important;border-top:1px solid #E8EDF8!important;min-height:420px!important;overflow:visible!important}
+        .tdf-responsive-detail-pane input,.tdf-responsive-detail-pane select,.tdf-responsive-detail-pane textarea{max-width:100%;box-sizing:border-box}
+        .tdf-map{max-width:100%!important}
+      }
+      .ttab{padding:9px 14px;border:none;background:none;cursor:pointer;font-weight:600;font-size:13px;border-bottom:2.5px solid transparent;color:#888;transition:all .15s}.ttab.act{border-bottom-color:#4338CA;color:#4338CA}@keyframes slIn{from{transform:translateX(30px);opacity:0}to{transform:translateX(0);opacity:1}}`}</style>
 
       {/* Header */}
       <div style={{background:'white',borderBottom:'1px solid #E5E5E5',padding:'14px 24px',display:'flex',alignItems:'center',gap:14,position:'sticky',top:0,zIndex:30,boxShadow:'0 1px 6px rgba(67,56,202,0.08)'}}>
@@ -300,9 +308,9 @@ export default function TDFPage() {
         </div>
       </div>
 
-      <div style={{display:'flex',height:selected?'calc(100vh - 65px)':'auto',minHeight:'calc(100vh - 65px)',overflow:selected?'hidden':'visible'}}>
+      <div className="tdf-responsive-layout" style={{display:'flex',height:selected?'calc(100vh - 65px)':'auto',minHeight:'calc(100vh - 65px)',overflow:selected?'hidden':'visible'}}>
         {/* Colonne carte */}
-        <div style={{width:selected?460:'100%',transition:'width .3s',padding:'20px 24px',overflowY:selected?'auto':'visible',minWidth:0,display:'flex',flexDirection:'column',alignItems:'center',gap:16}}>
+        <div className="tdf-responsive-map-pane" style={{width:selected?460:'100%',transition:'width .3s',padding:'20px 24px',overflowY:selected?'auto':'visible',minWidth:0,display:'flex',flexDirection:'column',alignItems:'center',gap:16}}>
           <FranceMap selected={selected} counts={orgCounts} onSelect={id=>{ setSelected(s=>s===id?null:id); setTab('equipe'); setExpandedOrg(null) }}/>
           {!selected&&(
             <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10,width:'100%',maxWidth:460}}>
@@ -319,7 +327,7 @@ export default function TDFPage() {
 
         {/* Panneau région */}
         {selected&&reg&&(
-          <div style={{flex:1,background:'white',borderLeft:'1px solid #E8EDF8',display:'flex',flexDirection:'column',animation:'slIn .2s ease',minWidth:0,boxShadow:'-4px 0 16px rgba(67,56,202,0.06)'}}>
+          <div className="tdf-responsive-detail-pane" style={{flex:1,background:'white',borderLeft:'1px solid #E8EDF8',display:'flex',flexDirection:'column',animation:'slIn .2s ease',minWidth:0,boxShadow:'-4px 0 16px rgba(67,56,202,0.06)'}}>
             <div style={{padding:'14px 20px 0',borderBottom:'1px solid #E8EDF8',flexShrink:0}}>
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
                 <div>
