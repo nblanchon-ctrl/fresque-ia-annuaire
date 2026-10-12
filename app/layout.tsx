@@ -1,4 +1,3 @@
-'use client'
 import './globals.css'
 import { LanguageProvider } from '@/lib/i18n'
 import { PWARegister, PWAInstallBanner } from '@/app/components/PWARegister'
@@ -28,9 +27,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <LanguageProvider>
           {children}
-          <PWARegister />
-          <PWAInstallBanner />
         </LanguageProvider>
+        <PWARegister />
+        <PWAInstallBanner />
       </body>
     </html>
   )
