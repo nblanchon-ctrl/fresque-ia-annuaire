@@ -161,7 +161,7 @@ export default function TDFPage() {
       try{
         const {data:{user}}=await supabase.auth.getUser()
         if(!user){window.location.href='/crm';return}
-        const [{data:meData},{data:tdfData,error:e2},{data:orgData,error:e3},{data:docData}]=await Promise.all([
+        const [{data:meData},{data:allAnimData},{data:tdfData,error:e2},{data:orgData,error:e3},{data:docData}]=await Promise.all([
           supabase.from('animateurs').select('id,nom,photo_url,is_admin').eq('id',user.id).single(),
           supabase.from('animateurs').select('id,nom,photo_url,is_admin').order('nom'),
           supabase.from('tdf_animateurs').select('*,animateur:animateurs(id,nom,photo_url,is_admin)'),
@@ -172,6 +172,7 @@ export default function TDFPage() {
         if(e2)console.warn('tdf_animateurs:',e2.message)
         if(e3)console.warn('tdf_organisations:',e3.message)
         setMe(meData)
+        setAllAnims(allAnimData||[])
         setTdfAnims((tdfData as TdfAnim[])||[])
         setOrgs((orgData as Org[])||[])
         setDocs(docData||[])
