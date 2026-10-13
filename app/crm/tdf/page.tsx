@@ -1,6 +1,7 @@
 'use client'
 import React, { useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase'
+import EditorialPlanning from './EditorialPlanning'
 
 type Region = { id: string; nom: string }
 type AnimateurLight = { id: string; nom: string; photo_url: string | null; is_admin: boolean }
@@ -139,6 +140,7 @@ export default function TDFPage() {
   const [etapes,setEtapes]=useState<Etape[]>([])
   const [docs,setDocs]=useState<Doc[]>([])
   const [selected,setSelected]=useState<string|null>(null)
+  const [editorialOpen,setEditorialOpen]=useState(false)
   const [tab,setTab]=useState<'equipe'|'crm'|'docs'>('equipe')
   const [loading,setLoading]=useState(true)
   const [error,setError]=useState<string|null>(null)
@@ -275,8 +277,43 @@ export default function TDFPage() {
   if(error)return<div className="container"><div className="card" style={{background:'#FFDFE0',border:'1.5px solid #FF4B4B',marginTop:24}}><div style={{fontWeight:700,color:'#CC0000',marginBottom:8}}>⚠️ {error}</div></div><a href="/crm" className="btn" style={{marginTop:16,display:'inline-flex'}}>← Retour</a></div>
 
   return(
-    <div style={{minHeight:'100vh',background:'#F1F5FB'}}>
+    <div className="tdf-page-root" style={{minHeight:'100vh',background:'#F1F5FB'}}>
       <style>{`
+
+      .tdf-page-root{min-width:0;overflow-x:clip}
+      .tdf-page-root *{box-sizing:border-box}
+      .tdf-responsive-detail-pane{min-width:0}
+      .tdf-detail-content{min-width:0}
+      .tdf-prospect-card{min-width:0;width:100%}
+      .tdf-prospect-card select{max-width:100%;min-width:125px}
+      .tdf-prospect-top{flex-wrap:wrap;min-width:0}
+      .tdf-prospect-top>div:first-child{flex:1 1 240px;overflow-wrap:break-word}
+      .tdf-prospect-actions{flex-wrap:wrap}
+      .tdf-tabs{gap:5px;flex-wrap:wrap;align-items:stretch}
+      .ttab{white-space:normal;line-height:1.3;min-height:40px;border-radius:9px 9px 0 0;flex:1 1 130px;text-align:center}
+      @media(min-width:1101px){
+        .tdf-responsive-map-pane{flex:0 0 320px!important;width:320px!important}
+        .tdf-responsive-layout:not(:has(.tdf-responsive-detail-pane)) .tdf-responsive-map-pane{width:100%!important;flex:1 1 auto!important}
+        .tdf-responsive-detail-pane{flex:1 1 0!important;min-width:0!important}
+      }
+      @media(max-width:1100px){
+        .tdf-responsive-layout{display:flex!important;flex-direction:column!important;height:auto!important;min-height:0!important;overflow:visible!important}
+        .tdf-responsive-map-pane{width:100%!important;max-width:100%!important;overflow:visible!important;flex:0 0 auto!important;padding:18px!important}
+        .tdf-responsive-detail-pane{width:100%!important;min-width:0!important;border-left:0!important;border-top:1px solid #E8EDF8!important;min-height:420px!important;overflow:visible!important}
+        .tdf-detail-content{overflow:visible!important}
+        .tdf-map{max-width:560px!important}
+      }
+      @media(max-width:600px){
+        .tdf-header{padding:12px!important;flex-wrap:wrap!important;gap:8px!important}
+        .tdf-header-actions{width:100%;justify-content:space-between;flex-wrap:wrap;gap:8px!important}
+        .tdf-responsive-map-pane{padding:12px!important}
+        .tdf-detail-content{padding:12px!important}
+        .tdf-prospect-top{display:flex!important;flex-direction:column;align-items:stretch!important}
+        .tdf-prospect-top>div:first-child{flex-basis:auto;width:100%}
+        .tdf-prospect-top select{width:100%;min-width:0}
+        .tdf-prospect-actions button{min-height:36px;white-space:normal}
+        .ttab{flex:1 1 100px;font-size:12px;padding:10px 6px}
+      }
       @media(max-width:760px){
         .tdf-responsive-layout{display:flex!important;flex-direction:column!important;height:auto!important;min-height:0!important;overflow:visible!important}
         .tdf-responsive-map-pane{width:100%!important;max-width:100%!important;padding:14px 12px!important;overflow:visible!important;box-sizing:border-box!important}
@@ -287,13 +324,13 @@ export default function TDFPage() {
       .ttab{padding:9px 14px;border:none;background:none;cursor:pointer;font-weight:600;font-size:13px;border-bottom:2.5px solid transparent;color:#888;transition:all .15s}.ttab.act{border-bottom-color:#4338CA;color:#4338CA}@keyframes slIn{from{transform:translateX(30px);opacity:0}to{transform:translateX(0);opacity:1}}`}</style>
 
       {/* Header */}
-      <div style={{background:'white',borderBottom:'1px solid #E5E5E5',padding:'14px 24px',display:'flex',alignItems:'center',gap:14,position:'sticky',top:0,zIndex:30,boxShadow:'0 1px 6px rgba(67,56,202,0.08)'}}>
+      <div className="tdf-header" style={{background:'white',borderBottom:'1px solid #E5E5E5',padding:'14px 24px',display:'flex',alignItems:'center',gap:14,position:'sticky',top:0,zIndex:30,boxShadow:'0 1px 6px rgba(67,56,202,0.08)'}}>
         <a href="/crm" style={{color:'#888',fontSize:18,textDecoration:'none',fontWeight:700}}>←</a>
         <div style={{flex:1}}>
           <div style={{fontWeight:800,fontSize:17,color:'#1a1a2e'}}>🗺️ Tour de France — Fresque de l'IA</div>
           <div style={{fontSize:11,color:'#888',marginTop:1}}>Cliquez sur une région pour gérer l'équipe et la prospection</div>
         </div>
-        <div style={{display:'flex',gap:14,alignItems:'center'}}>
+        <div className="tdf-header-actions" style={{display:'flex',gap:14,alignItems:'center'}}>
           <div style={{display:'flex',gap:10,fontSize:12}}>
             <span style={{fontWeight:700,color:'#4338CA'}}>👥 {tdfAnims.length}</span>
             <span style={{fontWeight:700,color:'#1E3A5F'}}>🏢 {orgs.length}</span>
@@ -308,9 +345,11 @@ export default function TDFPage() {
         </div>
       </div>
 
+      {!selected&&<div style={{display:'flex',justifyContent:'center',padding:'15px 14px 0'}}><button onClick={()=>setEditorialOpen(v=>!v)} style={{background:editorialOpen?'#eef0ff':'#4338CA',color:editorialOpen?'#4338CA':'white',border:'1px solid #4338CA',borderRadius:12,padding:'12px 20px',fontWeight:800,fontSize:14,cursor:'pointer',boxShadow:'0 3px 12px #4338ca22'}}>📅 {editorialOpen?'Retour à la carte':'Planning éditorial'}</button></div>}
+      {editorialOpen ? <EditorialPlanning onBack={()=>setEditorialOpen(false)}/> : <>
       <div className="tdf-responsive-layout" style={{display:'flex',height:selected?'calc(100vh - 65px)':'auto',minHeight:'calc(100vh - 65px)',overflow:selected?'hidden':'visible'}}>
         {/* Colonne carte */}
-        <div className="tdf-responsive-map-pane" style={{width:selected?460:'100%',transition:'width .3s',padding:'20px 24px',overflowY:selected?'auto':'visible',minWidth:0,display:'flex',flexDirection:'column',alignItems:'center',gap:16}}>
+        <div className="tdf-responsive-map-pane" style={{width:selected?320:'100%',transition:'width .3s',padding:'20px 24px',overflowY:selected?'auto':'visible',minWidth:0,display:'flex',flexDirection:'column',alignItems:'center',gap:16}}>
           <FranceMap selected={selected} counts={orgCounts} onSelect={id=>{ setSelected(s=>s===id?null:id); setTab('equipe'); setExpandedOrg(null) }}/>
           {!selected&&(
             <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10,width:'100%',maxWidth:460}}>
@@ -336,7 +375,7 @@ export default function TDFPage() {
                 </div>
                 <button onClick={()=>setSelected(null)} style={{background:'none',border:'none',fontSize:22,color:'#888',cursor:'pointer'}}>×</button>
               </div>
-              <div style={{display:'flex'}}>
+              <div className="tdf-tabs" style={{display:'flex'}}>
                 {(['equipe','crm','docs'] as const).map(t=>(
                   <button key={t} className={`ttab${tab===t?' act':''}`} onClick={()=>setTab(t)}>
                     {t==='equipe'?`👥 Équipe (${regAnims.length})`:t==='crm'?`🏢 Prospection (${regOrgs.length})`:`📄 Docs (${regDocs.length})`}
@@ -345,7 +384,7 @@ export default function TDFPage() {
               </div>
             </div>
 
-            <div style={{flex:1,overflowY:'auto',padding:'16px 20px'}}>
+            <div className="tdf-detail-content" style={{flex:1,overflowY:'auto',padding:'16px 20px'}}>
 
               {tab==='equipe'&&(
                 <div>
@@ -432,9 +471,9 @@ export default function TDFPage() {
                     const orgEtapes=etapes.filter(e=>e.organisation_id===org.id).sort((a,b)=>a.etape-b.etape)
                     const isExp=expandedOrg===org.id
                     return(
-                      <div key={org.id} style={{borderRadius:14,border:`1.5px solid ${st.border}`,background:'white',overflow:'hidden',marginBottom:10}}>
+                      <div key={org.id} className="tdf-prospect-card" style={{borderRadius:14,border:`1.5px solid ${st.border}`,background:'white',overflow:'hidden',marginBottom:10}}>
                         <div style={{padding:'12px 14px'}}>
-                          <div style={{display:'flex',gap:8,justifyContent:'space-between',alignItems:'flex-start'}}>
+                          <div className="tdf-prospect-top" style={{display:'flex',gap:8,justifyContent:'space-between',alignItems:'flex-start'}}>
                             <div style={{flex:1,minWidth:0}}>
                               <div style={{fontWeight:700,fontSize:14}}>{org.nom}</div>
                               <div style={{display:'flex',gap:5,flexWrap:'wrap' as const,marginTop:4}}>
@@ -448,7 +487,7 @@ export default function TDFPage() {
                             </select>
                               {STATUTS[org.statut]?.next&&<button onClick={()=>changeStatut(org,STATUTS[org.statut].next!)} style={{marginTop:'4px',padding:'2px 10px',borderRadius:'20px',border:'none',background:'#4338CA',color:'white',fontSize:'10px',fontWeight:700,cursor:'pointer',display:'block',width:'100%'}}>Avancer →</button>}
                           </div>
-                          <div style={{marginTop:10,display:'flex',gap:8}}>
+                          <div className="tdf-prospect-actions" style={{marginTop:10,display:'flex',gap:8}}>
                             {!org.prospection_active?(
                               <button onClick={()=>startProspection(org)} style={{padding:'6px 12px',background:'#58CC02',color:'white',border:'none',borderRadius:8,fontWeight:700,fontSize:11,cursor:'pointer'}}>🚀 Lancer la prospection</button>
                             ):(
@@ -524,6 +563,7 @@ export default function TDFPage() {
       </div>
 
       {/* ── Popup Accepté ── */}
+      </>
       {acceptePopup&&(
         <div style={{position:'fixed',inset:0,zIndex:500,background:'rgba(0,0,0,0.55)',display:'flex',alignItems:'center',justifyContent:'center',padding:'20px'}}>
           <div style={{background:'white',borderRadius:'20px',padding:'28px 24px',maxWidth:'420px',width:'100%',boxShadow:'0 20px 60px rgba(0,0,0,0.25)'}}>
