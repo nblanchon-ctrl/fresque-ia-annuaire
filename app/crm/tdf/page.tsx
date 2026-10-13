@@ -245,26 +245,37 @@ export default function TDFPage() {
     setOrgs(prev=>prev.filter(o=>o.id!==org.id))
   }
   const uploadDoc=async(file:File,isGlobal:boolean)=>{
-    if(!me)return
+    if(!me || docUploading)return
+    const maxBytes=25*1024*1024
+    if(file.size>maxBytes){alert('Fichier trop volumineux : 25 Mo maximum.');return}
+    if(file.size===0){alert('Le fichier est vide.');return}
+    if(!isGlobal&&!selected){alert('Sélectionnez une région avant d’ajouter un document.');return}
     setDocUploading(true)
+    let uploadedPath:string|null=null
     try {
-      const path=`${isGlobal?'global':selected||'global'}/${Date.now()}_${file.name}`
-      const {data:up,error:upErr}=await supabase.storage.from('tdf-docs').upload(path,file,{upsert:true})
-      let fileUrl=''
-      if(!upErr&&up){
-        const {data:urlData}=supabase.storage.from('tdf-docs').getPublicUrl(path)
-        fileUrl=urlData.publicUrl
-      } else if(upErr){ console.warn('Storage:',upErr.message) }
+      const safeName=file.name.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9._-]/g,'_').slice(-120)
+      const path=`${isGlobal?'global':selected}/${Date.now()}_${Math.random().toString(36).slice(2,9)}_${safeName}`
+      const {error:upErr}=await supabase.storage.from('tdf-docs').upload(path,file,{upsert:false,contentType:file.type||'application/octet-stream'})
+      if(upErr)throw new Error('Envoi du fichier impossible : '+upErr.message+' (vérifiez le bucket tdf-docs et ses autorisations Storage).')
+      uploadedPath=path
+      const {data:urlData}=supabase.storage.from('tdf-docs').getPublicUrl(path)
+      if(!urlData?.publicUrl)throw new Error('Impossible de récupérer le lien du document.')
       const {data:doc,error:dbErr}=await supabase.from('tdf_documents').insert({
         region_id:isGlobal?null:selected, nom:file.name.replace(/\.[^.]+$/,''),
-        file_url:fileUrl, file_name:file.name, is_global:isGlobal, uploaded_by:me.id
+        file_url:urlData.publicUrl, file_name:file.name, is_global:isGlobal, uploaded_by:me.id
       }).select().single()
-      if(dbErr){ alert('Erreur ajout document : '+dbErr.message) }
-      else if(doc){ setDocs(prev=>[doc,...prev]) }
-    } catch(err){ alert('Erreur : '+String(err)) }
-    setDocUploading(false)
-    if(fileRef.current)fileRef.current.value=''
-    if(fileGlobalRef.current)fileGlobalRef.current.value=''
+      if(dbErr)throw new Error('Fichier envoyé mais enregistrement impossible : '+dbErr.message)
+      if(!doc)throw new Error('Enregistrement du document non confirmé.')
+      setDocs(prev=>[doc,...prev])
+      uploadedPath=null
+    } catch(err){
+      if(uploadedPath)await supabase.storage.from('tdf-docs').remove([uploadedPath])
+      alert(err instanceof Error?err.message:String(err))
+    } finally {
+      setDocUploading(false)
+      if(fileRef.current)fileRef.current.value=''
+      if(fileGlobalRef.current)fileGlobalRef.current.value=''
+    }
   }
   const deleteDoc=async(doc:Doc)=>{
     if(!confirm(`Supprimer "${doc.nom}" ?`))return
@@ -338,8 +349,8 @@ export default function TDFPage() {
           </div>
           {me?.is_admin&&(
             <label style={{display:'flex',gap:6,padding:'6px 14px',background:'#4338CA',color:'white',borderRadius:8,fontSize:12,fontWeight:700,cursor:'pointer',alignItems:'center'}}>
-              {docUploading?'⏳':'+ Doc global'}
-              <input ref={fileGlobalRef} type="file" style={{display:'none'}} onChange={e=>{if(e.target.files?.[0])uploadDoc(e.target.files[0],true)}}/>
+              {docUploading?'⏳ Envoi en cours...':'+ Doc global'}
+              <input ref={fileGlobalRef} type="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip" style={{display:'none'}} onChange={e=>{if(e.target.files?.[0])uploadDoc(e.target.files[0],true)}}/>
             </label>
           )}
         </div>
@@ -540,20 +551,20 @@ export default function TDFPage() {
                 <div>
                   {(isMember||me?.is_admin)&&(
                     <label style={{display:'flex',alignItems:'center',justifyContent:'center',padding:'10px',background:'#F0F1FF',border:'1.5px dashed #A5B4FC',borderRadius:12,textAlign:'center' as const,cursor:'pointer',marginBottom:14,fontSize:13,color:'#4338CA',fontWeight:700,gap:6}}>
-                      {docUploading?'⏳ Upload...':'+ Document pour cette région'}
-                      <input ref={fileRef} type="file" style={{display:'none'}} onChange={e=>{if(e.target.files?.[0])uploadDoc(e.target.files[0],false)}}/>
+                      {docUploading?'⏳ Envoi en cours...':'+ Document pour cette région'}
+                      <input ref={fileRef} type="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip" style={{display:'none'}} onChange={e=>{if(e.target.files?.[0])uploadDoc(e.target.files[0],false)}}/>
                     </label>
                   )}
                   {regDocs.length===0?<div style={{textAlign:'center',color:'#888',fontSize:13,padding:24}}>Aucun document</div>:
                   regDocs.map(doc=>(
                     <div key={doc.id} style={{display:'flex',gap:10,alignItems:'center',padding:'10px 12px',background:'#F8F8F8',borderRadius:12,border:'0.5px solid #E5E5E5',marginBottom:8}}>
-                      <span style={{fontSize:22,flexShrink:0}}>{/\.pdf$/i.test(doc.file_name)?'📄':/\.(doc|docx)$/i.test(doc.file_name)?'📝':/\.(xls|xlsx)$/i.test(doc.file_name)?'📊':'📁'}</span>
+                      {doc.file_url && /\.(png|jpe?g|gif|webp)$/i.test(doc.file_name) ? <img src={doc.file_url} alt={doc.nom} style={{width:54,height:54,objectFit:'cover',borderRadius:8,flexShrink:0}}/> : <span style={{fontSize:22,flexShrink:0}}>{/\.(png|jpe?g|gif|webp|svg)$/i.test(doc.file_name)?'🖼️':/\.pdf$/i.test(doc.file_name)?'📄':/\.(doc|docx)$/i.test(doc.file_name)?'📝':/\.(xls|xlsx|csv)$/i.test(doc.file_name)?'📊':'📁'}</span>}
                       <div style={{flex:1,minWidth:0}}>
                         <div style={{fontWeight:600,fontSize:13,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' as const}}>{doc.nom}</div>
                         <div style={{fontSize:10,color:'#888'}}>{doc.is_global?'🌍 Global':'📍 Région'} · {new Date(doc.created_at).toLocaleDateString('fr-FR')}</div>
                       </div>
                       <div style={{display:'flex',gap:6,flexShrink:0}}>
-                        <a href={doc.file_url} target="_blank" rel="noopener noreferrer" style={{padding:'5px 10px',background:'#4338CA',color:'white',borderRadius:6,fontSize:11,fontWeight:700,textDecoration:'none'}}>Ouvrir</a>
+                        <a href={doc.file_url || undefined} target="_blank" rel="noopener noreferrer" style={{padding:'5px 10px',background:'#4338CA',color:'white',borderRadius:6,fontSize:11,fontWeight:700,textDecoration:'none'}}>Ouvrir</a>
                         {(me?.is_admin||doc.uploaded_by===me?.id)&&<button onClick={()=>deleteDoc(doc)} style={{padding:'5px 8px',background:'none',border:'1px solid #FFDFE0',color:'#CC0000',borderRadius:6,fontSize:11,cursor:'pointer'}}>×</button>}
                       </div>
                     </div>
