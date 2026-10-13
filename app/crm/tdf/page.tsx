@@ -346,7 +346,10 @@ export default function TDFPage() {
       </div>
 
       {!selected&&<div style={{display:'flex',justifyContent:'center',padding:'15px 14px 0'}}><button onClick={()=>setEditorialOpen(v=>!v)} style={{background:editorialOpen?'#eef0ff':'#4338CA',color:editorialOpen?'#4338CA':'white',border:'1px solid #4338CA',borderRadius:12,padding:'12px 20px',fontWeight:800,fontSize:14,cursor:'pointer',boxShadow:'0 3px 12px #4338ca22'}}>📅 {editorialOpen?'Retour à la carte':'Planning éditorial'}</button></div>}
-      {editorialOpen ? <EditorialPlanning onBack={()=>setEditorialOpen(false)}/> : <>
+      {editorialOpen ? (
+        <EditorialPlanning onBack={()=>setEditorialOpen(false)} />
+      ) : (
+        <React.Fragment>
       <div className="tdf-responsive-layout" style={{display:'flex',height:selected?'calc(100vh - 65px)':'auto',minHeight:'calc(100vh - 65px)',overflow:selected?'hidden':'visible'}}>
         {/* Colonne carte */}
         <div className="tdf-responsive-map-pane" style={{width:selected?320:'100%',transition:'width .3s',padding:'20px 24px',overflowY:selected?'auto':'visible',minWidth:0,display:'flex',flexDirection:'column',alignItems:'center',gap:16}}>
@@ -563,7 +566,8 @@ export default function TDFPage() {
       </div>
 
       {/* ── Popup Accepté ── */}
-      </>
+        </React.Fragment>
+      )}
       {acceptePopup&&(
         <div style={{position:'fixed',inset:0,zIndex:500,background:'rgba(0,0,0,0.55)',display:'flex',alignItems:'center',justifyContent:'center',padding:'20px'}}>
           <div style={{background:'white',borderRadius:'20px',padding:'28px 24px',maxWidth:'420px',width:'100%',boxShadow:'0 20px 60px rgba(0,0,0,0.25)'}}>
