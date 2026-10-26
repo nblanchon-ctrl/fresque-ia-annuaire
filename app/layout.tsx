@@ -1,6 +1,7 @@
 'use client'
 import './globals.css'
 import { LanguageProvider } from '@/lib/i18n'
+import HelpTour from './components/HelpTour'
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -46,6 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         `}} />
         <LanguageProvider>
           {children}
+          <HelpTour />
         </LanguageProvider>
       </body>
     </html>
