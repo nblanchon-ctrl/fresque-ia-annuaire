@@ -445,7 +445,7 @@ export default function TDFPage() {
                   {showOrgForm&&(
                     <div style={{background:'#F8F9FF',borderRadius:14,padding:16,border:'1.5px solid #C7D2FE',marginBottom:14,width:'100%',minWidth:0,boxSizing:'border-box'}}>
                       <div style={{fontWeight:800,fontSize:14,color:'#1E1B4B',marginBottom:5}}>Nouvelle organisation</div>
-                      <div style={{fontSize:12,color:'#475569',marginBottom:14,lineHeight:1.5}}>Renseignez les informations de l'organisation à prospecter dans cette région.</div>
+                      <div style={{fontSize:12,color:'#475569',marginBottom:14,lineHeight:1.5}}>Renseignez les informations de l'organisation à prospecter dans cette région.</div><div style={{fontSize:12,padding:12,background:"#FFF7ED",borderRadius:8,marginBottom:12}}><strong>Respect des données personnelles</strong><p>Renseignez uniquement les informations professionnelles nécessaires au suivi. N’ajoutez pas de données sensibles, de coordonnées personnelles non nécessaires ni de commentaires portant un jugement sur une personne. Ces informations peuvent être consultées par les autres animateurs autorisés.</p></div>
                       <div style={{display:'flex',flexDirection:'column',gap:12,minWidth:0}}>
                         <label style={{display:'flex',flexDirection:'column',gap:5,fontSize:12,fontWeight:700,color:'#334155',minWidth:0}}>
                           Nom de l'organisation *
