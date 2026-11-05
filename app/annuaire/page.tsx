@@ -136,6 +136,7 @@ export default function EspacePage() {
 
   return (
     <div className="container" style={{ maxWidth: 700 }}>
+      <aside style={{background:"#F0F5FF",padding:14,borderRadius:10,marginBottom:16,fontSize:13,lineHeight:1.6}}><strong>Annuaire des animateurs</strong><p>Réservé aux membres autorisés du réseau. Les fiches présentent l’identité, la biographie et les compétences ; l’email et le téléphone sont facultatifs. Ces informations sont destinées à la collaboration professionnelle. Leur extraction massive, leur diffusion hors du réseau et leur utilisation pour des sollicitations commerciales non autorisées sont interdites.</p></aside>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: 12 }}>
         <div>
           <div style={{ fontSize: 13, color: 'var(--text2)', marginBottom: 4 }}>
