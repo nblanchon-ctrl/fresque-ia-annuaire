@@ -158,6 +158,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
+          <aside style={{background:"#F0F5FF",padding:13,borderRadius:9,marginBottom:15,fontSize:13}}><strong>Visibilité de vos coordonnées</strong><p>Votre adresse email et votre numéro de téléphone sont facultatifs. Si vous les renseignez, ils seront visibles par les autres animateurs autorisés à consulter l’annuaire. Vous pouvez les modifier ou les retirer à tout moment.</p></aside>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <div className="form-group">
               <label className="form-label">{t('dashboard.fullName')}</label>
