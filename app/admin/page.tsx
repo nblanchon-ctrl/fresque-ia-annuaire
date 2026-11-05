@@ -19,6 +19,8 @@ function generatePassword() {
 export default function AdminPage() {
   const { t, lang } = useLanguage()
   const [animateurs, setAnimateurs] = useState<Animateur[]>([])
+  const [acceptances,setAcceptances]=useState<{user_id:string;version:string;accepted_at:string}[]>([])
+  const [acceptError,setAcceptError]=useState('')
   const [me, setMe] = useState<Animateur | null>(null)
   const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -51,6 +53,9 @@ export default function AdminPage() {
       setMe(meData)
       const { data } = await supabase.from('animateurs').select('*').order('nom')
       setAnimateurs(data || [])
+      const accepted=await supabase.from('animateur_cgu_acceptations').select('user_id,version,accepted_at')
+      if(accepted.error)setAcceptError(accepted.error.message)
+      else setAcceptances(accepted.data || [])
       setLoading(false)
     }
     load()
@@ -217,6 +222,7 @@ export default function AdminPage() {
         <span className="stat-pill"><strong>{emailsAvec.length}</strong> {t('admin.emailsAvailable')}</span>
       </div>
 
+      <div className="card" style={{ marginBottom: '1.25rem' }}><h2 style={{fontSize:18,marginBottom:8}}>Suivi des acceptations des CGU</h2><p style={{fontSize:13}}>Version en vigueur : 2026-11-05-v1 · {acceptances.filter(a=>a.version==='2026-11-05-v1').length} acceptation(s) sur {animateurs.length} animateur(s).</p>{acceptError?<p style={{color:'#B91C1C'}}>Erreur de lecture : {acceptError}</p>:<div style={{overflowX:'auto'}}><table style={{width:'100%',fontSize:13}}><thead><tr><th align="left">Animateur</th><th align="left">Statut</th><th align="left">Date d’acceptation</th></tr></thead><tbody>{animateurs.map(a=>{const entry=acceptances.find(x=>x.user_id===a.id&&x.version==='2026-11-05-v1');return <tr key={a.id}><td style={{padding:6}}>{a.nom}</td><td>{entry?'Accepté':'En attente'}</td><td>{entry?new Date(entry.accepted_at).toLocaleString('fr-FR'):'—'}</td></tr>})}</tbody></table></div>}</div>
       <div className="card" style={{ marginBottom: '1.25rem' }}>
         <div style={{ fontSize: 15, fontWeight: 500, marginBottom: 4 }}>{t('admin.exports')}</div>
         <div style={{ fontSize: 13, color: 'var(--text2)', marginBottom: '1rem' }}>{t('admin.exportsHint')}</div>
