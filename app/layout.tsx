@@ -1,7 +1,7 @@
 'use client'
 import './globals.css'
 import { LanguageProvider } from '@/lib/i18n'
-import HelpTour from './components/HelpTour'
+import LegalGate from '@/app/components/LegalGate'
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -46,8 +46,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }
         `}} />
         <LanguageProvider>
-          {children}
-          <HelpTour />
+          <LegalGate>{children}</LegalGate>
+          <footer style={{textAlign:"center",padding:"22px 12px",fontSize:12}}><a href="/legal/cgu">CGU</a> · <a href="/legal/confidentialite">Confidentialité espace animateurs</a> · <a href="/legal/confidentialite-galances">Confidentialité Galances</a></footer>
         </LanguageProvider>
       </body>
     </html>
