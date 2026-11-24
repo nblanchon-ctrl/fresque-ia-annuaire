@@ -161,7 +161,7 @@ export default function AdminPage() {
     const controller = new AbortController()
     const timer = window.setTimeout(() => controller.abort(), 20000)
     try {
-      const { data: { session }, error } = await supabase.auth.getSession()
+      const { data: { session }, error } = await supabase.auth.refreshSession()
       if (error || !session) throw new Error('Session expirée. Reconnectez-vous.')
       const res = await fetch('/admin/reset-password', {
         method: 'POST',
