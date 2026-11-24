@@ -23,16 +23,30 @@ export async function POST(req: NextRequest) {
       { auth: { persistSession: false, autoRefreshToken: false } }
     )
 
-    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token)
-    if (authError || !user) return NextResponse.json({ error: 'Session invalide ou expirée.' }, { status: 401 })
+    // Vérifier le JWT utilisateur avec la clé publique du même projet.
+    const supabaseAuth = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } }
+    )
+    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser(token)
+    if (authError || !user) {
+      const code = authError?.code || 'unknown'
+      console.error('Password reset: auth verification failed', { code, status: authError?.status })
+      return NextResponse.json({ error: `Vérification de session impossible (${code}, HTTP ${authError?.status || 401}).` }, { status: 401 })
+    }
     // Vérifier que le demandeur est bien admin
-    const { data: requester } = await supabaseAdmin
+    const { data: requester, error: roleError } = await supabaseAdmin
       .from('animateurs')
       .select('is_admin')
       .eq('id', user.id)
       .single()
 
-    if (!requester?.is_admin) {
+    if (roleError) {
+      console.error('Password reset: role lookup failed', { code: roleError.code })
+      return NextResponse.json({ error: `Vérification des droits impossible (${roleError.code}).` }, { status: 503 })
+    }
+    if (requester?.is_admin !== true) {
       return NextResponse.json({ error: 'Accès refusé.' }, { status: 403 })
     }
 
