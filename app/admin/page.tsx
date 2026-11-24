@@ -13,7 +13,7 @@ const REGIONS = [
 
 function generatePassword() {
   const chars = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789'
-  return Array.from({ length: 10 }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
+  return Array.from(crypto.getRandomValues(new Uint32Array(16)), n => chars[n % chars.length]).join('')
 }
 
 export default function AdminPage() {
@@ -158,14 +158,26 @@ export default function AdminPage() {
     }
     setPwdSaving(true)
     setPwdError('')
-    const res = await fetch('/api/admin/reset-password', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: pwdModal.id, newPassword: newPwd, requesterId: me.id })
-    })
-    const data = await res.json()
-    if (!res.ok || data.error) { setPwdError(data.error || 'Erreur.') } else { setPwdDone(true) }
-    setPwdSaving(false)
+    const controller = new AbortController()
+    const timer = window.setTimeout(() => controller.abort(), 20000)
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession()
+      if (error || !session) throw new Error('Session expirée. Reconnectez-vous.')
+      const res = await fetch('/admin/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ userId: pwdModal.id, newPassword: newPwd }),
+        signal: controller.signal
+      })
+      const data = await res.json().catch(() => null)
+      if (!res.ok || !data?.success) throw new Error(data?.error || `Erreur serveur (${res.status}).`)
+      setPwdDone(true)
+    } catch (err) {
+      setPwdError(controller.signal.aborted ? 'Délai dépassé : résultat incertain. Vérifiez avant de réessayer.' : err instanceof Error ? err.message : 'Erreur réseau.')
+    } finally {
+      window.clearTimeout(timer)
+      setPwdSaving(false)
+    }
   }
 
   const sendMailWithPassword = () => {
@@ -427,12 +439,12 @@ export default function AdminPage() {
                   <label className="form-label">{lang === 'en' ? 'New password *' : 'Nouveau mot de passe *'}</label>
                   <div style={{ display: 'flex', gap: 8 }}>
                     <input className="form-input" style={{ flex: 1, fontFamily: 'monospace', fontSize: 15, letterSpacing: 1 }}
-                      value={newPwd} onChange={e => setNewPwd(e.target.value)} />
-                    <button type="button" className="btn btn-sm" onClick={() => setNewPwd(generatePassword())} title="Générer">🔄</button>
+                      disabled={pwdSaving} value={newPwd} onChange={e => setNewPwd(e.target.value)} />
+                    <button type="button" className="btn btn-sm" disabled={pwdSaving} onClick={() => setNewPwd(generatePassword())} title="Générer">🔄</button>
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                  <button className="btn" onClick={() => setPwdModal(null)}>{t('common.cancel')}</button>
+                  <button className="btn" disabled={pwdSaving} onClick={() => setPwdModal(null)}>{t('common.cancel')}</button>
                   <button className="btn btn-primary" onClick={handleSetPassword} disabled={pwdSaving}>
                     {pwdSaving ? '…' : (lang === 'en' ? 'Set password' : 'Définir le mot de passe')}
                   </button>
