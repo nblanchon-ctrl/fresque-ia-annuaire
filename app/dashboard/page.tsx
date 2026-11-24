@@ -29,6 +29,8 @@ export default function DashboardPage() {
   const [uploading, setUploading] = useState(false)
   const [loading, setLoading] = useState(true)
   const [showPwd, setShowPwd] = useState(false)
+  const [currentPwd, setCurrentPwd] = useState('')
+  const [visiblePwd, setVisiblePwd] = useState(false)
   const [pwd, setPwd] = useState('')
   const [pwdConfirm, setPwdConfirm] = useState('')
   const [pwdError, setPwdError] = useState('')
@@ -107,15 +109,23 @@ export default function DashboardPage() {
       return
     }
     setPwdLoading(true)
-    const { error } = await supabase.auth.updateUser({ password: pwd })
-    if (error) {
-      setPwdError(error.message)
-    } else {
+    try {
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      if (userError || !user?.email) throw new Error('Session invalide ou compte sans email de connexion.')
+      const { data, error: verifyError } = await supabase.auth.signInWithPassword({ email: user.email, password: currentPwd })
+      if (verifyError || data.user?.id !== user.id) throw new Error(lang === 'en' ? 'Current password verification failed.' : 'Impossible de vérifier le mot de passe actuel.')
+      const { error } = await supabase.auth.updateUser({ password: pwd })
+      if (error) throw error
       setPwdSuccess(true)
+      setCurrentPwd('')
       setPwd('')
       setPwdConfirm('')
+      setVisiblePwd(false)
+    } catch (err) {
+      setPwdError(err instanceof Error ? err.message : 'Erreur lors de la modification.')
+    } finally {
+      setPwdLoading(false)
     }
-    setPwdLoading(false)
   }
 
   if (loading) return <div className="container"><div className="empty"><p>{t('common.loading')}</p></div></div>
@@ -259,8 +269,10 @@ export default function DashboardPage() {
               </div>
             )}
           </div>
-          <button className="btn btn-sm" onClick={() => {
+          <button className="btn btn-sm" disabled={pwdLoading} onClick={() => {
             setShowPwd(v => !v)
+            setCurrentPwd('')
+            setVisiblePwd(false)
             setPwdError('')
             setPwdSuccess(false)
             setPwd('')
@@ -281,17 +293,22 @@ export default function DashboardPage() {
               </div>
             )}
             <div className="form-group">
+              <label className="form-label">{lang === 'en' ? 'Current password' : 'Mot de passe actuel'}</label>
+              <input className="form-input" type={visiblePwd ? 'text' : 'password'} value={currentPwd} onChange={e => setCurrentPwd(e.target.value)} required autoComplete="current-password" disabled={pwdLoading} />
+            </div>
+            <label style={{ display: 'block', marginBottom: 12 }}><input type="checkbox" checked={visiblePwd} onChange={e => setVisiblePwd(e.target.checked)} /> {lang === 'en' ? 'Show passwords' : 'Afficher les mots de passe'}</label>
+            <div className="form-group">
               <label className="form-label">
                 {lang === 'en' ? 'New password * (min. 8 characters)' : 'Nouveau mot de passe * (8 car. min.)'}
               </label>
-              <input className="form-input" type="password" value={pwd}
+              <input className="form-input" type={visiblePwd ? "text" : "password"} disabled={pwdLoading} value={pwd}
                 onChange={e => setPwd(e.target.value)} required autoComplete="new-password" />
             </div>
             <div className="form-group">
               <label className="form-label">
                 {lang === 'en' ? 'Confirm new password *' : 'Confirmer le nouveau mot de passe *'}
               </label>
-              <input className="form-input" type="password" value={pwdConfirm}
+              <input className="form-input" type={visiblePwd ? "text" : "password"} disabled={pwdLoading} value={pwdConfirm}
                 onChange={e => setPwdConfirm(e.target.value)} required autoComplete="new-password" />
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
